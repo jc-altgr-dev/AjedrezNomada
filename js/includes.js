@@ -4,6 +4,6 @@ function loadInclude(id, file) {
     .then(res => res.text())
     .then(data => document.getElementById(id).innerHTML = data);
 }
-loadInclude("header", "../includes/header.html");
-loadInclude("footer", "../includes/footer.html");
+loadInclude("header", "../AjedrezNomada/includes/header.html");
+loadInclude("footer", "../AjedrezNomada/includes/footer.html");
 
