@@ -1,21 +1,75 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Club de Ajedrez - Inicio</title>
-  <link rel="stylesheet" href="AjedrezNomada/css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Ajedrecista</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .about, .links {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .links ul {
+            list-style: none;
+            padding: 0;
+        }
+        .links ul li {
+            margin: 10px 0;
+        }
+        .links ul li a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #333;
+            color: white;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div id="header"></div>
-
-  <main>
-    <h1>Bienvenido al Club de Ajedrez</h1>
-    <p>Este es el sitio oficial de nuestro club. Aquí encontrarás información sobre torneos, afiliados, acertijos e historia.</p>
-  </main>
-
-  <div id="footer"></div>
-  <script src="AjedrezNomada/js/includes.js"></script>
+    <header>
+        <h1>Nombre del Ajedrecista</h1>
+        <p>Maestro de ajedrez | Instructor | Competidor</p>
+    </header>
+    
+    <section class="about">
+        <h2>Sobre mí</h2>
+        <p>Breve descripción sobre tu trayectoria en el ajedrez, logros y filosofía de juego.</p>
+    </section>
+    
+    <section class="links">
+        <h2>Explora</h2>
+        <ul>
+            <li><a href="torneos/torneos.html">Torneos</a></li>
+            <li><a href="clases.html">Clases</a></li>
+            <li><a href="acertijos.html">Acertijos</a></li>
+            <li><a href="historia.html">Historia del Club</a></li>
+        </ul>
+    </section>
+    
+    <footer>
+        <p>&copy; 2025 Nombre del Ajedrecista - Todos los derechos reservados</p>
+    </footer>
 </body>
 </html>
-
