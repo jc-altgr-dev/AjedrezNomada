@@ -1,57 +1,139 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
-}
-nav ul {
-  display: flex;
-  list-style: none;
-  background: #222;
-  padding: 10px;
-  margin: 0;
-  justify-content: center;
-}
-nav ul li {
-  margin: 0 15px;
-}
-nav ul li a {
-  color: #fff;
-  text-decoration: none;
-}
-nav ul li a:hover {
-  text-decoration: underline;
-}
-footer {
-  background: #222;
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  position: relative;
-  bottom: 0;
-  width: 100%;
-}
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 20px auto;
-  max-width: 600px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.card h2 {
-  margin-top: 0;
-}
-.acertijo {
-  margin: 20px auto;
-  padding: 16px;
-  max-width: 600px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.acertijo input {
-  padding: 8px;
-  margin-right: 10px;
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+:root {
+    --color-primary: #2c3e50;
+    --color-secondary: #3498db;
+    --color-background: #f4f4f4;
+    --color-text: #333;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--color-text);
+    background-color: var(--color-background);
+}
+
+.hero {
+    position: relative;
+    height: 100vh;
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../img/imagen1.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+.hero-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 15px;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+    background-color: rgba(44, 62, 80, 0.9);
+    z-index: 1000;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: var(--color-secondary);
+}
+
+section {
+    padding: 4rem 10%;
+    text-align: center;
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: var(--color-secondary);
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #2980b9;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    height: 50px; /* Altura fija para el contenedor del logo */
+}
+
+.logo img {
+    max-height: 100%; /* Ocupa toda la altura del contenedor */
+    width: auto; /* Mantiene la proporción */
+    max-width: 200px; /* Ancho máximo */
+    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsionarse */
+}
+
+/* Para dispositivos más pequeños */
+@media screen and (max-width: 768px) {
+    .logo {
+        height: 40px; /* Altura ligeramente menor en móviles */
+    }
+    
+    .logo img {
+        max-width: 150px; /* Ancho máximo más pequeño en móviles */
+    }
+}
+
+footer {
+    background-color: var(--color-primary);
+    color: white;
+    text-align: center;
+    padding: 2rem;
+}
+
+.social-links a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+@media screen and (max-width: 768px) {
+    nav {
+        flex-direction: column;
+    }
+    
+    nav ul {
+        margin-top: 1rem;
+    }
+}

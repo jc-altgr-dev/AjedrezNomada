@@ -3,73 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil de Ajedrecista</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        header {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        .about, .links {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .links ul {
-            list-style: none;
-            padding: 0;
-        }
-        .links ul li {
-            margin: 10px 0;
-        }
-        .links ul li a {
-            text-decoration: none;
-            color: #007BFF;
-            font-weight: bold;
-        }
-        footer {
-            text-align: center;
-            padding: 10px;
-            background: #333;
-            color: white;
-            margin-top: 20px;
-        }
-    </style>
+    <title>Club de Ajedrez - Maestros del Tablero</title>
+    <meta name="description" content="Club de ajedrez dedicado a promover y enseñar este fascinante juego de estrategia para todas las edades y niveles.">
+    <meta name="keywords" content="ajedrez, club de ajedrez, torneos, aprendizaje, estrategia">
+    <meta name="author" content="Maestros del Tablero">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="canonical" href="https://www.tuclubdeajedrez.com">
 </head>
 <body>
     <header>
-        <h1>Nombre del Ajedrecista</h1>
-        <p>Maestro de ajedrez | Instructor | Competidor</p>
+        <nav>
+            <div class="logo">
+                <img src="img/logo.png" alt="Logo del Club de Ajedrez">
+            </div>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#nosotros">Nosotros</a></li>
+                <li><a href="#actividades">Actividades</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="torneos.html">Torneos</a></li>
+            </ul>
+        </nav>
     </header>
-    
-    <section class="about">
-        <h2>Sobre mí</h2>
-        <p>Breve descripción sobre tu trayectoria en el ajedrez, logros y filosofía de juego.</p>
-    </section>
-    
-    <section class="links">
-        <h2>Explora</h2>
-        <ul>
-            <li><a href="torneos/torneos.html">Torneos</a></li>
-            <li><a href="clases.html">Clases</a></li>
-            <li><a href="acertijos.html">Acertijos</a></li>
-            <li><a href="historia.html">Historia del Club</a></li>
-        </ul>
-    </section>
-    
+
+    <main>
+        <section id="inicio" class="hero">
+            <div class="hero-content">
+                <h1>Maestros del Tablero</h1>
+                <p>Descubre el arte del ajedrez con nosotros</p>
+                <a href="#actividades" class="cta-button">Únete Ahora</a>
+            </div>
+        </section>
+
+        <section id="nosotros" class="about">
+            <div class="section-content">
+                <h2>Quiénes Somos</h2>
+                <p>Somos una comunidad apasionada por el ajedrez, dedicada a enseñar, aprender y disfrutar de este milenario juego de estrategia.</p>
+                <img src="img/grupo.jpg" alt="Miembros del Club de Ajedrez">
+            </div>
+        </section>
+
+        <section id="actividades" class="activities">
+            <div class="section-content">
+                <h2>Nuestras Actividades</h2>
+                <ul>
+                    <li>Clases para principiantes</li>
+                    <li>Torneos mensuales</li>
+                    <li>Entrenamiento avanzado</li>
+                    <li>Eventos especiales</li>
+                </ul>
+                <a href="actividades.html" class="link">Ver Más Actividades</a>
+            </div>
+        </section>
+
+        <section id="contacto" class="contact">
+            <div class="section-content">
+                <h2>Contáctanos</h2>
+                <form>
+                    <input type="text" placeholder="Nombre" required>
+                    <input type="email" placeholder="Correo Electrónico" required>
+                    <textarea placeholder="Tu Mensaje"></textarea>
+                    <button type="submit">Enviar</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
     <footer>
-        <p>&copy; 2025 Nombre del Ajedrecista - Todos los derechos reservados</p>
+        <div class="social-links">
+            <a href="#">Facebook</a>
+            <a href="#">Instagram</a>
+            <a href="#">Twitter</a>
+        </div>
+        <p>&copy; 2024 Maestros del Tablero. Todos los derechos reservados.</p>
     </footer>
 </body>
 </html>
