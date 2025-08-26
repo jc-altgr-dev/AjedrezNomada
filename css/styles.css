@@ -13,6 +13,8 @@
     box-sizing: border-box;
 }
 
+
+
 body {
     font-family: 'Roboto', sans-serif;
     line-height: 1.6;
@@ -53,8 +55,13 @@ nav {
 }
 
 nav ul {
-    display: flex;
     list-style: none;
+    display: flex;        /* organiza los <li> en fila */
+    flex: 1 1 auto;       /* ← ocupa espacio disponible */
+    min-width: 0;
+    overflow-y: hidden;
+    overflow-x: auto;     /* activa el scroll horizontal */
+    white-space: nowrap;  /* evita que los items se bajen a otra línea */
 }
 
 nav ul li {
