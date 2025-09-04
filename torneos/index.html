@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultados de Torneos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f8f9fa;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #searchInput {
+      display: block;
+      margin: 0 auto 15px;
+      padding: 8px;
+      width: 60%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      cursor: pointer;
+      background: #2c3e50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Resultados de Torneos</h1>
+
+  <!-- Barra de búsqueda -->
+  <input type="text" id="searchInput" placeholder="Buscar jugador...">
+
+  <!-- Tabla dinámica -->
+  <table id="tablaResultados">
+    <thead>
+      <tr>
+        <th>Paterno</th>
+        <th>Materno</th>
+        <th>Nombre</th>
+        <th>Sexo</th>
+        <th>RFC</th>
+        <th>Domicilio</th>
+        <th>Teléfono</th>
+        <th>Asociación</th>
+        <th>Club</th>
+        <th>Actividad</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Se llena dinámicamente desde JS -->
+    </tbody>
+  </table>
+
+  <script>
+    // 📌 Datos de ejemplo
+    const jugadores = [
+      {
+        paterno: "López",
+        materno: "Martínez",
+        nombre: "Carlos",
+        sexo: "M",
+        rfc: "LOMC800101",
+        domicilio: "CDMX",
+        telefono: "5551234567",
+        asociacion: "FENAMAC",
+        club: "Club Ajedrez Central",
+        actividad: "Jugador"
+      },
+      {
+        paterno: "Hernández",
+        materno: "García",
+        nombre: "María",
+        sexo: "F",
+        rfc: "HEGM850202",
+        domicilio: "Puebla",
+        telefono: "2229876543",
+        asociacion: "FENAMAC",
+        club: "Club Peón de Oro",
+        actividad: "Árbitro"
+      }
+    ];
+
+    const tabla = document.querySelector("#tablaResultados tbody");
+
+    // Renderizar tabla
+    function renderTabla(data) {
+      tabla.innerHTML = "";
+      data.forEach(jugador => {
+        const fila = `
+          <tr>
+            <td>${jugador.paterno}</td>
+            <td>${jugador.materno}</td>
+            <td>${jugador.nombre}</td>
+            <td>${jugador.sexo}</td>
+            <td>${jugador.rfc}</td>
+            <td>${jugador.domicilio}</td>
+            <td>${jugador.telefono}</td>
+            <td>${jugador.asociacion}</td>
+            <td>${jugador.club}</td>
+            <td>${jugador.actividad}</td>
+          </tr>
+        `;
+        tabla.innerHTML += fila;
+      });
+    }
+
+    // Búsqueda instantánea
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+      const query = this.value.toLowerCase();
+      const filtrados = jugadores.filter(j =>
+        Object.values(j).some(val =>
+          String(val).toLowerCase().includes(query)
+        )
+      );
+      renderTabla(filtrados);
+    });
+
+    // Ordenar columnas al hacer clic
+    document.querySelectorAll("th").forEach((th, index) => {
+      th.addEventListener("click", () => {
+        const ordenado = [...jugadores].sort((a, b) => {
+          const keys = Object.keys(a);
+          return String(a[keys[index]]).localeCompare(String(b[keys[index]]));
+        });
+        renderTabla(ordenado);
+      });
+    });
+
+    // Inicializar tabla
+    renderTabla(jugadores);
+  </script>
+</body>
+</html>
+
