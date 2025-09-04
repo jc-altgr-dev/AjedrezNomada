@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Academia de Ajedrez – Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --brand:#1b254f;          /* primario (azul marino) */
+      --brand-2:#f1b24a;        /* acento (dorado) */
+      --ink:#1d2433;            /* texto principal */
+      --muted:#64748b;          /* texto secundario */
+      --bg:#0b1226;             /* fondo hero oscuro */
+      --card:#ffffff;           /* tarjetas */
+      --soft:#eef2f8;           /* gris suave */
+      --radius:18px;            /* radio global */
+      --shadow:0 12px 30px rgba(10,20,50,.12);
+      --shadow-sm:0 6px 18px rgba(10,20,50,.10);
+      --container:1180px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);line-height:1.6;background:#fafbff}
+    img{max-width:100%;display:block}
+
+    /* utilidades */
+    .container{max-width:var(--container);margin:0 auto;padding:0 20px}
+    .btn{display:inline-block;padding:14px 22px;border-radius:calc(var(--radius) - 6px);text-decoration:none;font-weight:600}
+    .btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-sm)}
+    .btn-primary:hover{filter:brightness(1.05)}
+    .btn-ghost{border:2px solid #fff;color:#fff}
+    .pill{display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:999px;color:#fff;font-size:13px}
+
+    /* encabezado */
+    header.nav{position:sticky;top:0;z-index:50;background:#ffffffc7;backdrop-filter:saturate(160%) blur(6px);border-bottom:1px solid #e8ecf4}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--brand);letter-spacing:.2px}
+    .logo svg{width:28px;height:28px}
+    .nav-links{display:flex;gap:22px}
+    .nav-links a{color:#0f172a;text-decoration:none;font-weight:500}
+    .nav-cta{display:flex;gap:10px;align-items:center}
+
+    /* HERO */
+    .hero{position:relative;background:radial-gradient(100% 120% at 10% 10%, #0f1b44 0%, #0b1226 60%, #0b1226 100%);color:#fff;overflow:hidden}
+    .hero::after{content:"";position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1541257710737-06d667133a53?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;opacity:.18;mix-blend:screen}
+    .hero-inner{position:relative;z-index:1;padding:90px 0}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center}
+    .kicker{margin-bottom:14px}
+    .hero h1{font-family:Lora,serif;font-size:48px;line-height:1.1;margin:0 0 18px}
+    .hero p{color:#d0d8ff;font-size:18px;margin:0 0 26px}
+    .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+    .hero-card{background:rgba(14,22,52,.6);border:1px solid rgba(255,255,255,.12);padding:20px;border-radius:var(--radius);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+    .hero-badges{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px}
+    .badge{background:#0e1a3b;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:8px 12px;font-size:13px;color:#cdd7ff}
+
+    /* BENEFICIOS */
+    section{padding:70px 0}
+    .section-title{font-size:34px;margin:0 0 10px}
+    .section-sub{color:var(--muted);max-width:720px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:30px}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+    .icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(27,37,79,.08);color:var(--brand);font-size:22px;margin-bottom:12px}
+
+    /* SOBRE */
+    .about{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}
+    .about .photo{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+    .list{display:grid;gap:10px;margin:18px 0 0;padding:0;list-style:none}
+    .list li{display:flex;gap:10px;align-items:flex-start}
+
+    /* PRECIOS */
+    .pricing{background:linear-gradient(180deg,#f7f9ff 0%, #ffffff 100%)}
+    .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:30px}
+    .plan{padding:26px;border-radius:var(--radius);background:#fff;box-shadow:var(--shadow);border:1px solid #e9eef8}
+    .plan.featured{border:2px solid var(--brand);transform:translateY(-6px)}
+    .price{font-size:38px;font-weight:700;margin:6px 0 12px;color:var(--brand)}
+    .plan ul{padding:0;margin:16px 0 18px;list-style:none;display:grid;gap:10px}
+    .plan ul li{display:flex;gap:10px}
+
+    /* TESTIMONIOS */
+    .testimonials{background:#0e1530 url('https://images.unsplash.com/photo-1582376795585-cd6a3dfd4504?q=80&w=1200&auto=format&fit=crop') center/cover no-repeat fixed;color:#fff;position:relative}
+    .testimonials::before{content:"";position:absolute;inset:0;background:rgba(11,18,38,.75)}
+    .testimonials .container{position:relative;z-index:1}
+    .t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px}
+    .t{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);padding:22px;border-radius:var(--radius);backdrop-filter:blur(4px)}
+    .t small{opacity:.9}
+
+    /* FORM */
+    .enroll{background:linear-gradient(180deg,#ffffff 0%, #f7f9ff 100%)}
+    form{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+    .full{grid-column:1 / -1}
+    input,select,textarea{width:100%;padding:14px 14px;border-radius:12px;border:1px solid #d9e2f1;background:#fff;outline:0;font:inherit}
+    textarea{min-height:110px}
+
+    /* FOOTER */
+    footer{background:#0b1226;color:#cbd5e1;padding:40px 0}
+    footer .columns{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:20px}
+    footer a{color:#cbd5e1;text-decoration:none}
+    .copyright{border-top:1px solid rgba(255,255,255,.1);margin-top:26px;padding-top:16px;color:#9fb0d1}
+
+    /* RESPONSIVE */
+    @media (max-width: 980px){
+      .hero-grid{grid-template-columns:1fr}
+      .about{grid-template-columns:1fr}
+      .grid-3,.plans,.t-grid, footer .columns{grid-template-columns:1fr}
+      form{grid-template-columns:1fr}
+      .hero-inner{padding:70px 0}
+      .hero h1{font-size:38px}
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="logo" aria-label="Logo Academia de Ajedrez">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 21h10M9 17h6m-7.5-7.5L12 4l4.5 5.5V12H7.5V9.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Academia Ajedrez
+      </div>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="#beneficios">Beneficios</a>
+        <a href="#sobre">Nosotros</a>
+        <a href="#precios">Planes</a>
+        <a href="#testimonios">Testimonios</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn btn-primary" href="#inscripcion">Inscribirme</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" aria-label="Encabezado hero">
+    <div class="container hero-inner">
+      <div class="hero-grid">
+        <div>
+          <span class="pill kicker">♟️ Programa integral · Principiantes a intermedios</span>
+          <h1>Aprende ajedrez <br/>de cero a competitivo</h1>
+          <p>Clases en vivo, material descargable, comunidad privada y torneos internos. Progresión por módulos con retos prácticos y soporte de instructores.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#precios">Ver planes</a>
+            <a class="btn btn-ghost" href="#beneficios">Explorar</a>
+          </div>
+          <div class="hero-badges" aria-label="Beneficios destacados">
+            <span class="badge">🧠 Entrenamiento cognitivo</span>
+            <span class="badge">🎯 Rutas guiadas</span>
+            <span class="badge">🌐 Acceso 24/7</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1529694157877-5fd9c2b93f47?q=80&w=900&auto=format&fit=crop" alt="Tablero de ajedrez" style="border-radius:var(--radius)">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS -->
+  <section id="beneficios" class="container" aria-labelledby="beneficios-title">
+    <h2 class="section-title" id="beneficios-title">Beneficios del programa</h2>
+    <p class="section-sub">Un enfoque moderno inspirado en la metodología de grandes maestros: teoría clara, práctica guiada y feedback continuo.</p>
+    <div class="grid-3">
+      <article class="card">
+        <div class="icon">♞</div>
+        <h3>Fundamentos sólidos</h3>
+        <p>Desde reglas y tácticas básicas hasta principios posicionales que elevan tu juego.</p>
+      </article>
+      <article class="card">
+        <div class="icon">🧩</div>
+        <h3>Ejercicios interactivos</h3>
+        <p>Retos diarios con soluciones comentadas y archivos PGN descargables.</p>
+      </article>
+      <article class="card">
+        <div class="icon">🎥</div>
+        <h3>Clases en vivo + grabadas</h3>
+        <p>Sesiones semanales y biblioteca on‑demand para aprender a tu ritmo.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- SOBRE NOSOTROS -->
+  <section id="sobre" class="container" aria-labelledby="sobre-title">
+    <div class="about">
+      <div class="photo">
+        <img src="https://images.unsplash.com/photo-1614275290879-85ff6c90e9f9?q=80&w=1200&auto=format&fit=crop" alt="Entrenador de ajedrez con alumnos"/>
+      </div>
+      <div>
+        <h2 class="section-title" id="sobre-title">Entrena con nuestro equipo</h2>
+        <p class="section-sub">Más de 10 años formando jugadores: enfoque humano, estructura profesional y pasión por el tablero.</p>
+        <ul class="list">
+          <li>✅ Planes por niveles: Cero, Principiante, Intermedio.</li>
+          <li>✅ Análisis de partidas y reportes de progreso.</li>
+          <li>✅ Comunidad en Discord + torneos internos mensuales.</li>
+        </ul>
+        <div style="margin-top:18px">
+          <a class="btn btn-primary" href="#inscripcion">Unirme ahora</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRECIOS -->
+  <section id="precios" class="pricing" aria-labelledby="precios-title">
+    <div class="container">
+      <h2 class="section-title" id="precios-title">Planes y precios</h2>
+      <p class="section-sub">Elige el plan que mejor se ajuste a tus objetivos. Puedes cambiar o cancelar cuando quieras.</p>
+      <div class="plans">
+        <div class="plan">
+          <h3>Básico</h3>
+          <div class="price">$9<span style="font-size:16px;font-weight:600">/mes</span></div>
+          <ul>
+            <li>✔️ Módulos nivel cero</li>
+            <li>✔️ Biblioteca de videos</li>
+            <li>✔️ Retos semanales</li>
+          </ul>
+          <a class="btn btn-primary" href="#inscripcion">Elegir Básico</a>
+        </div>
+        <div class="plan featured">
+          <div class="pill" style="background:rgba(27,37,79,.08);color:var(--brand);border:1px solid #d1daf1;margin-bottom:10px">Recomendado</div>
+          <h3>Intermedio</h3>
+          <div class="price">$19<span style="font-size:16px;font-weight:600">/mes</span></div>
+          <ul>
+            <li>✔️ Todo del Básico</li>
+            <li>✔️ Clases en vivo semanales</li>
+            <li>✔️ Análisis de partidas</li>
+          </ul>
+          <a class="btn btn-primary" href="#inscripcion">Elegir Intermedio</a>
+        </div>
+        <div class="plan">
+          <h3>Premium</h3>
+          <div class="price">$39<span style="font-size:16px;font-weight:600">/mes</span></div>
+          <ul>
+            <li>✔️ Todo del Intermedio</li>
+            <li>✔️ Coaching 1:1 mensual</li>
+            <li>✔️ Torneos internos y premios</li>
+          </ul>
+          <a class="btn btn-primary" href="#inscripcion">Elegir Premium</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIOS -->
+  <section id="testimonios" class="testimonials" aria-labelledby="testimonios-title">
+    <div class="container">
+      <h2 class="section-title" id="testimonios-title" style="color:#fff">Lo que dicen nuestros alumnos</h2>
+      <div class="t-grid">
+        <figure class="t">
+          <blockquote>“Pasé de no saber mover piezas a competir en torneos escolares en 3 meses.”</blockquote>
+          <figcaption><small>— Ana P. · Principiante</small></figcaption>
+        </figure>
+        <figure class="t">
+          <blockquote>“Las clases en vivo y los análisis de partidas me cambiaron la forma de pensar.”</blockquote>
+          <figcaption><small>— Carlos R. · Intermedio</small></figcaption>
+        </figure>
+        <figure class="t">
+          <blockquote>“El plan Premium vale cada peso por el 1:1. Mejoré +250 Elo en 6 meses.”</blockquote>
+          <figcaption><small>— Sofía L. · Premium</small></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSCRIPCIÓN -->
+  <section id="inscripcion" class="enroll" aria-labelledby="inscripcion-title">
+    <div class="container">
+      <h2 class="section-title" id="inscripcion-title">Inscríbete ahora</h2>
+      <p class="section-sub">Completa tus datos y te enviaremos el acceso. Los pagos se integran fácilmente con Stripe, PayPal o MercadoPago en WordPress.</p>
+      <form>
+        <label>
+          <span>Nombre</span>
+          <input type="text" placeholder="Tu nombre" required>
+        </label>
+        <label>
+          <span>Correo</span>
+          <input type="email" placeholder="tucorreo@ejemplo.com" required>
+        </label>
+        <label class="full">
+          <span>Plan</span>
+          <select>
+            <option>Básico</option>
+            <option>Intermedio (Recomendado)</option>
+            <option>Premium</option>
+          </select>
+        </label>
+        <label class="full">
+          <span>Mensaje</span>
+          <textarea placeholder="Cuéntanos tu objetivo con el ajedrez…"></textarea>
+        </label>
+        <div class="full">
+          <button class="btn btn-primary" type="submit">Enviar solicitud</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="columns">
+        <div>
+          <div class="logo" style="color:#fff"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 21h10M9 17h6m-7.5-7.5L12 4l4.5 5.5V12H7.5V9.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Academia Ajedrez</div>
+          <p style="margin:10px 0 0;max-width:520px">Formamos jugadores pensantes, creativos y resilientes. Cursos online, comunidad y torneos para todos los niveles.</p>
+        </div>
+        <div>
+          <h4>Academia</h4>
+          <ul style="list-style:none;padding:0;margin:8px 0;display:grid;gap:8px">
+            <li><a href="#beneficios">Beneficios</a></li>
+            <li><a href="#sobre">Nosotros</a></li>
+            <li><a href="#precios">Planes</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Recursos</h4>
+          <ul style="list-style:none;padding:0;margin:8px 0;display:grid;gap:8px">
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Guías PGN</a></li>
+            <li><a href="#">Calendario</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <ul style="list-style:none;padding:0;margin:8px 0;display:grid;gap:8px">
+            <li><a href="#">WhatsApp</a></li>
+            <li><a href="#">Correo</a></li>
+            <li><a href="#">Soporte</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">© 2025 Academia de Ajedrez. Todos los derechos reservados.</div>
+    </div>
+  </footer>
+
+  <script>
+    // scroll suave para experiencia similar a Divi
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click',e=>{
+        const el=document.querySelector(a.getAttribute('href'));
+        if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'})}
+      })
+    })
+  </script>
+</body>
+</html>
+
