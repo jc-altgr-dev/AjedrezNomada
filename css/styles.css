@@ -25,7 +25,7 @@ body {
 .hero {
     position: relative;
     height: 100vh;
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../img/imagen1.webp');
+    background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('../img/imagen1.webp');
     background-size: cover;
     background-position: center;
     display: flex;
