@@ -102,11 +102,29 @@
             <div class="section-content">
                 <h2>Contáctanos</h2>
                 <form action="https://formsubmit.co/enae.lasker@gmail.com" method="POST">
-                    <input type="text" placeholder="Nombre" required>
-                    <input type="email" placeholder="Correo Electrónico" required>
-                    <textarea placeholder="Tu Mensaje"></textarea>
-                    <button type="submit">Enviar</button>
-                </form>
+  <!-- Ocultos para formato bonito y quitar captcha -->
+  <input type="hidden" name="_template" value="table">
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" name="_next" value="https://enael.com.mx/gracias.html">
+
+  <label for="nombre">Nombre completo</label>
+  <input type="text" id="nombre" name="nombre" required>
+
+  <label for="email">Correo electrónico</label>
+  <input type="email" id="email" name="email" required>
+
+  <label for="categoria">Categoría</label>
+  <select id="categoria" name="categoria" required>
+    <option value="Sub-12">Sub-12</option>
+    <option value="Sub-16">Sub-16</option>
+    <option value="Adultos">Adultos</option>
+  </select>
+
+  <label for="comentarios">Comentarios</label>
+  <textarea id="comentarios" name="comentarios" rows="3"></textarea>
+
+  <button type="submit">Enviar registro</button>
+</form>
             </div>
         </section>
     </main>
