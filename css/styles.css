@@ -50,7 +50,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 5%;
-    background-color: rgba(44, 62, 80, 0.9);
+    background-color: rgba(255, 255, 255, 0.5);
     z-index: 1000;
 }
 
@@ -69,7 +69,7 @@ nav ul li {
 }
 
 nav ul li a {
-    color: white;
+    color: pink;
     text-decoration: none;
     transition: color 0.3s ease;
 }
