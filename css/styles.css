@@ -111,6 +111,13 @@ section {
     object-fit: contain; /* Asegura que la imagen se ajuste sin distorsionarse */
 }
 
+#nosotros img {
+  max-width: 100%; /* se adapta al ancho disponible */
+  height: auto;    /* mantiene la proporción */
+  display: block;  /* elimina espacio extra debajo */
+  margin: 0 auto;  /* opcional, centra si es más pequeña */
+}
+
 /* Para dispositivos más pequeños */
 @media screen and (max-width: 768px) {
     .logo {
