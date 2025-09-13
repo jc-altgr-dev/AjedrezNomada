@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard de Entrenamiento</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+    h1 { text-align: center; }
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    label { margin-right: 10px; }
+    input, select { margin: 5px; padding: 5px; }
+    .btn { padding: 10px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 6px; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-export { background: #28a745; color: white; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #343a40; color: white; }
+    .chart-container { width: 90%; margin: auto; }
+  </style>
+</head>
+<body>
+
+  <h1>Dashboard de Entrenamiento</h1>
+
+  <!-- Sección de inicio de sesión -->
+  <div id="loginCard" class="card">
+    <h3>Iniciar entrenamiento</h3>
+    <label>Jugador:</label>
+    <input type="text" id="jugadorInput" required>
+    
+    <label>Ejercicio:</label>
+    <select id="ejercicioInput">
+      <option value="Coordenadas">Coordenadas</option>
+      <option value="Racer">Racer</option>
+      <option value="Storm">Storm</option>
+      <option value="Streak">Streak</option>
+      <option value="Matein1">Matein1</option>
+      <option value="Matein2">Matein2</option>
+      <option value="Matein3">Matein3</option>
+      <option value="Matein4">Matein4</option>
+      <option value="Matein5+">Matein5+</option>
+      <option value="Puzzles">Puzzles</option>
+    </select>
+    
+    <button class="btn btn-primary" onclick="iniciarSesion()">✅ Iniciar</button>
+  </div>
+
+  <!-- Sección activa de entrenamiento -->
+  <div id="trainingCard" class="card" style="display:none;">
+    <h3 id="tituloSesion"></h3>
+    <label>Puntaje:</label>
+    <input type="number" id="puntaje" required>
+    <button class="btn btn-primary" onclick="registrarPuntaje()">➕ Registrar</button>
+    <button class="btn btn-danger" onclick="finalizarSesion()">⏹ Finalizar entrenamiento</button>
+  </div>
+
+  <!-- Botón exportar -->
+  <button class="btn btn-export" onclick="exportarPDF()">📄 Exportar a PDF</button>
+
+  <!-- Tabla de resultados -->
+  <table id="tablaEntrenamiento">
+    <thead>
+      <tr>
+        <th>Jugador</th>
+        <th>Ejercicio</th>
+        <th>Puntajes</th>
+        <th>Promedio</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Gráfica -->
+  <div class="chart-container">
+    <canvas id="graficoLinea"></canvas>
+  </div>
+
+  <script>
+    let registros = JSON.parse(localStorage.getItem("registros")) || {};
+    let jugadorActivo = null;
+    let ejercicioActivo = null;
+    let chart;
+
+    // Iniciar sesión de jugador
+    function iniciarSesion() {
+      const jugador = document.getElementById("jugadorInput").value.trim();
+      const ejercicio = document.getElementById("ejercicioInput").value;
+
+      if (jugador === "") {
+        alert("Escribe un nombre de jugador");
+        return;
+      }
+
+      jugadorActivo = jugador;
+      ejercicioActivo = ejercicio;
+
+      document.getElementById("loginCard").style.display = "none";
+      document.getElementById("trainingCard").style.display = "block";
+      document.getElementById("tituloSesion").innerText = 
+        "Entrenando: " + jugadorActivo + " en " + ejercicioActivo;
+    }
+
+    // Finalizar sesión
+    function finalizarSesion() {
+      jugadorActivo = null;
+      ejercicioActivo = null;
+
+      document.getElementById("loginCard").style.display = "block";
+      document.getElementById("trainingCard").style.display = "none";
+    }
+
+    // Registrar puntaje
+    function registrarPuntaje() {
+      const puntaje = parseInt(document.getElementById("puntaje").value);
+
+      if (!puntaje) {
+        alert("Ingresa un puntaje válido");
+        return;
+      }
+
+      if (!registros[jugadorActivo]) registros[jugadorActivo] = {};
+      if (!registros[jugadorActivo][ejercicioActivo]) registros[jugadorActivo][ejercicioActivo] = [];
+      registros[jugadorActivo][ejercicioActivo].push(puntaje);
+
+      localStorage.setItem("registros", JSON.stringify(registros));
+
+      actualizarTabla();
+      actualizarGrafico();
+      document.getElementById("puntaje").value = "";
+    }
+
+    // Actualizar tabla
+    function actualizarTabla() {
+      const tbody = document.querySelector("#tablaEntrenamiento tbody");
+      tbody.innerHTML = "";
+
+      for (let jugador in registros) {
+        for (let ejercicio in registros[jugador]) {
+          let puntajes = registros[jugador][ejercicio];
+          let promedio = (puntajes.reduce((a,b) => a+b, 0) / puntajes.length).toFixed(2);
+
+          let fila = `<tr>
+            <td>${jugador}</td>
+            <td>${ejercicio}</td>
+            <td>${puntajes.join(", ")}</td>
+            <td>${promedio}</td>
+          </tr>`;
+          tbody.innerHTML += fila;
+        }
+      }
+    }
+
+    // Actualizar gráfico
+    function actualizarGrafico() {
+      const ctx = document.getElementById("graficoLinea").getContext("2d");
+      if (chart) chart.destroy();
+
+      let jugadores = Object.keys(registros);
+      if (jugadores.length === 0) return;
+
+      let jugador = jugadores[0]; // de momento muestra el primero
+      let ejercicios = Object.keys(registros[jugador]);
+      let datasets = [];
+
+      ejercicios.forEach((ejercicio, i) => {
+        datasets.push({
+          label: `${ejercicio}`,
+          data: registros[jugador][ejercicio],
+          borderColor: `hsl(${i*60}, 70%, 50%)`,
+          fill: false
+        });
+      });
+
+      chart = new Chart(ctx, {
+        type: "line",
+        data: { labels: Array.from({length: 10}, (_,i) => i+1), datasets },
+        options: {
+          responsive: true,
+          plugins: { title: { display: true, text: "Evolución de puntajes ("+jugador+")" } }
+        }
+      });
+    }
+
+    // Exportar a PDF
+    function exportarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Reporte de Entrenamiento", 20, 20);
+      doc.autoTable({ html: "#tablaEntrenamiento" });
+      doc.save("reporte_entrenamiento.pdf");
+    }
+
+    // Inicializar
+    actualizarTabla();
+    actualizarGrafico();
+  </script>
+
+</body>
+</html>
+
