@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profesor · Academia — Nombre del Maestro</title>
+  <meta name="description" content="Ficha del profesor — Academia. Información, especialidades, horarios y contacto.">
+  <link rel="icon" href="data:," /> <!-- reemplaza con tu favicon -->
+  <style>
+    /* ------------------------
+       RESET / UTILS
+       ------------------------ */
+    :root{
+      --bg:#0f1724; /* oscuro elegante */
+      --card:#0b1220;
+      --muted:#9aa6b2;
+      --accent:#4f46e5; /* púrpura */
+      --glass: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.02);
+      --radius:14px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#071026 0%, #061426 60%);
+      color:#e6eef7;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      line-height:1.45;
+      font-size:16px;
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:focus{outline:2px solid rgba(79,70,229,0.25); outline-offset:3px}
+    img{max-width:100%; display:block}
+
+    /* ------------------------
+       LAYOUT
+       ------------------------ */
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:28px;
+      align-items:start;
+    }
+
+    @media (max-width:880px){
+      .container{grid-template-columns: 1fr; padding:0 8px}
+      .profile-card{order: -1}
+    }
+
+    /* ------------------------
+       PROFILE CARD
+       ------------------------ */
+    .profile-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:22px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    .avatar{
+      width:120px; height:120px; border-radius:18px; overflow:hidden;
+      border: 3px solid rgba(255,255,255,0.04);
+      background:linear-gradient(135deg,#0b1220,#09203a);
+      display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+    }
+    .name{
+      font-size:20px;font-weight:700;margin:0 0 6px;
+    }
+    .title{
+      font-size:13px;color:var(--muted);margin:0 0 12px;
+    }
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    .tag{
+      background:var(--glass);
+      padding:6px 10px;border-radius:999px;font-size:13px;color:var(--muted);
+      border:1px solid rgba(255,255,255,0.02)
+    }
+    .stats{
+      display:flex;gap:12px;margin-top:10px;
+    }
+    .stat{flex:1;background:var(--glass-2);padding:10px;border-radius:10px;text-align:center}
+    .stat b{display:block;font-size:18px}
+
+    /* ------------------------
+       MAIN CARD
+       ------------------------ */
+    .main-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.008));
+      padding:22px;border-radius:var(--radius);
+      border:1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 8px 24px rgba(2,6,23,0.55);
+    }
+    .section{margin-bottom:18px}
+    .section h3{margin:0 0 10px;font-size:16px}
+    .bio{color: #d6e6f4; font-size:15px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    @media (max-width:640px){ .grid-2{grid-template-columns:1fr} }
+
+    /* ------------------------
+       COURSES / SKILLS
+       ------------------------ */
+    .list{display:flex;flex-direction:column;gap:10px}
+    .course{
+      display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:var(--glass);
+      border:1px solid rgba(255,255,255,0.02)
+    }
+    .course .dot{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent), #06b6d4); display:flex;align-items:center;justify-content:center;font-weight:700}
+
+    /* ------------------------
+       SCHEDULE TABLE
+       ------------------------ */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:14px}
+    th{color:var(--muted);font-weight:600;font-size:13px}
+
+    /* ------------------------
+       CONTACT / CTA
+       ------------------------ */
+    .cta{
+      display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;
+    }
+    .btn{
+      background:linear-gradient(90deg,var(--accent), #06b6d4);
+      color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700;
+      box-shadow: 0 6px 18px rgba(79,70,229,0.12);
+    }
+    .btn.ghost{
+      background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600;
+      box-shadow:none;
+    }
+    .socials{display:flex;gap:8px;margin-top:8px}
+    .socials a{display:inline-flex;padding:8px;border-radius:8px;background:var(--glass);font-size:14px}
+
+    /* ------------------------
+       TESTIMONIOS
+       ------------------------ */
+    .testimonial{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+    .muted{color:var(--muted)}
+
+    /* ------------------------
+       FOOTER NOTE
+       ------------------------ */
+    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+    /* Small helpers */
+    .small{font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <!--
+    INSTRUCCIONES RÁPIDAS:
+    - Duplica este archivo para crear una página por cada maestro.
+    - Reemplaza las imágenes (src), textos y enlaces.
+    - La sección "Reservar clase" genera un mailto por defecto; puedes integrar tu sistema de reservas más tarde.
+  -->
+
+  <div class="container" role="main">
+    <!-- PERFIL LATERAL -->
+    <aside class="profile-card" aria-labelledby="prof-name">
+      <div style="display:flex;gap:14px;align-items:center">
+        <div class="avatar" aria-hidden="true">
+          <!-- Reemplaza con la foto del maestro (cuadrada preferible 400x400) -->
+          <img src="./maestro.jpg" alt="Foto del profesor" style="width:100%;height:100%;object-fit:cover">
+        </div>
+        <div>
+          <h1 id="prof-name" class="name">Prof. Nombre Completo</h1>
+          <div class="title">Coach de Ajedrez • Nivel Nacional</div>
+          <div class="small muted">Ciudad • Disponibilidad: Tardes</div>
+        </div>
+      </div>
+
+      <div class="tags" aria-hidden="false" style="margin-top:14px">
+        <span class="tag">Entrenamiento individual</span>
+        <span class="tag">Táctica y finales</span>
+        <span class="tag">Niños / Adultos</span>
+      </div>
+
+      <div class="stats" aria-hidden="false">
+        <div class="stat"><b>5+</b><span class="small muted">años enseñando</span></div>
+        <div class="stat"><b>120+</b><span class="small muted">alumnos formados</span></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="small muted">Contacto directo</div>
+        <div class="cta">
+          <!-- BOTÓN: reservar (mailto) -->
+          <button class="btn" id="bookBtn">Reservar clase</button>
+          <!-- BOTÓN: guardar vCard -->
+          <button class="btn ghost" id="vcardBtn" title="Descargar contacto">Guardar contacto</button>
+        </div>
+
+        <div class="socials" aria-hidden="false">
+          <a href="#" aria-label="WhatsApp">WhatsApp</a>
+          <a href="#" aria-label="Perfil público">Perfil</a>
+          <a href="#" aria-label="LinkedIn">LinkedIn</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="main-card" aria-labelledby="main-title">
+      <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div>
+          <h2 id="main-title" style="margin:0;font-size:20px">Ficha profesional y cursos</h2>
+          <div class="small muted">Actualizado: <time datetime="2025-09-20">20 Sep 2025</time></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" onclick="window.print()">Imprimir</button>
+          <a class="btn ghost" href="/maestros">Volver</a>
+        </div>
+      </header>
+
+      <!-- BIO -->
+      <div class="section">
+        <h3>Sobre el profesor</h3>
+        <p class="bio">Profesor certificado en técnicas de enseñanza activa para ajedrez. Combina trabajo de táctica, estrategia y finales con ejercicios personalizados por edad y nivel. Ha formado jugadores para torneos estatales y nacionales.</p>
+      </div>
+
+      <div class="grid-2">
+        <!-- CURSOS -->
+        <div class="section">
+          <h3>Cursos y especialidades</h3>
+          <div class="list">
+            <div class="course">
+              <div class="dot">T</div>
+              <div>
+                <div style="font-weight:700">Taller de táctica (Nivel intermedio)</div>
+                <div class="small muted">8 sesiones • Duración: 45 min</div>
+              </div>
+            </div>
+
+            <div class="course">
+              <div class="dot">I</div>
+              <div>
+                <div style="font-weight:700">Iniciación para niños</div>
+                <div class="small muted">Clases lúdicas y estructuradas</div>
+              </div>
+            </div>
+
+            <div class="course">
+              <div class="dot">A</div>
+              <div>
+                <div style="font-weight:700">Aperturas y planes de medio juego</div>
+                <div class="small muted">Personalizado por estilo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HORARIOS -->
+        <div class="section">
+          <h3>Horarios disponibles</h3>
+          <table aria-label="Horario del profesor">
+            <thead>
+              <tr><th>Día</th><th>Hora</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Lunes</td><td>18:00 — 20:00</td></tr>
+              <tr><td>Miércoles</td><td>17:00 — 19:00</td></tr>
+              <tr><td>Sábado</td><td>09:00 — 12:00</td></tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:10px" class="small muted">Horarios sujetos a disponibilidad. Para reservar usa el botón <strong>Reservar clase</strong>.</div>
+        </div>
+      </div>
+
+      <!-- TESTIMONIOS -->
+      <div class="section">
+        <h3>Testimonios</h3>
+        <div style="display:grid;gap:10px">
+          <div class="testimonial">
+            <div style="font-weight:700">María G. — Madre</div>
+            <div class="small muted">"Excelente metodología con niños, mi hijo mejoró mucho en confianza y táctica."</div>
+          </div>
+
+          <div class="testimonial">
+            <div style="font-weight:700">Carlos R. — Alumno</div>
+            <div class="small muted">"Las clases son muy claras y con ejercicios prácticos. Recomendado."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECURSOS / MATERIALES -->
+      <div class="section">
+        <h3>Materiales y seguimiento</h3>
+        <p class="small muted">Se entrega material (PDF) y reportes de progreso. Posibilidad de seguimiento online por plataforma y tareas semanales.</p>
+        <div style="margin-top:8px">
+          <a class="btn" href="#" aria-label="Descargar material">Ver material de muestra</a>
+        </div>
+      </div>
+
+      <!-- NOTAS / POLÍTICAS -->
+      <div class="section">
+        <h3>Políticas</h3>
+        <ul class="small muted">
+          <li>Cancelaciones hasta 24 h antes sin cargo.</li>
+          <li>Si el alumno no asiste, se puede reagendar una vez según disponibilidad.</li>
+          <li>Pago por sesión o paquete mensual.</li>
+        </ul>
+      </div>
+
+      <footer>
+        <div class="small muted">Academia • Página del profesor — Personaliza y adapta esta plantilla según tus necesidades.</div>
+      </footer>
+    </section>
+  </div>
+
+  <!-- SCRIPTS: interacción ligera -->
+  <script>
+    // Datos del profesor (modifica para cada archivo o inyecta dinámicamente)
+    const teacher = {
+      name: "Prof. Nombre Completo",
+      email: "profesor@academia.com",
+      phone: "+5215512345678",
+      city: "Ciudad",
+      title: "Coach de Ajedrez • Nivel Nacional"
+    };
+
+    document.getElementById('bookBtn').addEventListener('click', function(){
+      const subject = encodeURIComponent("Reserva de clase con " + teacher.name);
+      const body =
+        encodeURIComponent("Hola " + teacher.name + ",%0D%0A%0D%0AMe gustaría reservar una clase. Mis datos:%0D%0ANombre:%0D%0ATeléfono:%0D%0ANivel:%0D%0AHorario preferido:%0D%0A%0D%0AGracias.");
+      // Cambia el mailto si usas otro sistema
+      window.location.href = `mailto:${teacher.email}?subject=${subject}&body=${body}`;
+    });
+
+    // Generar vCard y descargar
+    document.getElementById('vcardBtn').addEventListener('click', function(){
+      const vcard =
+        `BEGIN:VCARD
+VERSION:3.0
+FN:${teacher.name}
+ORG:Academia
+TITLE:${teacher.title}
+TEL;TYPE=CELL:${teacher.phone}
+EMAIL:${teacher.email}
+ADR;TYPE=WORK:;;${teacher.city};;;
+END:VCARD`;
+      const blob = new Blob([vcard], {type: 'text/vcard'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (teacher.name.replace(/\s+/g,'_') || 'contacto') + '.vcf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // Opcional: sustituir textos del DOM con los datos del objeto teacher (fácil personalización)
+    document.getElementById('prof-name').textContent = teacher.name;
+    document.querySelector('.title').textContent = teacher.title;
+  </script>
+</body>
+</html>
+
