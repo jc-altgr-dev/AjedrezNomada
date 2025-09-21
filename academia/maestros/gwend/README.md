@@ -1,2 +1,0 @@
-# RubiCat
-Página  de pruebas 
