@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Niveles de Estudiantes</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      background: #fafafa;
+      color: #333;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #42a5f5, #1e88e5);
+      color: white;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+    }
+
+    .search-box {
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .search-box input {
+      padding: 0.7rem 1rem;
+      width: 250px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .rating-section {
+      max-width: 500px;
+      margin: 2rem auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .rating-section label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .rating-value {
+      font-size: 1.4rem;
+      margin-top: 0.5rem;
+      color: #1e88e5;
+      font-weight: bold;
+    }
+
+    input[type="range"] {
+      width: 80%;
+    }
+
+    .levels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .level-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .level-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    }
+
+    .icon {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 1rem;
+    }
+
+    .level-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .level-range {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Estilo resaltado */
+    .active {
+      border: 3px solid #1e88e5;
+      box-shadow: 0 0 20px rgba(30,136,229,0.4);
+      transform: scale(1.05);
+    }
+
+    .active .highlight-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background: #e3f2fd;
+      color: #0d47a1;
+      font-size: 0.95rem;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Niveles de Estudiantes</h1>
+  </header>
+
+  <!-- Buscador -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Buscar nivel...">
+  </div>
+
+  <!-- Sección Tu Rating -->
+  <div class="rating-section">
+    <label for="ratingRange">Tu rating aproximado:</label>
+    <input type="range" id="ratingRange" min="0" max="2200" step="50" value="800">
+    <div class="rating-value" id="ratingValue">800</div>
+  </div>
+
+  <!-- Sección de Niveles -->
+  <section class="levels" id="levelsGrid">
+    <!-- Los niveles se generan por JS -->
+  </section>
+
+  <script>
+    const levelsData = [
+      { name: "Iniciación", range: "0 – 400", iconColor: "#757575", message: "¡Aquí comienzas tu aventura! Aprende lo básico y da tus primeros mates." },
+      { name: "Principiante", range: "400 – 800", iconColor: "#4CAF50", message: "¡Bien! Ya dominas lo básico. Hora de aprender tácticas y aperturas." },
+      { name: "Intermedio I", range: "800 – 1200", iconColor: "#2196F3", message: "¡Progreso notable! Empiezas a pensar estratégicamente." },
+      { name: "Intermedio II", range: "1200 – 1600", iconColor: "#9C27B0", message: "¡Muy sólido! Ya aplicas planes posicionales y finales técnicos." },
+      { name: "Avanzado", range: "1600 – 2000", iconColor: "#F44336", message: "¡Eres fuerte! Estás listo para torneos y retos competitivos." },
+      { name: "Élite", range: "2000+", iconColor: "#FFC107", message: "¡Nivel Maestro! Lo más alto. Aquí se busca la excelencia." }
+    ];
+
+    const levelsGrid = document.getElementById("levelsGrid");
+
+    function createCard(level) {
+      const card = document.createElement("div");
+      card.className = "level-card";
+      card.dataset.name = level.name;
+
+      card.innerHTML = `
+        <svg class="icon" fill="${level.iconColor}" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+        </svg>
+        <div class="level-title">${level.name}</div>
+        <div class="level-range">${level.range}</div>
+      `;
+      return card;
+    }
+
+    function renderLevels() {
+      levelsGrid.innerHTML = "";
+      levelsData.forEach(level => {
+        levelsGrid.appendChild(createCard(level));
+      });
+    }
+
+    // Resaltar nivel por rating
+    function highlightLevel(rating) {
+      const cards = document.querySelectorAll(".level-card");
+      cards.forEach(card => card.classList.remove("active"));
+      cards.forEach((card, i) => {
+        let [min, max] = levelsData[i].range.split("–").map(r => r.replace("+","").trim());
+        min = parseInt(min);
+        max = max.includes("+") ? 9999 : parseInt(max);
+
+        if (rating >= min && rating <= max) {
+          card.classList.add("active");
+          // añadir bloque motivador
+          const msg = document.createElement("div");
+          msg.className = "highlight-box";
+          msg.innerHTML = `⭐ <strong>¡Tú estás aquí!</strong><br>${levelsData[i].message}<br><em>¡Queda mucho por delante!</em>`;
+          card.appendChild(msg);
+        }
+      });
+    }
+
+    // Buscador
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("input", () => {
+      const filter = searchInput.value.toLowerCase();
+      document.querySelectorAll(".level-card").forEach(card => {
+        const name = card.dataset.name.toLowerCase();
+        card.style.display = name.includes(filter) ? "" : "none";
+      });
+    });
+
+    // Slider rating
+    const ratingRange = document.getElementById("ratingRange");
+    const ratingValue = document.getElementById("ratingValue");
+
+    ratingRange.addEventListener("input", () => {
+      const val = parseInt(ratingRange.value);
+      ratingValue.textContent = val;
+      renderLevels();
+      highlightLevel(val);
+    });
+
+    // Inicial
+    renderLevels();
+    highlightLevel(parseInt(ratingRange.value));
+  </script>
+</body>
+</html>
+

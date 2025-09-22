@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de progreso de ajedrez</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #fefefe;
+    color: #333;
+    overflow-x: hidden;
+}
+
+header {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: linear-gradient(135deg, #ffe4b5, #d0f0fd);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    font-size: 2.8rem;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.content {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    gap: 3rem;
+}
+
+.level {
+    background: #ffffffcc;
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    position: relative;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.level:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.level h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #ffb347;
+    position: relative;
+}
+
+.level h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ffb347;
+    margin-top: 5px;
+    border-radius: 2px;
+}
+
+.level p, .level ul {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+}
+
+.level ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.level ul li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 0.8rem;
+}
+
+.level ul li::before {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #ffb347;
+}
+
+.temario-icon {
+    text-align: center;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.temario-icon svg {
+    width: 70px;
+    height: 70px;
+    fill: #ffb347;
+    transition: transform 0.3s ease, fill 0.3s ease;
+}
+
+.level:hover .temario-icon svg {
+    transform: scale(1.2) rotate(15deg);
+    fill: #ffa500;
+}
+
+.highlight {
+    text-align: center;
+    background: #fff0b3;
+    padding: 0.8rem 1.5rem;
+    border-radius: 15px;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-top: 1rem;
+}
+
+.parallax {
+    perspective: 1000px;
+}
+
+.level[data-level]:hover {
+    transform: translateY(-10px) rotateX(3deg);
+}
+
+.quote {
+    font-style: italic;
+    color: #ff8c00;
+    margin: 0.5rem 0 1rem 0;
+    font-size: 1rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Mapa de progreso de ajedrez</h1>
+    <p>Desde el primer movimiento hasta el nivel maestro</p>
+</header>
+
+<div class="content parallax">
+
+    <!-- Nivel 0-399 -->
+    <div class="level" data-level="0-399">
+        <div class="temario-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <circle cx="32" cy="16" r="12"/>
+                <path d="M16 52c0-8.8 7.2-16 16-16s16 7.2 16 16H16z"/>
+            </svg>
+        </div>
+        <h2>Nivel 0-399</h2>
+        <p>Introducción al ajedrez, reglas básicas, movimientos de piezas y primeros patrones tácticos.</p>
+        <ul>
+            <li>Movimientos básicos y captura de piezas.</li>
+            <li>Conceptos iniciales de apertura.</li>
+            <li>Primeras tácticas: clavadas, ataques dobles simples.</li>
+        </ul>
+        <div class="quote">"El ajedrez es la vida misma." – Bobby Fischer</div>
+        <div class="highlight">¡Tú estás aquí si eres principiante!</div>
+    </div>
+
+    <!-- Nivel 400-799 -->
+    <div class="level" data-level="400-799">
+        <div class="temario-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <rect x="20" y="12" width="24" height="40" rx="2"/>
+            </svg>
+        </div>
+        <h2>Nivel 400-799</h2>
+        <p>Consolidación de tácticas y estrategias básicas.</p>
+        <ul>
+            <li>Coordinación de piezas.</li>
+            <li>Finales simples de peones y torres.</li>
+            <li>Reconocimiento de patrones tácticos más complejos.</li>
+        </ul>
+        <div class="quote">"Cuando veas un buen movimiento, busca uno mejor." – Emanuel Lasker</div>
+        <div class="highlight">Nivel intermedio inicial</div>
+    </div>
+
+    <!-- Nivel 800-1199 -->
+    <div class="level" data-level="800-1199">
+        <div class="temario-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <polygon points="32,4 39,24 60,24 42,36 48,56 32,44 16,56 22,36 4,24 25,24"/>
+            </svg>
+        </div>
+        <h2>Nivel 800-1199</h2>
+        <p>Desarrollo de estrategia intermedia y consolidación de tácticas.</p>
+        <ul>
+            <li>Aperturas flexibles.</li>
+            <li>Planes de medio juego y coordinación de piezas.</li>
+            <li>Análisis de partidas clásicas.</li>
+        </ul>
+        <div class="highlight">Nivel intermedio consolidado</div>
+    </div>
+
+    <!-- Nivel 1200-1599 -->
+    <div class="level" data-level="1200-1599">
+        <div class="temario-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <circle cx="32" cy="16" r="8"/>
+                <path d="M16 48c0-8 32-8 32 0H16z"/>
+            </svg>
+        </div>
+        <h2>Nivel 1200-1599</h2>
+        <p>Estrategia avanzada, cálculo profundo y finales esenciales.</p>
+        <ul>
+            <li>Entrenamiento táctico profesional diario.</li>
+            <li>Análisis profundo de partidas propias y de grandes maestros.</li>
+            <li>Finales críticos y preparación mental.</li>
+        </ul>
+        <div class="highlight">Nivel avanzado</div>
+    </div>
+
+    <!-- Nivel 1600-1999 -->
+    <div class="level" data-level="1600-1999">
+        <div class="temario-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <rect x="20" y="12" width="24" height="40" rx="2"/>
+            </svg>
+        </div>
+        <h2>Nivel 1600-1999</h2>
+        <p>Perfeccionamiento avanzado y consolidación de estilo propio.</p>
+        <ul>
+            <li>Aperturas avanzadas y flexibles.</li>
+            <li>Medio juego estratégico y presión constante.</li>
+            <li>Finales críticos y control emocional en torneos.</li>
+        </ul>
+        <div class="highlight">Nivel avanzado superior</div>
+    </div>
+
+    <!-- Nivel 2000+ -->
+    <div class="level" data-level="2000+">
+        <div class="temario-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <polygon points="32,4 39,24 60,24 42,36 48,56 32,44 16,56 22,36 4,24 25,24"/>
+            </svg>
+        </div>
+        <h2>Nivel 2000+</h2>
+        <p>Maestría en ajedrez, planificación avanzada y pensamiento creativo.</p>
+        <ul>
+            <li>Repertorio completo de aperturas y variantes.</li>
+            <li>Juego posicional avanzado y cálculo profundo.</li>
+            <li>Dominio de finales complejos y psicología competitiva.</li>
+        </ul>
+        <div class="quote">"To play well, you must have passion." – Garry Kasparov</div>
+        <div class="highlight">Nivel maestro</div>
+    </div>
+
+</div>
+
+<script>
+// Animación simple: scroll suave al hacer hover en la tarjeta
+const levels = document.querySelectorAll('.level');
+levels.forEach(level => {
+    level.addEventListener('mouseenter', () => {
+        level.scrollIntoView({behavior: 'smooth', block: 'center'});
+    });
+});
+</script>
+
+</body>
+</html>
+
