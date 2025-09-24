@@ -1,348 +1,38 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Academia · ENAEL</title>
-  <meta name="description" content="Academia ENAEL — Maestros, Horarios, Cursos y Niveles. Minimalista, colores claros y brillantes.">
-  <link rel="icon" href="/favicon.ico">
-
-  <!-- Minimal CSS in-file -->
-  <style>
-    :root{
-      /* Paleta clara y brillante */
-      --bg: #ffffff;            /* fondo claro */
-      --surface: #fbfdff;       /* superficie ligeramente distinta */
-      --card: #ffffff;          /* tarjetas */
-      --accent: #06b6d4;        /* teal brillante */
-      --accent-2: #ff6b6b;      /* coral para contrastes */
-      --muted: #6b7280;         /* texto secundario */
-      --soft: rgba(6,182,212,0.08); /* sombras suaves acentuadas */
-      --radius: 12px;
-      --maxw: 1100px;
-      --fw-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      --shadow: 0 6px 18px rgba(15,23,42,0.06);
-    }
-
-    /* Reset + base */
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:var(--fw-sans);background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-    a{color:var(--accent);text-decoration:none}
-    .container{max-width:var(--maxw);margin:0 auto;padding:28px}
-
-    /* Header */
-    header{padding:14px 0}
-    .nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
-    nav ul{display:flex;gap:14px;list-style:none;padding:0;margin:0}
-    .btn{padding:8px 12px;border-radius:10px;background:var(--accent);color:white;font-weight:600;border:none;cursor:pointer;box-shadow:var(--shadow)}
-    .secondary{background:transparent;border:1px solid rgba(15,23,42,0.06);padding:8px 10px;border-radius:10px}
-
-    /* Hero */
-    .hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 0}
-    .hero-left h1{margin:0;font-size:30px;line-height:1.05}
-    .hero-left p{margin:8px 0 0;color:var(--muted)}
-    .search{display:flex;gap:8px;margin-top:14px}
-    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent}
-    .search button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff}
-
-    /* Grid */
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
-    .card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);border:1px solid rgba(15,23,42,0.03)}
-
-    /* Teacher item */
-    .teacher{display:flex;gap:12px;align-items:center}
-    .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#e6fffa,#cffafe);display:flex;align-items:center;justify-content:center;font-weight:700;color:#052f2f}
-    .teacher h4{margin:0;font-size:16px}
-    .small{font-size:13px;color:var(--muted)}
-
-    /* Courses */
-    .course h5{margin:0 0 6px;font-size:15px}
-    .course .meta{font-size:13px;color:var(--muted)}
-
-    /* Schedule table (simple) */
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;text-align:left;border-bottom:1px dashed rgba(15,23,42,0.04);font-size:14px}
-    th{color:var(--muted);font-weight:600}
-
-    /* Accordion */
-    .acc-btn{display:flex;justify-content:space-between;align-items:center;padding:10px;background:transparent;border-radius:8px;cursor:pointer}
-    .acc-panel{max-height:0;overflow:hidden;transition:max-height .28s ease;padding:0 10px}
-
-    /* Footer */
-    footer{margin-top:28px;padding:20px 0;color:var(--muted);font-size:14px}
-
-    /* Responsive */
-    @media (max-width:980px){
-      .grid{grid-template-columns:repeat(2,1fr)}
-      .hero{flex-direction:column;align-items:flex-start}
-    }
-    @media (max-width:640px){
-      nav ul{display:none}
-      .grid{grid-template-columns:1fr}
-      .logo{width:40px;height:40px}
-      .hero-left h1{font-size:22px}
-    }
-
-    /* Micro interactions */
-    .muted-pill{font-size:12px;padding:6px 8px;border-radius:999px;background:var(--soft);color:var(--muted);display:inline-block}
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academia de Ajedrez</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Encabezado con navegación -->
   <header>
-    <div class="container nav">
-      <div class="brand">
-        <div class="logo">ENA</div>
-        <div>
-          <div style="font-weight:700">ENAEL</div>
-          <div class="small">Academia · Ajedrez</div>
-        </div>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="../img/logo.png" alt="Logo Academia de Ajedrez Emanuel Lasker">
       </div>
-
-      <nav>
-        <ul>
-          <li><a class="secondary" href="/academia/maestros">Maestros</a></li>
-          <li><a class="secondary" href="/academia/horarios">Horarios</a></li>
-          <li><a class="secondary" href="/academia/cursos">Cursos</a></li>
-          <li><a class="secondary" href="/academia/niveles">Niveles</a></li>
-        </ul>
-      </nav>
-
-      <div style="display:flex;gap:8px;align-items:center">
-        <a class="btn" href="/inscripcion">Inscribirme</a>
-      </div>
-    </div>
+      <ul class="nav-links">
+        <li><a href="../index.html">Inicio</a></li>
+        <!-- <li><a href="./niveles/index.html">Niveles</a></li> -->
+      </ul>
+    </nav>
   </header>
 
-  <main class="container">
-    <!-- HERO -->
-    <section class="hero">
-      <div class="hero-left">
-        <h1>Página en Mantenimiento | Formación en Ajedrez clara y accesible</h1>
-        <p>Programas por niveles, maestros certificados y horarios flexibles.</p>
-
-        <div class="search" aria-label="Buscar en academia">
-          <input id="q" type="search" placeholder="Buscar maestro, curso o día..." />
-          <button onclick="doSearch()">Buscar</button>
-        </div>
-      </div>
-
-      <div style="width:320px">
-        <div class="card" style="text-align:center">
-          <div style="font-size:13px;color:var(--muted)">Inicio próxima temporada</div>
-          <div style="margin:10px 0;font-weight:700">1 Octubre 2025</div>
-          <a class="btn" href="/inscripcion">Preinscribirme</a>
-          <div style="margin-top:12px" class="small">Cupos limitados · Modalidad: presencial / online</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MAESTROS -->
-    <section>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <h3 style="margin:0">Maestros</h3>
-        <div class="small">Selecciona para ver perfil</div>
-      </div>
-
-      <div class="grid" style="margin-top:14px">
-        <div class="card teacher" data-tags="tactica,aperturas,juvenil">
-          <div class="avatar">JA</div>
-          <div>
-            <h4><a href=./maestros/index.html>José Alvarado</a></h4>
-            <div class="small">Presidente · Entrenador FIDE</div>
-            <div style="margin-top:8px">
-              <span class="muted-pill">Táctica</span>
-              <span class="muted-pill">Aperturas</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card teacher" data-tags="finales,estrategia,adultos">
-          <div class="avatar" style="background:linear-gradient(135deg,#fff0f0,#ffdede;color:#5b1212">MR</div>
-          <div>
-            <h4><a href=./maestros/gwend/index.html>Gwendolyne Palacios Méndez</a></h4>
-            <div class="small">Arbitro Nacional · Entrenadora</div>
-            <div style="margin-top:8px">
-              <span class="muted-pill">Finales</span>
-              <span class="muted-pill">Estrategia</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card teacher" data-tags="principiantes,infantil">
-          <div class="avatar" style="background:linear-gradient(135deg,#f0fff4,#d1fae5;color:#065f46">EN</div>
-          <div>
-            <h4>Equipo ENAEL</h4>
-            <div class="small">Instructores / Asesores</div>
-            <div style="margin-top:8px"><span class="muted-pill">Infantil</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CURSOS -->
-    <section style="margin-top:22px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <h3 style="margin:0">Cursos</h3>
-        <div class="small">Niveles para todas las edades</div>
-      </div>
-
-      <div class="grid" style="margin-top:12px">
-        <div class="card course">
-          <h5>Iniciación (8 semanas)</h5>
-          <div class="meta">Reglas, mates básicos, juego práctico · Sábados 10:00</div>
-        </div>
-        <div class="card course">
-          <h5>Intermedio (10 semanas)</h5>
-          <div class="meta">Táctica y estructuras · Miércoles 17:00</div>
-        </div>
-        <div class="card course">
-          <h5>Avanzado (12 semanas)</h5>
-          <div class="meta">Preparación para torneos · Lunes y Jueves 19:00</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- HORARIOS -->
-    <section style="margin-top:22px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <h3 style="margin:0">Horarios</h3>
-        <div class="small">Filtra por día con la búsqueda</div>
-      </div>
-
-      <div class="card" style="margin-top:12px;overflow:auto">
-        <table aria-label="Horarios">
-          <thead>
-            <tr><th>Día</th><th>Curso</th><th>Maestro</th><th>Hora</th></tr>
-          </thead>
-          <tbody id="schedule">
-            <tr><td>Lunes</td><td>Avanzado</td><td>José Alvarado</td><td>19:00–21:00</td></tr>
-            <tr><td>Miércoles</td><td>Intermedio</td><td>María Rodríguez</td><td>17:00–19:00</td></tr>
-            <tr><td>Sábado</td><td>Iniciación</td><td>Equipo ENAEL</td><td>10:00–12:00</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- NIVELES (ACORDEÓN) -->
-    <section style="margin-top:22px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <h3 style="margin:0">Niveles</h3>
-        <div class="small">Descripción rápida</div>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="card" style="padding:8px">
-          <div class="acc-btn" data-target="p1"><strong>Nivel 1 — Iniciación</strong><span class="small">+</span></div>
-          <div id="p1" class="acc-panel"><p class="small" style="margin:8px 0">Para quien empieza: piezas, reglas y mates simples. Ideal para niños y nuevos jugadores.</p></div>
-
-          <div class="acc-btn" data-target="p2"><strong>Nivel 2 — Intermedio</strong><span class="small">+</span></div>
-          <div id="p2" class="acc-panel"><p class="small" style="margin:8px 0">Táctica, aperturas fundamentales y planificación de medio juego.</p></div>
-
-          <div class="acc-btn" data-target="p3"><strong>Nivel 3 — Avanzado</strong><span class="small">+</span></div>
-          <div id="p3" class="acc-panel"><p class="small" style="margin:8px 0">Preparación para competición, finales y estudio profundo de estructura.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CONTACTO -->
-    <section style="margin-top:22px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <h3 style="margin:0">Contacto rápido</h3>
-      </div>
-
-      <div class="card" style="margin-top:10px">
-        <form id="contact" onsubmit="submitForm(event)" style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;gap:8px">
-            <input name="name" placeholder="Nombre" required style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.04)">
-            <input name="phone" placeholder="Teléfono (opcional)" style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.04)">
-          </div>
-          <textarea name="message" placeholder="Mensaje" required style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.04);min-height:90px"></textarea>
-
-          <div style="display:flex;justify-content:flex-end">
-            <button class="btn" type="submit">Enviar</button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <footer>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
-        <div class="small">© ENAEL — Escuela Nacional de Ajedrez</div>
-        <div class="small">Contacto: academia@enael.com.mx · <a href="tel:+5215512345678">+52 1 55 1234 5678</a></div>
-      </div>
-    </footer>
+  <!-- Contenido principal vacío de momento -->
+  <main>
   </main>
 
-  <!-- Minimal JS -->
-  <script>
-    // Búsqueda simple: filtra maestros, cursos y horarios por texto
-    function doSearch(){
-      const q = (document.getElementById('q').value || '').trim().toLowerCase();
-      if(!q) return alert('Escribe algo para buscar (ej: "José", "Sábado", "Intermedio")');
-
-      // Filtrar maestros por data-tags o texto
-      document.querySelectorAll('.teacher').forEach(el=>{
-        const tags = (el.dataset.tags || '') + ' ' + el.innerText.toLowerCase();
-        el.style.display = tags.includes(q) ? 'flex' : 'none';
-      });
-
-      // Filtrar cursos y cards
-      document.querySelectorAll('.course').forEach(el=>{
-        el.style.display = el.innerText.toLowerCase().includes(q) ? 'block' : 'none';
-      });
-
-      // Filtrar horarios
-      document.querySelectorAll('#schedule tr').forEach(row=>{
-        row.style.display = row.innerText.toLowerCase().includes(q) ? 'table-row' : 'none';
-      });
-
-      // Si no hay resultados, aviso
-      const anyVisible = [...document.querySelectorAll('.teacher, .course, #schedule tr')].some(n=>{
-        return window.getComputedStyle(n).display !== 'none';
-      });
-      if(!anyVisible) alert('No se encontraron resultados: ' + q);
-    }
-
-    // Acordeón
-    document.querySelectorAll('.acc-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const id = btn.dataset.target;
-        const panel = document.getElementById(id);
-        const open = panel.style.maxHeight && panel.style.maxHeight !== '0px';
-        // Cerrar todos
-        document.querySelectorAll('.acc-panel').forEach(p=>p.style.maxHeight = null);
-        document.querySelectorAll('.acc-btn span').forEach(s=>s.innerText = '+');
-        if(!open){
-          panel.style.maxHeight = panel.scrollHeight + 'px';
-          btn.querySelector('span').innerText = '−';
-        }
-      });
-    });
-
-    // Form submit (ejemplo local)
-    function submitForm(e){
-      e.preventDefault();
-      const f = e.target;
-      const data = {name: f.name.value, phone: f.phone.value, message: f.message.value};
-      console.log('Contacto:', data);
-      alert('Gracias ' + (data.name || '') + '. Recibimos tu mensaje.');
-      f.reset();
-    }
-
-    // Pequeña mejora: abrir acordeón si querystring ?nivel=2
-    (function openFromQuery(){
-      try {
-        const params = new URLSearchParams(location.search);
-        const n = params.get('nivel');
-        if(n){
-          const el = document.getElementById('p' + n);
-          if(el){ el.style.maxHeight = el.scrollHeight + 'px'; document.querySelector('[data-target="p' + n + '"] span').innerText = '−'; }
-        }
-      } catch(e){}
-    })();
-  </script>
+  <!-- Pie de página -->
+   <footer>
+          <p>Síguenos en redes sociales:</p>
+        <div class="social-links">
+            <a href="https://www.facebook.com/AjedrezEmanuelLasker" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://www.instagram.com/clublasker/" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://www.facebook.com/AjedrezEmanuelLasker/photos" target="_blank" rel="noopener noreferrer">Galeria en fb</a>
+        </div>
+        <p>&copy; 2025 Escuela Nacional de Ajedrez Emanuel Lasker. Todos los derechos reservados.</p>
+    </footer>
 </body>
 </html>
-

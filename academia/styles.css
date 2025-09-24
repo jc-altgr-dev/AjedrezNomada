@@ -1,0 +1,83 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Tipografía */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  background: #fafafa;
+  color: #333;
+}
+
+/* Barra de navegación */
+header {
+  background: #fefefe;
+  border-bottom: 2px solid #e6e6e6;
+  padding: 10px 20px;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 55px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+}
+
+.nav-links a {
+  display: inline-block; /* necesario para que transform funcione */
+  color: #444;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+
+/* Colores pasteles claros */
+.nav-links a:hover {
+  background: #e6f0ff;  /* mismo azul claro */
+  color: #4a6fa5;       /* mismo azul medio que en footer */
+}
+
+
+/* Footer */
+footer {
+  background: #fdfdfd;          /* Fondo casi blanco */
+  color: #555;                  /* Texto gris medio */
+  text-align: center;
+  padding: 25px 10px;
+  margin-top: 40px;
+  border-top: 2px solid #e6e6e6;
+  font-size: 0.95rem;
+}
+
+footer .social-links {
+  margin: 15px 0;
+}
+
+footer .social-links a {
+    display: inline-block; /* necesario para que transform funcione */
+  color: #4a6fa5;       /* igual azul medio */
+  margin: 0 12px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s, transform 0.2s;
+}
+
+footer .social-links a:hover {
+  color: #004085;       /* mismo azul fuerte de navbar */
+    transform: scale(1.05);       /* Pequeño zoom */
+}
