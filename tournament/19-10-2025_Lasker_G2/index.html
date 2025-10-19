@@ -32,6 +32,70 @@
     </ul>
   </section>
 
+  <!-- ============================= -->
+<!-- 🖼️ Sección: Galería de Fotos -->
+<!-- ============================= -->
+<section id="gallery">
+  <h2>Galería de Fotos</h2>
+  <div id="gallery-grid" class="grid"></div>
+</section>
+
+<script>
+// === CONFIGURACIÓN ===
+const photosFolder = 'photos/';
+const totalImages = 17; // número total de fotos numeradas (1.jpeg, 2.jpeg, ...)
+
+// === CARGA AUTOMÁTICA DE IMÁGENES ===
+function loadGallery() {
+  const grid = document.getElementById('gallery-grid');
+  for (let i = 1; i <= totalImages; i++) {
+    const img = document.createElement('img');
+    img.src = `${photosFolder}${i}.jpeg`;
+    img.alt = `Foto ${i}`;
+    img.loading = "lazy";
+    grid.appendChild(img);
+  }
+}
+
+// === INICIAR GALERÍA ===
+document.addEventListener("DOMContentLoaded", loadGallery);
+</script>
+
+<style>
+/* ==== Estilos de la galería ==== */
+#gallery {
+  padding: 2rem;
+  text-align: center;
+  background: #f5f5f5;
+}
+
+#gallery h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+#gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+}
+
+#gallery-grid img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+#gallery-grid img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+</style>
+
+
   <section class="tabla">
     <h2>Torneo en Chess-Results: <a href="https://s2.chess-results.com/tnr1257539.aspx?SNode=S0">Enlace</a></h2>
     <!-- Puedes usar iframe si solo quieres embebido -->
