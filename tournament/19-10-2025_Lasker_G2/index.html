@@ -32,7 +32,7 @@
     </ul>
   </section>
 
-  <!-- ============================= -->
+<!-- ============================= -->
 <!-- 🖼️ Sección: Galería de Fotos -->
 <!-- ============================= -->
 <section id="gallery">
@@ -40,29 +40,93 @@
   <div id="gallery-grid" class="grid"></div>
 </section>
 
+<!-- 🕶️ Lightbox -->
+<div id="lightbox" class="hidden">
+  <span id="close-lightbox">&times;</span>
+  <span id="prev-lightbox">&#10094;</span>
+  <img id="lightbox-img" src="" alt="Foto ampliada">
+  <span id="next-lightbox">&#10095;</span>
+</div>
+
 <script>
 // === CONFIGURACIÓN ===
 const photosFolder = 'photos/';
-const totalImages = 17; // número total de fotos numeradas (1.jpeg, 2.jpeg, ...)
+const totalImages = 17; // número total de imágenes numeradas (1.jpeg, 2.jpeg, etc.)
+let currentIndex = 0;
 
-// === CARGA AUTOMÁTICA DE IMÁGENES ===
 function loadGallery() {
   const grid = document.getElementById('gallery-grid');
+
   for (let i = 1; i <= totalImages; i++) {
     const img = document.createElement('img');
     img.src = `${photosFolder}${i}.jpeg`;
     img.alt = `Foto ${i}`;
     img.loading = "lazy";
+    img.addEventListener('click', () => openLightbox(i));
     grid.appendChild(img);
   }
 }
 
-// === INICIAR GALERÍA ===
+function openLightbox(index) {
+  currentIndex = index;
+  updateLightboxImage();
+  document.getElementById('lightbox').classList.remove('hidden');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.add('hidden');
+}
+
+function updateLightboxImage() {
+  const lightboxImg = document.getElementById('lightbox-img');
+  lightboxImg.src = `${photosFolder}${currentIndex}.jpeg`;
+}
+
+function showNext() {
+  currentIndex = currentIndex >= totalImages ? 1 : currentIndex + 1;
+  updateLightboxImage();
+}
+
+function showPrev() {
+  currentIndex = currentIndex <= 1 ? totalImages : currentIndex - 1;
+  updateLightboxImage();
+}
+
+// === EVENTOS ===
+document.getElementById('close-lightbox').addEventListener('click', closeLightbox);
+document.getElementById('next-lightbox').addEventListener('click', showNext);
+document.getElementById('prev-lightbox').addEventListener('click', showPrev);
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
+
+// Teclado ← → Esc
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('hidden')) return;
+  if (e.key === 'ArrowRight') showNext();
+  if (e.key === 'ArrowLeft') showPrev();
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// Deslizamiento táctil (para móviles)
+let startX = 0;
+document.getElementById('lightbox').addEventListener('touchstart', e => {
+  startX = e.touches[0].clientX;
+});
+document.getElementById('lightbox').addEventListener('touchend', e => {
+  const endX = e.changedTouches[0].clientX;
+  const diff = startX - endX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) showNext(); // desliza a la izquierda
+    else showPrev();          // desliza a la derecha
+  }
+});
+
 document.addEventListener("DOMContentLoaded", loadGallery);
 </script>
 
 <style>
-/* ==== Estilos de la galería ==== */
+/* ==== Galería ==== */
 #gallery {
   padding: 2rem;
   text-align: center;
@@ -86,6 +150,7 @@ document.addEventListener("DOMContentLoaded", loadGallery);
   height: 220px;
   object-fit: cover;
   border-radius: 10px;
+  cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -93,7 +158,67 @@ document.addEventListener("DOMContentLoaded", loadGallery);
   transform: scale(1.05);
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
+
+/* ==== Lightbox ==== */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#lightbox.hidden {
+  display: none;
+}
+
+#lightbox img {
+  max-width: 90%;
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+#close-lightbox,
+#next-lightbox,
+#prev-lightbox {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.5rem;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+#close-lightbox {
+  top: 30px;
+  right: 40px;
+  transform: none;
+  font-size: 2.5rem;
+}
+
+#next-lightbox {
+  right: 40px;
+}
+
+#prev-lightbox {
+  left: 40px;
+}
+
+#close-lightbox:hover,
+#next-lightbox:hover,
+#prev-lightbox:hover {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
 </style>
+
+
 
 
   <section class="tabla">
