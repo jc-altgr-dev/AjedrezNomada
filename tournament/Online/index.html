@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Cargando Resultados del Torneo...</title>
+    
+    <!-- CSS INTEGRADO -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #3f51b5;
+            --secondary-color: #ffc107;
+            --bg-light: #f7f9fc;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        header a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+        
+        header a:hover { color: #fff; }
+
+        main {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 10px 0;
+        }
+
+        section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .card-grid { display: grid; gap: 20px; }
+        #podio .card-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+        .podium-card {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .podium-card:hover { transform: translateY(-5px); }
+        .podium-card h3 { margin-top: 0; font-size: 1.3em; font-weight: 700; }
+
+        .rank-1 { background-color: #ffd70030; border-top: 5px solid #ffd700; }
+        .rank-2 { background-color: #c0c0c030; border-top: 5px solid #c0c0c0; }
+        .rank-3 { background-color: #cd7f3230; border-top: 5px solid #cd7f32; }
+
+        .cat-u1600 { background-color: #e3f2fd; border-top: 4px solid #2196f3; }
+        .cat-u1200 { background-color: #e8f5e9; border-top: 4px solid #4caf50; }
+        .cat-u800 { background-color: #fff3e0; border-top: 4px solid #ff9800; }
+
+        #statsList { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+        
+        .stat-item {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-item strong { display: block; font-size: 1.8em; line-height: 1.2; }
+        .stat-item span { font-size: 0.85em; opacity: 0.9; }
+        .stat-avg-rating { background-color: #1abc9c; }
+
+        .partida-container {
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .partida-container h3 {
+            color: var(--text-dark);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .partida-container iframe {
+            max-width: 100%; 
+            height: 450px; 
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        /* Estilos para el selector de jugador */
+        .player-select-container {
+            text-align: center;
+            margin-bottom: 30px;
+            background: #e8eaf6;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        select#player-selector {
+            padding: 10px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            border: 1px solid #3f51b5;
+            width: 100%;
+            max-width: 400px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5em; }
+            main { width: 95%; padding: 15px; }
+            #statsList { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="torneoNombre">🏆 Cargando Resultados del Torneo... 🏆</h1>
+        <p>Enlace Directo a Lichess: <a id="torneoLink" href="#" target="_blank">Ver Tabla Completa</a></p>
+    </header>
+
+    <main>
+        <!-- SECCIÓN 1: Podio -->
+        <section id="podio">
+            <h2>🥇 Podio y Ganadores 🥇</h2>
+            <div class="card-grid">
+                <div id="card-1" class="podium-card rank-1">
+                    <h3>1er Lugar</h3>
+                    <p id="winner-1">Cargando...</p>
+                </div>
+                <div id="card-2" class="podium-card rank-2">
+                    <h3>2do Lugar</h3>
+                    <p id="winner-2">Cargando...</p>
+                </div>
+                <div id="card-3" class="podium-card rank-3">
+                    <h3>3er Lugar</h3>
+                    <p id="winner-3">Cargando...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN 1.5: Premios por Categoría -->
+        <section id="premios-categoria">
+            <h2>🌟 Mejores por Categoría 🌟</h2>
+            <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="podium-card cat-u1600">
+                    <h3>Mejor Sub-1600</h3>
+                    <p id="best-u1600">Calculando...</p>
+                </div>
+                <div class="podium-card cat-u1200">
+                    <h3>Mejor Sub-1200</h3>
+                    <p id="best-u1200">Calculando...</p>
+                </div>
+                <div class="podium-card cat-u800">
+                    <h3>Mejor Sub-800</h3>
+                    <p id="best-u800">Calculando...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: Estadísticas -->
+        <section id="resultados-completos">
+            <h2>📊 Estadísticas del Torneo</h2>
+            <div id="stats" class="card-grid">
+                 <ul id="statsList" class="card-grid">
+                    <li class="stat-item stat-avg-rating"><strong id="stat-avg-rating">Calculando...</strong> <span>Rating Promedio</span></li>
+                    <li class="stat-item"><strong id="stat-players">0</strong> <span>Participantes</span></li>
+                    <li class="stat-item"><strong id="stat-games">0</strong> <span>Partidas Jugadas</span></li>
+                    <li class="stat-item"><strong id="stat-moves">0</strong> <span>Movimientos Totales</span></li>
+                    <li class="stat-item" style="background-color: #6699ff;"><strong id="stat-white">0%</strong> <span>Victorias Blancas</span></li>
+                    <li class="stat-item" style="background-color: #333333;"><strong id="stat-black">0%</strong> <span>Victorias Negras</span></li>
+                    <li class="stat-item" style="background-color: #999999;"><strong id="stat-draw">0%</strong> <span>Porcentaje de Tablas</span></li>
+                    <li class="stat-item" style="background-color: #ff6666;"><strong id="stat-berserk">0%</strong> <span>Tasa de Berserk</span></li>
+                 </ul>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN 3: Partidas Destacadas Globales -->
+        <section id="partidas-destacadas">
+            <h2>♟️ Partidas Destacadas (Globales) ♟️</h2>
+            <p>Las batallas más épicas de todo el torneo.</p>
+
+            <div class="partida-container">
+                <h3 id="title-game-1">Partida 1: Selección Destacada</h3>
+                <iframe id="game-iframe-1" src="" width="600" height="450" frameborder="0" allowtransparency="true"></iframe>
+                <p id="game-1-info" style="font-size: 0.9em; color: #666; margin-top: 5px;"></p>
+            </div>
+
+            <div class="partida-container">
+                <h3 id="title-game-2">Partida 2: Buscando partida estelar...</h3>
+                 <iframe id="game-iframe-2" src="" width="600" height="450" frameborder="0" allowtransparency="true"></iframe>
+                 <p id="game-2-info" style="font-size: 0.9em; color: #666; margin-top: 5px;"></p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: Buscador de Jugador -->
+        <section id="partidas-jugador">
+            <h2>🔍 Analizar a un Jugador 🔍</h2>
+            <p>Selecciona a un participante para ver automáticamente sus mejores partidas.</p>
+            
+            <div class="player-select-container">
+                <label for="player-selector"><strong>Elige un jugador:</strong></label><br>
+                <select id="player-selector">
+                    <option value="">Cargando jugadores...</option>
+                </select>
+            </div>
+
+            <div id="player-games-area" style="display:none;">
+                <!-- PARTIDA 3: Más Larga del Jugador -->
+                <div class="partida-container">
+                    <h3 id="title-game-3">Partida 3: La Más Larga (Resistencia)</h3>
+                    <iframe id="game-iframe-3" src="" width="600" height="450" frameborder="0" allowtransparency="true"></iframe>
+                    <p id="game-3-info" style="font-size: 0.9em; color: #666; margin-top: 5px;"></p>
+                </div>
+
+                <!-- PARTIDA 4: Mejor Rating del Jugador -->
+                <div class="partida-container">
+                    <h3 id="title-game-4">Partida 4: El Rival Más Duro (Mayor Nivel)</h3>
+                    <iframe id="game-iframe-4" src="" width="600" height="450" frameborder="0" allowtransparency="true"></iframe>
+                    <p id="game-4-info" style="font-size: 0.9em; color: #666; margin-top: 5px;"></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p style="text-align: center; color: #666; padding: 20px 0; font-size: 0.85em;">
+            Página de Resultados Automática &copy; 2024. Datos provistos por la API de Lichess.
+        </p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // *************************************************************************
+        // *** ÚNICO BLOQUE DE CONFIGURACIÓN REQUERIDO ***
+        // *************************************************************************
+        
+        const tournamentId = "n9R6trKl"; 
+        
+        // Partida Manual (Opcional)
+        const gameId1 = ""; 
+        
+        // *************************************************************************
+        
+        const detailsUrl = `https://lichess.org/api/tournament/${tournamentId}`;
+        const resultsUrl = `https://lichess.org/api/tournament/${tournamentId}/results`;
+        const gamesUrl = `https://lichess.org/api/tournament/${tournamentId}/games`; 
+        const lichessUrl = `https://lichess.org/tournament/${tournamentId}`;
+        
+        const formatNumber = (num) => (num || 0).toLocaleString('es-ES');
+        
+        // Variable global para guardar partidas y usarlas en el filtro
+        let tournamentGames = [];
+
+        function displayError(message) {
+            const h1 = document.getElementById('torneoNombre');
+            h1.textContent = `⚠️ ${message}`;
+        }
+
+        function injectManualData() {
+            const game1Iframe = document.getElementById('game-iframe-1');
+            const baseEmbedUrl = "https://lichess.org/embed/";
+            const embedParams = "?theme=blue&bg=light"; 
+
+            if (gameId1 && gameId1 !== "ID_DE_PARTIDA_1" && game1Iframe) {
+                document.getElementById('title-game-1').textContent = "Partida 1: Selección Manual (Destacada)";
+                game1Iframe.src = baseEmbedUrl + gameId1 + embedParams;
+            } else if (game1Iframe) {
+                game1Iframe.src = "https://placehold.co/600x450/3f51b5/ffffff?text=Buscando+Partida+Mas+Larga...";
+            }
+        }
+        
+        function safeJsonParse(line) {
+            try {
+                const parsed = JSON.parse(line);
+                return (typeof parsed === 'object' && parsed !== null) ? parsed : null;
+            } catch (e) { return null; }
+        }
+
+        // --- LÓGICA DEL SELECTOR DE JUGADORES ---
+        function setupPlayerSelector(players) {
+            const select = document.getElementById('player-selector');
+            select.innerHTML = '<option value="">-- Selecciona un jugador --</option>';
+            
+            // *** CORRECCIÓN ***: Creamos una COPIA con [...players] antes de ordenar
+            // para no desordenar la lista original (que es la que usa el Podio).
+            const playersForMenu = [...players].sort((a, b) => (a.username || a.name).localeCompare(b.username || b.name));
+
+            playersForMenu.forEach(p => {
+                const name = p.username || p.name;
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = `${name} (Rank #${p.rank})`;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', (e) => {
+                const selectedUser = e.target.value;
+                updatePlayerSpotlight(selectedUser);
+            });
+        }
+
+        function updatePlayerSpotlight(username) {
+            const container = document.getElementById('player-games-area');
+            
+            if (!username) {
+                container.style.display = "none";
+                return;
+            }
+            
+            container.style.display = "block";
+            const baseEmbedUrl = "https://lichess.org/embed/";
+            const embedParams = "?theme=blue&bg=light";
+
+            // 1. Filtrar partidas donde juegue el usuario seleccionado
+            const userGames = tournamentGames.filter(g => {
+                return (g.players.white.user && g.players.white.user.name === username) ||
+                       (g.players.black.user && g.players.black.user.name === username);
+            });
+
+            if (userGames.length === 0) {
+                document.getElementById('game-iframe-3').src = "https://placehold.co/600x450/3f51b5/ffffff?text=Sin+partidas+encontradas";
+                document.getElementById('game-iframe-4').src = "https://placehold.co/600x450/3f51b5/ffffff?text=Sin+partidas+encontradas";
+                document.getElementById('game-3-info').textContent = "No se encontraron partidas recientes de este jugador.";
+                document.getElementById('game-4-info').textContent = "";
+                return;
+            }
+
+            // 2. Buscar Partida Más Larga (Resistencia)
+            let longestGame = null;
+            let maxMoves = 0;
+            userGames.forEach(g => {
+                if (g.moves) {
+                    const movesCount = g.moves.split(' ').length;
+                    if (movesCount > maxMoves) {
+                        maxMoves = movesCount;
+                        longestGame = g;
+                    }
+                }
+            });
+
+            if (longestGame) {
+                document.getElementById('game-iframe-3').src = baseEmbedUrl + longestGame.id + embedParams;
+                const w = longestGame.players.white.user.name;
+                const b = longestGame.players.black.user.name;
+                document.getElementById('game-3-info').textContent = `${w} vs ${b} | ${Math.floor(maxMoves/2)} jugadas`;
+            }
+
+            // 3. Buscar Partida con Mejor Rating Promedio (Rival más duro)
+            let bestRatingGame = null;
+            let maxAvg = 0;
+            userGames.forEach(g => {
+                const avg = (g.players.white.rating + g.players.black.rating) / 2;
+                // Evitar repetir si es la misma que la más larga
+                const isSame = longestGame && longestGame.id === g.id;
+                
+                if (avg > maxAvg && (userGames.length === 1 || !isSame)) {
+                    maxAvg = avg;
+                    bestRatingGame = g;
+                }
+            });
+            
+            if (!bestRatingGame && userGames.length > 0) {
+                bestRatingGame = longestGame;
+                maxAvg = (bestRatingGame.players.white.rating + bestRatingGame.players.black.rating) / 2;
+            }
+
+            if (bestRatingGame) {
+                document.getElementById('game-iframe-4').src = baseEmbedUrl + bestRatingGame.id + embedParams;
+                const w = bestRatingGame.players.white.user.name;
+                const b = bestRatingGame.players.black.user.name;
+                document.getElementById('game-4-info').textContent = `${w} (${bestRatingGame.players.white.rating}) vs ${b} (${bestRatingGame.players.black.rating}) | Promedio: ${Math.round(maxAvg)}`;
+            }
+        }
+
+
+        // --- FETCH GAMES (Global) ---
+        async function fetchFeaturedGames() {
+            if (tournamentId === "ID_DE_TU_TORNEO") return;
+
+            try {
+                const response = await fetch(`${gamesUrl}?max=100&clocks=false&evals=false&opening=true`, {
+                    headers: { 'Accept': 'application/x-ndjson' }
+                });
+                
+                if (!response.ok) throw new Error("Error fetching games");
+
+                const text = await response.text();
+                const lines = text.trim().split('\n').filter(l => l.length > 0);
+                const games = lines.map(safeJsonParse).filter(g => g !== null);
+                
+                tournamentGames = games;
+
+                if (games.length === 0) {
+                    if (!gameId1) document.getElementById('title-game-1').textContent = "Partida 1: No hay partidas";
+                    document.getElementById('title-game-2').textContent = "Partida 2: No hay partidas";
+                    return;
+                }
+
+                // LÓGICA GLOBAL: Partida 1 (Larga)
+                if (!gameId1) {
+                    let longestGame = null;
+                    let maxMoves = 0;
+                    games.forEach(game => {
+                        if (game.moves) {
+                            const moveCount = game.moves.split(' ').length;
+                            if (moveCount > maxMoves) { maxMoves = moveCount; longestGame = game; }
+                        }
+                    });
+
+                    if (longestGame) {
+                        const iframe1 = document.getElementById('game-iframe-1');
+                        const baseEmbedUrl = "https://lichess.org/embed/";
+                        const embedParams = "?theme=blue&bg=light";
+                        
+                        document.getElementById('title-game-1').textContent = "⚔️ La Batalla de Resistencia (Partida Más Larga)";
+                        iframe1.src = baseEmbedUrl + longestGame.id + embedParams;
+                        const w = longestGame.players.white.user ? longestGame.players.white.user.name : "Anónimo";
+                        const b = longestGame.players.black.user ? longestGame.players.black.user.name : "Anónimo";
+                        document.getElementById('game-1-info').textContent = `${w} vs ${b} | Duración: ${Math.floor(maxMoves/2)} jugadas`;
+                    }
+                }
+
+                // LÓGICA GLOBAL: Partida 2 (Mejor Rating)
+                let bestGame = null;
+                let maxAvgRating = 0;
+                games.forEach(game => {
+                    if (game.players && game.players.white && game.players.black) {
+                        const avg = (game.players.white.rating + game.players.black.rating) / 2;
+                        const isSameAsP1 = (!gameId1 && bestGame && bestGame.id === game.id); // bug fix logic reference
+                        if (avg > maxAvgRating) { maxAvgRating = avg; bestGame = game; }
+                    }
+                });
+
+                if (bestGame) {
+                    const iframe2 = document.getElementById('game-iframe-2');
+                    const baseEmbedUrl = "https://lichess.org/embed/";
+                    const embedParams = "?theme=blue&bg=light";
+                    
+                    document.getElementById('title-game-2').textContent = "🔥 Partida de Alto Nivel (Mayor ELO Promedio)";
+                    iframe2.src = baseEmbedUrl + bestGame.id + embedParams;
+                    const w = bestGame.players.white.user ? bestGame.players.white.user.name : "Anónimo";
+                    const b = bestGame.players.black.user ? bestGame.players.black.user.name : "Anónimo";
+                    document.getElementById('game-2-info').textContent = `${w} (${bestGame.players.white.rating}) vs ${b} (${bestGame.players.black.rating}) | Promedio: ${Math.round(maxAvgRating)}`;
+                }
+
+            } catch (err) { console.error("Error buscando partidas:", err); }
+        }
+
+        async function fetchTournamentData() {
+            if (tournamentId === "ID_DE_TU_TORNEO") {
+                document.getElementById('torneoNombre').textContent = "❌ Configura el ID del torneo en el código.";
+                return;
+            }
+
+            document.getElementById('torneoLink').href = lichessUrl;
+
+            // --- FASE 1: Obtener DETALLES ---
+            try {
+                const detailsRes = await fetch(detailsUrl);
+                if (detailsRes.ok) {
+                    const details = await detailsRes.json();
+                    const fullName = details.fullName || 'Torneo sin nombre';
+                    document.getElementById('torneoNombre').textContent = `🏆 Resultados Oficiales: ${fullName} 🏆`;
+                    document.getElementById('pageTitle').textContent = `Resultados: ${fullName}`;
+
+                    const stats = details.stats || {};
+                    const totalGames = stats.games || 0;
+                    const calcPct = (val) => totalGames > 0 ? Math.round((val || 0) / totalGames * 100) + '%' : '0%';
+                    const calcBerserkPct = (val) => totalGames > 0 ? Math.round((val || 0) / (totalGames * 2) * 100) + '%' : '0%';
+
+                    document.getElementById('stat-players').textContent = formatNumber(details.nbPlayers);
+                    document.getElementById('stat-games').textContent = formatNumber(stats.games);
+                    document.getElementById('stat-moves').textContent = formatNumber(stats.moves);
+                    document.getElementById('stat-white').textContent = calcPct(stats.whiteWins);
+                    document.getElementById('stat-black').textContent = calcPct(stats.blackWins);
+                    document.getElementById('stat-draw').textContent = calcPct(stats.draws);
+                    document.getElementById('stat-berserk').textContent = calcBerserkPct(stats.berserks);
+                }
+            } catch (err) { console.error("Error fetching details:", err); }
+
+            // --- FASE 2: Obtener JUGADORES ---
+            try {
+                const resultsRes = await fetch(resultsUrl);
+                if (!resultsRes.ok) throw new Error("Error al cargar lista de jugadores");
+
+                const text = await resultsRes.text();
+                const lines = text.trim().split('\n').filter(l => l.length > 0);
+                const players = lines.map(safeJsonParse).filter(o => o && (o.username || o.name) && o.rank).sort((a, b) => a.rank - b.rank);
+
+                // Llenar SELECTOR DE JUGADORES
+                setupPlayerSelector(players);
+
+                const ratedPlayers = players.filter(p => p.rating && p.rating > 0);
+                if (ratedPlayers.length > 0) {
+                    const totalRating = ratedPlayers.reduce((sum, p) => sum + p.rating, 0);
+                    document.getElementById('stat-avg-rating').textContent = Math.round(totalRating / ratedPlayers.length);
+                } else { document.getElementById('stat-avg-rating').textContent = "N/A"; }
+
+                // Podio
+                const winnersElements = [document.getElementById('winner-1'), document.getElementById('winner-2'), document.getElementById('winner-3')];
+                winnersElements.forEach((el, index) => {
+                    if (players.length > index) {
+                        const p = players[index];
+                        const teamText = p.team ? ` (${p.team})` : '';
+                        const title = p.title ? `[${p.title}] ` : '';
+                        el.innerHTML = `<strong>#${p.rank} ${title}${p.username || p.name}</strong><br>${p.score} pts ${teamText}`;
+                    } else { el.textContent = "-"; }
+                });
+
+                // Categorías
+                const findBestUnder = (limit) => players.find(p => p.rating < limit && p.rating > 0);
+                const updateCategory = (elementId, limit) => {
+                    const player = findBestUnder(limit);
+                    const el = document.getElementById(elementId);
+                    if (player) {
+                        const title = player.title ? `[${player.title}] ` : '';
+                        el.innerHTML = `<strong>#${player.rank} ${title}${player.username || player.name}</strong><br>${player.rating} ELO - ${player.score} pts`;
+                    } else { el.textContent = "Desierto"; }
+                };
+                updateCategory('best-u1600', 1600);
+                updateCategory('best-u1200', 1200);
+                updateCategory('best-u800', 800);
+
+            } catch (err) { console.error("Error fetching results:", err); }
+        }
+
+        // Ejecutar
+        fetchTournamentData();
+        injectManualData(); 
+        fetchFeaturedGames(); 
+    </script>
+</body>
+</html>

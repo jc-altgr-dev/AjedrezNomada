@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Maestros de Ajedrez | Academia Jaque Mate</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Configuración de color y fuente para la estética de ajedrez */
+        :root {
+            --color-dark: #202020; /* Negro/Gris Oscuro (como las casillas oscuras) */
+            --color-light: #F0F0F0; /* Blanco Roto (como las casillas claras) */
+            --color-accent: #D4AF37; /* Oro (para acentos) */
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-light);
+            color: var(--color-dark);
+        }
+
+        .card-bg {
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+
+        .card-bg:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        /* Estilo para el botón (enlace) */
+        .btn-link {
+            background-color: var(--color-dark);
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .btn-link:hover {
+            background-color: var(--color-accent);
+            color: var(--color-dark);
+        }
+
+        /* Estilo para el icono de carga */
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .spinner {
+          border: 4px solid rgba(0, 0, 0, 0.1);
+          border-left-color: var(--color-accent);
+          border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          animation: spin 1s linear infinite;
+          display: inline-block;
+          margin-right: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Encabezado y Introducción -->
+    <header class="bg-gray-800 text-white shadow-xl py-12 md:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl sm:text-6xl font-extrabold mb-4 tracking-tight" style="color: var(--color-accent);">
+                Academia Online de Ajedrez Emanuel Lasker
+            </h1>
+            <p class="text-lg sm:text-xl max-w-3xl mx-auto text-gray-300">
+                Conoce al equipo de élite que te guiará en el fascinante mundo del ajedrez. Nuestros maestros son profesionales apasionados con vasta experiencia en competición y pedagogía.
+            </p>
+        </div>
+    </header>
+
+    <!-- Sección de Maestros -->
+    <main class="py-16 md:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl sm:text-4xl font-bold text-center mb-12 text-gray-800">
+                Nuestros Expertos
+            </h2>
+
+            <!-- Contenedor principal para las tarjetas de maestros -->
+            <div id="teachers-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Las tarjetas de maestros se insertarán aquí mediante JavaScript -->
+            </div>
+            
+            <p class="mt-12 text-center text-sm text-gray-500">
+                *Datos de Rating y Partidas obtenidos en tiempo real de Lichess.org.
+            </p>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="bg-gray-800 text-gray-400 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2024 Academia Jaque Mate. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Datos de los maestros de la academia. AÑADE EL ID DE LICHESS.
+        const teachers = [
+            {
+                name: "José Carlos Alvarado Garzón",
+                title: "Profesor de Ajedrez y Director Técnico",
+                bio: "Especialista en táctica y el gambito Marshall Original.",
+                image: "jc.jpg",
+                link: "pagina-miguel.html",
+                lichessId: "AjedrezNomada" // Ejemplo de ID de Lichess
+            },
+            {
+                name: "Gwendolyne Palacios Méndez",
+                title: "Profesora y Arbitro Nacional de Ajedrez",
+                bio: "Conocida por su estilo posicional y la enseñanza de estructuras sólidas.",
+                image: "gw.jpg",
+                link: "pagina-laura.html",
+                lichessId: "Gwend" // Ejemplo de ID de Lichess
+            },
+            {
+                name: "Vianey Medina Huerta",
+                title: "Profesora de Ajedrez y Psicologa en formación",
+                bio: "Dedicada a la formación de jóvenes talentos y la psicología de la competición.",
+                image: "vy.jpg",
+                link: "pagina-javier.html",
+                lichessId: "VianeyMedinaH" // Ejemplo de ID de Lichess
+            },
+            {
+                name: "Mayra Martínez González",
+                title: "Profesora de Ajedrez y Streamer en YT",
+                bio: "Jugadora de Olimpiadas Juveniles, Clasificada Nacional 2020",
+                image: "my.jpg",
+                link: "pagina-elena.html",
+                lichessId: "Ferriz_May" // Ejemplo de ID de Lichess
+            }
+        ];
+
+        // Función auxiliar para introducir un retraso (necesario para el backoff)
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        /**
+         * Fetches Lichess user data with exponential backoff for robustness.
+         * @param {string} username - The Lichess username.
+         * @param {number} maxRetries - Maximum number of retries.
+         * @returns {Promise<Object|null>} The Lichess data object or null on failure.
+         */
+        const fetchLichessData = async (username, maxRetries = 3) => {
+            const apiUrl = `https://lichess.org/api/user/${username}`;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (response.status === 404) {
+                        console.warn(`Lichess user ${username} not found (404).`);
+                        return null; // User doesn't exist, stop retrying
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed for ${username}:`, error.message);
+                    if (i < maxRetries - 1) {
+                        const waitTime = Math.pow(2, i) * 1000; // 1s, 2s, 4s delay
+                        await delay(waitTime);
+                    }
+                }
+            }
+            return null; // Return null if all retries fail
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('teachers-container');
+
+            // Función para generar una tarjeta de maestro
+            const createTeacherCard = (teacher) => {
+                const card = document.createElement('div');
+                card.className = 'card-bg p-6 rounded-xl shadow-lg flex flex-col items-center text-center';
+
+                // Imagen/Miniatura
+                const img = document.createElement('img');
+                img.src = teacher.image;
+                img.className = 'w-36 h-36 object-cover rounded-full mb-4 ring-4 ring-gray-200 hover:ring-accent transition duration-300';
+                img.alt = `Miniatura de ${teacher.name}`;
+                img.onerror = function() {
+                    this.src = 'https://placehold.co/200x200/202020/D4AF37?text=Sin+Foto';
+                };
+
+                // Nombre
+                const name = document.createElement('h3');
+                name.className = 'text-xl font-semibold mb-1 text-gray-900';
+                name.textContent = teacher.name;
+
+                // Título
+                const title = document.createElement('p');
+                title.className = 'text-sm mb-3 text-gray-500 italic';
+                title.textContent = teacher.title;
+
+                // Biografía/Resumen
+                const bio = document.createElement('p');
+                bio.className = 'text-base mb-6 text-gray-700 flex-grow';
+                bio.textContent = teacher.bio;
+                
+                // Contenedor de Información de Lichess
+                const lichessInfo = document.createElement('div');
+                lichessInfo.className = 'w-full mt-4 pt-4 border-t border-gray-100 space-y-2 text-left text-sm';
+                
+                // Elementos de placeholder para los datos de Lichess
+                const loadingHtml = `<div class="spinner"></div>Cargando datos de Lichess...`;
+
+                const ratingElement = document.createElement('p');
+                ratingElement.className = 'text-gray-600';
+                ratingElement.innerHTML = `Lichess ID: <span class="font-bold text-gray-800">${teacher.lichessId || 'N/A'}</span>`;
+
+                const rapidRatingElement = document.createElement('p');
+                rapidRatingElement.className = 'text-gray-600';
+                rapidRatingElement.innerHTML = loadingHtml;
+
+                const gamesElement = document.createElement('p');
+                gamesElement.className = 'text-gray-600';
+                gamesElement.innerHTML = loadingHtml;
+
+                const studyElement = document.createElement('p');
+                studyElement.className = 'text-gray-600';
+                studyElement.innerHTML = loadingHtml;
+
+                // Enlace a la página individual
+                const link = document.createElement('a');
+                link.href = teacher.link;
+                link.className = 'btn-link w-full py-2.5 rounded-lg text-sm font-medium hover:shadow-md mt-6';
+                link.textContent = 'Ver Perfil Completo';
+
+                // Añadir todos los elementos a la tarjeta
+                card.appendChild(img);
+                card.appendChild(name);
+                card.appendChild(title);
+                card.appendChild(bio);
+                card.appendChild(lichessInfo);
+                
+                // Agregar elementos de Lichess al contenedor de info
+                lichessInfo.appendChild(ratingElement);
+                lichessInfo.appendChild(rapidRatingElement);
+                lichessInfo.appendChild(gamesElement);
+                lichessInfo.appendChild(studyElement);
+
+                card.appendChild(link);
+
+                // ** Lógica de Fetch de Lichess **
+                if (teacher.lichessId) {
+                    fetchLichessData(teacher.lichessId).then(data => {
+                        if (data) {
+                            // Usamos el Rating Rápido como un buen indicador general
+                            const rapidRating = data.perfs.rapid ? data.perfs.rapid.rating : 'N/A';
+                            // CAMBIO AQUÍ: Usamos 'en-US' para coma como separador de miles.
+                            const totalGames = data.count.all ? data.count.all.toLocaleString('en-US') : 'N/A';
+                            const totalStudies = data.count.study ? data.count.study.toLocaleString('en-US') : 'N/A';
+                            
+                            rapidRatingElement.innerHTML = `<span class="font-semibold text-gray-800">Rating Rápida:</span> <span class="text-lg font-bold" style="color: var(--color-accent);">${rapidRating}</span>`;
+                            gamesElement.innerHTML = `<span class="font-semibold text-gray-800">Partidas Totales:</span> ${totalGames}`;
+                            studyElement.innerHTML = `<span class="font-semibold text-gray-800">Estudios Creados:</span> ${totalStudies}`;
+                        } else {
+                            // Manejo de errores o ID no encontrado
+                            rapidRatingElement.innerHTML = `<span class="font-semibold text-red-500">Datos Lichess:</span> No disponibles.`;
+                            gamesElement.innerHTML = '';
+                            studyElement.innerHTML = '';
+                        }
+                    });
+                } else {
+                    // Si no hay ID de Lichess
+                    rapidRatingElement.innerHTML = `<span class="font-semibold text-gray-500">Datos Lichess:</span> ID no configurado.`;
+                    gamesElement.innerHTML = '';
+                    studyElement.innerHTML = '';
+                }
+
+                return card;
+            };
+
+            // Iterar sobre los datos y añadir las tarjetas al contenedor
+            teachers.forEach(teacher => {
+                const card = createTeacherCard(teacher);
+                container.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

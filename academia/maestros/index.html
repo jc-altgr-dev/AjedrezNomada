@@ -1,362 +1,178 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Profesor · Academia — Nombre del Maestro</title>
-  <meta name="description" content="Ficha del profesor — Academia. Información, especialidades, horarios y contacto.">
-  <link rel="icon" href="data:," /> <!-- reemplaza con tu favicon -->
-  <style>
-    /* ------------------------
-       RESET / UTILS
-       ------------------------ */
-    :root{
-      --bg:#0f1724; /* oscuro elegante */
-      --card:#0b1220;
-      --muted:#9aa6b2;
-      --accent:#4f46e5; /* púrpura */
-      --glass: rgba(255,255,255,0.04);
-      --glass-2: rgba(255,255,255,0.02);
-      --radius:14px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:linear-gradient(180deg,#071026 0%, #061426 60%);
-      color:#e6eef7;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      padding:28px;
-      line-height:1.45;
-      font-size:16px;
-    }
-    a{color:var(--accent); text-decoration:none}
-    a:focus{outline:2px solid rgba(79,70,229,0.25); outline-offset:3px}
-    img{max-width:100%; display:block}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Maestros de Ajedrez | Academia Jaque Mate</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Configuración de color y fuente para la estética de ajedrez */
+        :root {
+            --color-dark: #202020; /* Negro/Gris Oscuro (como las casillas oscuras) */
+            --color-light: #F0F0F0; /* Blanco Roto (como las casillas claras) */
+            --color-accent: #D4AF37; /* Oro (para acentos) */
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-light);
+            color: var(--color-dark);
+        }
 
-    /* ------------------------
-       LAYOUT
-       ------------------------ */
-    .container{
-      max-width:1100px;
-      margin:0 auto;
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:28px;
-      align-items:start;
-    }
+        .card-bg {
+            background-color: white;
+            transition: all 0.3s ease;
+        }
 
-    @media (max-width:880px){
-      .container{grid-template-columns: 1fr; padding:0 8px}
-      .profile-card{order: -1}
-    }
+        .card-bg:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
 
-    /* ------------------------
-       PROFILE CARD
-       ------------------------ */
-    .profile-card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:var(--radius);
-      padding:22px;
-      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-    .avatar{
-      width:120px; height:120px; border-radius:18px; overflow:hidden;
-      border: 3px solid rgba(255,255,255,0.04);
-      background:linear-gradient(135deg,#0b1220,#09203a);
-      display:flex;align-items:center;justify-content:center;margin-bottom:14px;
-    }
-    .name{
-      font-size:20px;font-weight:700;margin:0 0 6px;
-    }
-    .title{
-      font-size:13px;color:var(--muted);margin:0 0 12px;
-    }
-    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-    .tag{
-      background:var(--glass);
-      padding:6px 10px;border-radius:999px;font-size:13px;color:var(--muted);
-      border:1px solid rgba(255,255,255,0.02)
-    }
-    .stats{
-      display:flex;gap:12px;margin-top:10px;
-    }
-    .stat{flex:1;background:var(--glass-2);padding:10px;border-radius:10px;text-align:center}
-    .stat b{display:block;font-size:18px}
+        /* Estilo para el botón (enlace) */
+        .btn-link {
+            background-color: var(--color-dark);
+            color: white;
+            transition: background-color 0.3s;
+        }
 
-    /* ------------------------
-       MAIN CARD
-       ------------------------ */
-    .main-card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.008));
-      padding:22px;border-radius:var(--radius);
-      border:1px solid rgba(255,255,255,0.03);
-      box-shadow: 0 8px 24px rgba(2,6,23,0.55);
-    }
-    .section{margin-bottom:18px}
-    .section h3{margin:0 0 10px;font-size:16px}
-    .bio{color: #d6e6f4; font-size:15px}
-    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    @media (max-width:640px){ .grid-2{grid-template-columns:1fr} }
-
-    /* ------------------------
-       COURSES / SKILLS
-       ------------------------ */
-    .list{display:flex;flex-direction:column;gap:10px}
-    .course{
-      display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:var(--glass);
-      border:1px solid rgba(255,255,255,0.02)
-    }
-    .course .dot{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent), #06b6d4); display:flex;align-items:center;justify-content:center;font-weight:700}
-
-    /* ------------------------
-       SCHEDULE TABLE
-       ------------------------ */
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:14px}
-    th{color:var(--muted);font-weight:600;font-size:13px}
-
-    /* ------------------------
-       CONTACT / CTA
-       ------------------------ */
-    .cta{
-      display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;
-    }
-    .btn{
-      background:linear-gradient(90deg,var(--accent), #06b6d4);
-      color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700;
-      box-shadow: 0 6px 18px rgba(79,70,229,0.12);
-    }
-    .btn.ghost{
-      background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600;
-      box-shadow:none;
-    }
-    .socials{display:flex;gap:8px;margin-top:8px}
-    .socials a{display:inline-flex;padding:8px;border-radius:8px;background:var(--glass);font-size:14px}
-
-    /* ------------------------
-       TESTIMONIOS
-       ------------------------ */
-    .testimonial{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
-    .muted{color:var(--muted)}
-
-    /* ------------------------
-       FOOTER NOTE
-       ------------------------ */
-    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
-    /* Small helpers */
-    .small{font-size:13px;color:var(--muted)}
-  </style>
+        .btn-link:hover {
+            background-color: var(--color-accent);
+            color: var(--color-dark);
+        }
+    </style>
 </head>
-<body>
-  <!--
-    INSTRUCCIONES RÁPIDAS:
-    - Duplica este archivo para crear una página por cada maestro.
-    - Reemplaza las imágenes (src), textos y enlaces.
-    - La sección "Reservar clase" genera un mailto por defecto; puedes integrar tu sistema de reservas más tarde.
-  -->
+<body class="min-h-screen">
 
-  <div class="container" role="main">
-    <!-- PERFIL LATERAL -->
-    <aside class="profile-card" aria-labelledby="prof-name">
-      <div style="display:flex;gap:14px;align-items:center">
-        <div class="avatar" aria-hidden="true">
-          <!-- Reemplaza con la foto del maestro (cuadrada preferible 400x400) -->
-          <img src="./maestro.jpg" alt="Foto del profesor" style="width:100%;height:100%;object-fit:cover">
+    <!-- Encabezado y Introducción -->
+    <header class="bg-gray-800 text-white shadow-xl py-12 md:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl sm:text-6xl font-extrabold mb-4 tracking-tight" style="color: var(--color-accent);">
+                Academia Jaque Mate
+            </h1>
+            <p class="text-lg sm:text-xl max-w-3xl mx-auto text-gray-300">
+                Conoce al equipo de élite que te guiará en el fascinante mundo del ajedrez. Nuestros maestros son profesionales apasionados con vasta experiencia en competición y pedagogía.
+            </p>
         </div>
-        <div>
-          <h1 id="prof-name" class="name">Prof. Nombre Completo</h1>
-          <div class="title">Coach de Ajedrez • Nivel Nacional</div>
-          <div class="small muted">Ciudad • Disponibilidad: Tardes</div>
-        </div>
-      </div>
+    </header>
 
-      <div class="tags" aria-hidden="false" style="margin-top:14px">
-        <span class="tag">Entrenamiento individual</span>
-        <span class="tag">Táctica y finales</span>
-        <span class="tag">Niños / Adultos</span>
-      </div>
+    <!-- Sección de Maestros -->
+    <main class="py-16 md:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl sm:text-4xl font-bold text-center mb-12 text-gray-800">
+                Nuestros Expertos
+            </h2>
 
-      <div class="stats" aria-hidden="false">
-        <div class="stat"><b>5+</b><span class="small muted">años enseñando</span></div>
-        <div class="stat"><b>120+</b><span class="small muted">alumnos formados</span></div>
-      </div>
-
-      <div style="margin-top:14px">
-        <div class="small muted">Contacto directo</div>
-        <div class="cta">
-          <!-- BOTÓN: reservar (mailto) -->
-          <button class="btn" id="bookBtn">Reservar clase</button>
-          <!-- BOTÓN: guardar vCard -->
-          <button class="btn ghost" id="vcardBtn" title="Descargar contacto">Guardar contacto</button>
-        </div>
-
-        <div class="socials" aria-hidden="false">
-          <a href="#" aria-label="WhatsApp">WhatsApp</a>
-          <a href="#" aria-label="Perfil público">Perfil</a>
-          <a href="#" aria-label="LinkedIn">LinkedIn</a>
-        </div>
-      </div>
-    </aside>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <section class="main-card" aria-labelledby="main-title">
-      <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-        <div>
-          <h2 id="main-title" style="margin:0;font-size:20px">Ficha profesional y cursos</h2>
-          <div class="small muted">Actualizado: <time datetime="2025-09-20">20 Sep 2025</time></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn" onclick="window.print()">Imprimir</button>
-          <a class="btn ghost" href="/maestros">Volver</a>
-        </div>
-      </header>
-
-      <!-- BIO -->
-      <div class="section">
-        <h3>Sobre el profesor</h3>
-        <p class="bio">Profesor certificado en técnicas de enseñanza activa para ajedrez. Combina trabajo de táctica, estrategia y finales con ejercicios personalizados por edad y nivel. Ha formado jugadores para torneos estatales y nacionales.</p>
-      </div>
-
-      <div class="grid-2">
-        <!-- CURSOS -->
-        <div class="section">
-          <h3>Cursos y especialidades</h3>
-          <div class="list">
-            <div class="course">
-              <div class="dot">T</div>
-              <div>
-                <div style="font-weight:700">Taller de táctica (Nivel intermedio)</div>
-                <div class="small muted">8 sesiones • Duración: 45 min</div>
-              </div>
+            <!-- Contenedor principal para las tarjetas de maestros -->
+            <!-- La clase `grid` y los prefijos responsivos controlan el layout -->
+            <div id="teachers-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Las tarjetas de maestros se insertarán aquí mediante JavaScript -->
             </div>
-
-            <div class="course">
-              <div class="dot">I</div>
-              <div>
-                <div style="font-weight:700">Iniciación para niños</div>
-                <div class="small muted">Clases lúdicas y estructuradas</div>
-              </div>
-            </div>
-
-            <div class="course">
-              <div class="dot">A</div>
-              <div>
-                <div style="font-weight:700">Aperturas y planes de medio juego</div>
-                <div class="small muted">Personalizado por estilo</div>
-              </div>
-            </div>
-          </div>
         </div>
+    </main>
 
-        <!-- HORARIOS -->
-        <div class="section">
-          <h3>Horarios disponibles</h3>
-          <table aria-label="Horario del profesor">
-            <thead>
-              <tr><th>Día</th><th>Hora</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Lunes</td><td>18:00 — 20:00</td></tr>
-              <tr><td>Miércoles</td><td>17:00 — 19:00</td></tr>
-              <tr><td>Sábado</td><td>09:00 — 12:00</td></tr>
-            </tbody>
-          </table>
-
-          <div style="margin-top:10px" class="small muted">Horarios sujetos a disponibilidad. Para reservar usa el botón <strong>Reservar clase</strong>.</div>
+    <!-- Pie de página -->
+    <footer class="bg-gray-800 text-gray-400 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2024 Academia Jaque Mate. Todos los derechos reservados.</p>
         </div>
-      </div>
+    </footer>
 
-      <!-- TESTIMONIOS -->
-      <div class="section">
-        <h3>Testimonios</h3>
-        <div style="display:grid;gap:10px">
-          <div class="testimonial">
-            <div style="font-weight:700">María G. — Madre</div>
-            <div class="small muted">"Excelente metodología con niños, mi hijo mejoró mucho en confianza y táctica."</div>
-          </div>
+    <script>
+        // Datos de los maestros de la academia
+        const teachers = [
+            {
+                name: "José Carlos Alvarado Garzón",
+                title: "Profesor de Ajedrez y Director Técnico",
+                bio: "Especialista en gambitos y la variante original del Marshall",
+                image: "teacher_jc.jpg",
+                link: "pagina-miguel.html"
+            },
+            {
+                name: "MI Laura Gómez",
+                title: "Maestra Internacional y Experta en Táctica",
+                bio: "Conocida por su estilo agresivo y la enseñanza de combinaciones letales.",
+                image: "https://placehold.co/200x200/202020/D4AF37?text=MI",
+                link: "pagina-laura.html"
+            },
+            {
+                name: "MF Javier Ruiz",
+                title: "Maestro FIDE y Analista de Aperturas",
+                bio: "Enfocado en construir repertorios sólidos y la comprensión posicional profunda.",
+                image: "https://placehold.co/200x200/202020/D4AF37?text=MF",
+                link: "pagina-javier.html"
+            },
+            {
+                name: "WIM Elena Vidal",
+                title: "Maestra Internacional Femenina y Mentora",
+                bio: "Dedicada a la formación de jóvenes talentos y la psicología de la competición.",
+                image: "https://placehold.co/200x200/202020/D4AF37?text=WIM",
+                link: "pagina-elena.html"
+            }
+            // Puedes agregar más maestros aquí siguiendo la misma estructura
+        ];
 
-          <div class="testimonial">
-            <div style="font-weight:700">Carlos R. — Alumno</div>
-            <div class="small muted">"Las clases son muy claras y con ejercicios prácticos. Recomendado."</div>
-          </div>
-        </div>
-      </div>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('teachers-container');
 
-      <!-- RECURSOS / MATERIALES -->
-      <div class="section">
-        <h3>Materiales y seguimiento</h3>
-        <p class="small muted">Se entrega material (PDF) y reportes de progreso. Posibilidad de seguimiento online por plataforma y tareas semanales.</p>
-        <div style="margin-top:8px">
-          <a class="btn" href="#" aria-label="Descargar material">Ver material de muestra</a>
-        </div>
-      </div>
+            // Función para generar una tarjeta de maestro
+            const createTeacherCard = (teacher) => {
+                // Crear el elemento div principal de la tarjeta
+                const card = document.createElement('div');
+                card.className = 'card-bg p-6 rounded-xl shadow-lg flex flex-col items-center text-center';
 
-      <!-- NOTAS / POLÍTICAS -->
-      <div class="section">
-        <h3>Políticas</h3>
-        <ul class="small muted">
-          <li>Cancelaciones hasta 24 h antes sin cargo.</li>
-          <li>Si el alumno no asiste, se puede reagendar una vez según disponibilidad.</li>
-          <li>Pago por sesión o paquete mensual.</li>
-        </ul>
-      </div>
+                // Imagen/Miniatura
+                const img = document.createElement('img');
+                img.src = teacher.image;
+                // Clases de Tailwind para la imagen
+                img.className = 'w-36 h-36 object-cover rounded-full mb-4 ring-4 ring-gray-200 hover:ring-accent transition duration-300';
+                img.alt = `Miniatura de ${teacher.name}`;
+                // Fallback en caso de que la imagen no cargue
+                img.onerror = function() {
+                    this.src = 'https://placehold.co/200x200/202020/D4AF37?text=Sin+Foto';
+                };
 
-      <footer>
-        <div class="small muted">Academia • Página del profesor — Personaliza y adapta esta plantilla según tus necesidades.</div>
-      </footer>
-    </section>
-  </div>
+                // Nombre
+                const name = document.createElement('h3');
+                name.className = 'text-xl font-semibold mb-1 text-gray-900';
+                name.textContent = teacher.name;
 
-  <!-- SCRIPTS: interacción ligera -->
-  <script>
-    // Datos del profesor (modifica para cada archivo o inyecta dinámicamente)
-    const teacher = {
-      name: "Prof. Nombre Completo",
-      email: "profesor@academia.com",
-      phone: "+5215512345678",
-      city: "Ciudad",
-      title: "Coach de Ajedrez • Nivel Nacional"
-    };
+                // Título
+                const title = document.createElement('p');
+                title.className = 'text-sm mb-3 text-gray-500 italic';
+                title.textContent = teacher.title;
 
-    document.getElementById('bookBtn').addEventListener('click', function(){
-      const subject = encodeURIComponent("Reserva de clase con " + teacher.name);
-      const body =
-        encodeURIComponent("Hola " + teacher.name + ",%0D%0A%0D%0AMe gustaría reservar una clase. Mis datos:%0D%0ANombre:%0D%0ATeléfono:%0D%0ANivel:%0D%0AHorario preferido:%0D%0A%0D%0AGracias.");
-      // Cambia el mailto si usas otro sistema
-      window.location.href = `mailto:${teacher.email}?subject=${subject}&body=${body}`;
-    });
+                // Biografía/Resumen
+                const bio = document.createElement('p');
+                bio.className = 'text-base mb-6 text-gray-700 flex-grow';
+                bio.textContent = teacher.bio;
+                
+                // Enlace a la página individual
+                const link = document.createElement('a');
+                link.href = teacher.link;
+                // Clases de Tailwind para el botón de enlace
+                link.className = 'btn-link w-full py-2.5 rounded-lg text-sm font-medium hover:shadow-md mt-auto';
+                link.textContent = 'Ver Perfil Completo';
 
-    // Generar vCard y descargar
-    document.getElementById('vcardBtn').addEventListener('click', function(){
-      const vcard =
-        `BEGIN:VCARD
-VERSION:3.0
-FN:${teacher.name}
-ORG:Academia
-TITLE:${teacher.title}
-TEL;TYPE=CELL:${teacher.phone}
-EMAIL:${teacher.email}
-ADR;TYPE=WORK:;;${teacher.city};;;
-END:VCARD`;
-      const blob = new Blob([vcard], {type: 'text/vcard'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = (teacher.name.replace(/\s+/g,'_') || 'contacto') + '.vcf';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
+                // Añadir todos los elementos a la tarjeta
+                card.appendChild(img);
+                card.appendChild(name);
+                card.appendChild(title);
+                card.appendChild(bio);
+                card.appendChild(link);
 
-    // Opcional: sustituir textos del DOM con los datos del objeto teacher (fácil personalización)
-    document.getElementById('prof-name').textContent = teacher.name;
-    document.querySelector('.title').textContent = teacher.title;
-  </script>
+                return card;
+            };
+
+            // Iterar sobre los datos y añadir las tarjetas al contenedor
+            teachers.forEach(teacher => {
+                const card = createTeacherCard(teacher);
+                container.appendChild(card);
+            });
+        });
+    </script>
 </body>
 </html>
-
