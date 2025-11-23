@@ -174,13 +174,60 @@
             align-items: center;
             justify-content: center;
         }
-        .partida-container iframe {
+        
+        /* --- NUEVO: WRAPPER Y OVERLAY PARA IFRAMES --- */
+        .iframe-wrapper {
+            position: relative;
             width: 100%;
-            height: 400px; 
+            height: 400px;
             border-radius: 4px;
+            overflow: hidden;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
             border: none;
         }
+
+        .iframe-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.1); /* Fondo muy sutil */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.3s;
+        }
+        
+        .iframe-overlay:hover {
+            background: rgba(44, 62, 80, 0.3);
+        }
+
+        .iframe-overlay-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+        
+        .iframe-overlay:hover .iframe-overlay-btn {
+            transform: scale(1.05);
+        }
+        /* --------------------------------------------- */
         
         /* Estilos Selectores */
         #selector-area {
@@ -454,8 +501,6 @@
                         
                         // Lógica del Tooltip (Hover)
                         const performance = p.performance ? `Performance: ${p.performance}` : 'Performance: N/A';
-                        // nbGames no siempre viene en /results, a veces hay que inferirlo o no está.
-                        // Intentamos mostrar performance que es lo más relevante.
                         tip.innerHTML = `<strong>${name}</strong><br>${performance}<br>Ranking: #${p.rank}`;
                     } else {
                         el.textContent = "-";
@@ -534,7 +579,6 @@
                 setInfo('game-2-info', best, `ELO Promedio: ${Math.round(maxAvg)}`);
 
                 // 3.3 Miniatura (Mate Rápido Global)
-                // Filtramos: status = mate, y buscamos el menor número de movimientos
                 const mateGames = tournamentGames.filter(g => g.status === 'mate');
                 let quickestMate = null;
                 let minMoves = 9999;
@@ -542,7 +586,6 @@
                 if (mateGames.length > 0) {
                     mateGames.forEach(g => {
                         const m = g.moves ? g.moves.split(' ').length : 9999;
-                        // Evitamos duplicar las otras partidas destacadas si es posible
                         const isDuplicate = (g.id === longest.id || g.id === best.id);
                         
                         if (m < minMoves && (!isDuplicate || mateGames.length < 3)) {
@@ -556,7 +599,6 @@
                     setIframe('game-iframe-global-mate', quickestMate.id);
                     setInfo('game-global-mate-info', quickestMate, `Mate en ${Math.ceil(minMoves/2)} jugadas`);
                 } else {
-                    // Si no hay mates, mostramos un placeholder o la partida más corta general
                     document.getElementById('game-iframe-global-mate').src = "https://placehold.co/600x400/eee/333?text=No+hubo+Jaque+Mates";
                     document.getElementById('game-global-mate-info').textContent = "Ninguna partida finalizó en mate.";
                 }
@@ -566,9 +608,52 @@
         }
 
         // Helpers para UI
+        // --- FUNCIÓN setIframe MODIFICADA CON PROTECCIÓN DE CLICK ---
         function setIframe(id, gameId) {
-            document.getElementById(id).src = `https://lichess.org/embed/${gameId}?theme=blue&bg=light`;
+            const iframe = document.getElementById(id);
+            if (!iframe) return;
+
+            // Establecer la fuente
+            const src = `https://lichess.org/embed/${gameId}?theme=blue&bg=light`;
+            iframe.src = src;
+
+            // 1. Comprobar si ya está envuelto en el wrapper de seguridad
+            let wrapper = iframe.closest('.iframe-wrapper');
+            
+            if (!wrapper) {
+                // 2. Crear Wrapper
+                wrapper = document.createElement('div');
+                wrapper.className = 'iframe-wrapper';
+                
+                // Insertar antes y mover el iframe dentro
+                iframe.parentNode.insertBefore(wrapper, iframe);
+                wrapper.appendChild(iframe);
+                
+                // 3. Crear Overlay
+                const overlay = document.createElement('div');
+                overlay.className = 'iframe-overlay';
+                
+                // Botón visual
+                const btn = document.createElement('div');
+                btn.className = 'iframe-overlay-btn';
+                btn.innerHTML = '<span>👆 Activar Tablero</span>';
+                overlay.appendChild(btn);
+                
+                // 4. Evento de Click para ocultar
+                overlay.onclick = function() {
+                    this.style.display = 'none';
+                };
+                
+                wrapper.appendChild(overlay);
+            } else {
+                // Si ya existe el wrapper (al cambiar de torneo/jugador),
+                // aseguramos que el overlay vuelva a aparecer para la nueva partida.
+                const overlay = wrapper.querySelector('.iframe-overlay');
+                if(overlay) overlay.style.display = 'flex';
+            }
         }
+        // -----------------------------------------------------------
+
         function getRating(g, color) { return g.players[color].rating || 0; }
         function getName(g, color) { return g.players[color].user ? g.players[color].user.name : "Anónimo"; }
         
@@ -603,10 +688,7 @@
                 getName(g,'white') === user || getName(g,'black') === user
             );
 
-            if(myGames.length === 0) {
-                // Resetear iframes si no hay partidas
-                return;
-            }
+            if(myGames.length === 0) return;
 
             // 4.1 Su más larga
             let longest = myGames[0];
@@ -630,28 +712,21 @@
             setIframe('game-iframe-4', hardest.id);
             setInfo('game-4-info', hardest, `Nivel Promedio: ${Math.round(maxR)}`);
 
-            // 4.3 Su Mate más rápido (Ganado o Perdido, o idealmente Ganado por él)
-            // Intentaremos buscar un mate donde el usuario haya GANADO.
-            // Lichess 'winner' field: 'white' o 'black'.
+            // 4.3 Su Mate más rápido
             let bestMate = null;
             let minMateMoves = 9999;
-
-            // Filtramos partidas donde hubo mate
             const myMateGames = myGames.filter(g => g.status === 'mate');
             
-            // Prioridad: Mates ganados por el usuario
             let wonMates = myMateGames.filter(g => {
                 const userColor = getName(g, 'white') === user ? 'white' : 'black';
                 return g.winner === userColor;
             });
 
-            // Si no ganó mates, usamos cualquier mate en el que haya participado
             const candidateMates = wonMates.length > 0 ? wonMates : myMateGames;
 
             if (candidateMates.length > 0) {
                 candidateMates.forEach(g => {
                     const m = g.moves ? g.moves.split(' ').length : 9999;
-                    // Evitar repetidos de las otras 2 categorías del jugador
                     const isDup = (g.id === longest.id || g.id === hardest.id);
                     if (m < minMateMoves && (!isDup || candidateMates.length < 3)) {
                         minMateMoves = m;
@@ -662,14 +737,12 @@
 
             if (bestMate) {
                 setIframe('game-iframe-5', bestMate.id);
-                // Determinamos si ganó o perdió para el texto
                 const userColor = getName(bestMate, 'white') === user ? 'white' : 'black';
                 const resultText = bestMate.winner === userColor ? "Victoria por Mate" : "Finalizó en Mate";
                 setInfo('game-5-info', bestMate, `${resultText} en ${Math.ceil(minMateMoves/2)} jugadas`);
             } else {
-                // Placeholder si no tiene mates
                 document.getElementById('game-iframe-5').src = "https://placehold.co/600x400/eee/333?text=Sin+Mates+Registrados";
-                document.getElementById('game-5-info').textContent = "Este jugador no definió partidas por jaque mate.";
+                document.getElementById('game-5-info').textContent = "Este estudiante no definió partidas por jaque mate.";
             }
         }
 
