@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados del Torneo Escolar</title>
     
-    <!-- Fuentes Divertidas -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap');
 
@@ -24,7 +23,7 @@
             color: var(--text-main);
             background-image: radial-gradient(#b2bec3 1px, transparent 1px);
             background-size: 20px 20px;
-            overflow-x: hidden; /* Previene scroll horizontal en toda la página */
+            overflow-x: hidden;
         }
 
         header {
@@ -98,12 +97,10 @@
         .podium-card:hover { transform: scale(1.03); z-index: 10; }
         .podium-card h3 { font-family: 'Fredoka', sans-serif; margin: 10px 0; color: var(--text-main); }
         
-        /* Colores Podio */
         .rank-1 { background-color: #fff9c4; border-bottom: 6px solid #f1c40f; }
         .rank-2 { background-color: #f5f6fa; border-bottom: 6px solid #b2bec3; }
         .rank-3 { background-color: #ffccbc; border-bottom: 6px solid #e17055; }
 
-        /* Tooltip */
         .podium-details {
             visibility: hidden; opacity: 0; position: absolute; bottom: 110%; left: 50%;
             transform: translateX(-50%); background: var(--text-main); color: #fff;
@@ -112,10 +109,9 @@
         }
         .podium-card:hover .podium-details { visibility: visible; opacity: 1; bottom: 100%; }
 
-        /* --- ESTADÍSTICAS MULTICOLOR --- */
+        /* --- ESTADÍSTICAS --- */
         #statsList {
             display: grid;
-            /* Ajuste para evitar desbordes en móviles pequeños */
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 15px;
             padding: 0;
@@ -135,7 +131,7 @@
         
         .stat-item strong { 
             font-family: 'Fredoka', sans-serif; 
-            font-size: 1.6rem; /* Un poco más pequeño para que quepa */
+            font-size: 1.6rem; 
             display: block; 
             line-height: 1.1;
         }
@@ -149,17 +145,17 @@
             margin-top: 5px;
         }
 
-        /* Paleta de Colores "Crayones" para Stats */
-        .stat-item:nth-child(1) { background-color: #00b894; } /* Verde Menta */
-        .stat-item:nth-child(2) { background-color: #0984e3; } /* Azul Eléctrico */
-        .stat-item:nth-child(3) { background-color: #6c5ce7; } /* Púrpura */
-        .stat-item:nth-child(4) { background-color: #e17055; } /* Terracota */
-        .stat-item:nth-child(5) { background-color: #fdcb6e; color: #2d3436; } /* Mostaza (texto oscuro) */
-        .stat-item:nth-child(6) { background-color: #d63031; } /* Rojo Intenso */
-        .stat-item:nth-child(7) { background-color: #e84393; } /* Rosa Chicle */
-        .stat-item:nth-child(8) { background-color: #636e72; } /* Gris Pizarra */
+        /* Colores Stats */
+        .stat-item:nth-child(1) { background-color: #00b894; }
+        .stat-item:nth-child(2) { background-color: #0984e3; }
+        .stat-item:nth-child(3) { background-color: #6c5ce7; }
+        .stat-item:nth-child(4) { background-color: #e17055; }
+        .stat-item:nth-child(5) { background-color: #fdcb6e; color: #2d3436; }
+        .stat-item:nth-child(6) { background-color: #d63031; }
+        .stat-item:nth-child(7) { background-color: #e84393; }
+        .stat-item:nth-child(8) { background-color: #636e72; }
 
-        /* --- IFRAMES SEGUROS (SOLUCIÓN SCROLL DESKTOP) --- */
+        /* --- IFRAMES FLUIDOS (SIN BOTONES) --- */
         .games-grid {
             display: grid;
             gap: 30px;
@@ -185,67 +181,43 @@
             border-radius: 10px;
             overflow: hidden;
             background: #eee; 
+            /* Borde sutil para indicar interactividad */
+            transition: box-shadow 0.3s;
+        }
+        
+        /* Cuando está activo, brilla un poco */
+        .iframe-wrapper.active {
+            box-shadow: 0 0 0 3px var(--secondary);
         }
         
         .iframe-wrapper iframe {
             width: 100%;
             height: 100%;
             border: none;
-            display: block; /* Elimina espacios extra */
-        }
-
-        /* CRÍTICO: Cuando NO está activo, el iframe no recibe clicks ni scroll del mouse */
-        .iframe-wrapper:not(.active) iframe {
+            display: block; 
+            /* Por defecto, el iframe NO recibe eventos del mouse (scroll/click) */
             pointer-events: none; 
         }
 
-        /* Overlay */
-        .iframe-overlay {
+        /* Cuando está activo, el iframe SÍ recibe eventos */
+        .iframe-wrapper.active iframe {
+            pointer-events: auto;
+        }
+
+        /* El escudo invisible que captura el primer clic */
+        .iframe-shield {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(45, 52, 54, 0.2);
-            backdrop-filter: blur(3px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             z-index: 10;
-            transition: opacity 0.3s;
-        }
-        
-        .btn-activate {
-            background: #00b894;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-family: 'Fredoka', sans-serif;
-            font-size: 1.1rem;
-            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 5px 0 #008f72;
-            transition: transform 0.1s;
+            /* Totalmente transparente */
+            background: transparent; 
         }
-        .btn-activate:active { transform: translateY(4px); box-shadow: 0 1px 0 #008f72; }
 
-        .btn-close-board {
-            position: absolute;
-            top: 10px; right: 10px;
-            background: #ff7675;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 20;
-            display: none; 
-            box-shadow: 0 3px 0 #d63031;
-            font-family: 'Fredoka', sans-serif;
-            font-size: 0.9rem;
+        /* Cuando está activo, el escudo desaparece para dejar jugar */
+        .iframe-wrapper.active .iframe-shield {
+            display: none;
         }
-        .btn-close-board:active { transform: translateY(3px); box-shadow: none; }
-
-        .iframe-wrapper.active .iframe-overlay { opacity: 0; pointer-events: none; }
-        .iframe-wrapper.active .btn-close-board { display: block; }
 
         /* Selectores */
         #selector-area {
@@ -255,7 +227,7 @@
             margin-top: 20px;
             display: inline-block;
             border: 2px dashed rgba(255,255,255,0.5);
-            max-width: 90%; /* Evita desborde en móvil */
+            max-width: 90%;
         }
         select {
             padding: 10px;
@@ -275,17 +247,12 @@
             border: 2px dashed #fdcb6e;
         }
 
-        /* Ajustes Móviles */
         @media (max-width: 768px) {
             h1 { font-size: 1.5rem; }
             header { padding: 20px 10px; }
             main { padding: 10px; width: 98%; }
-            
-            /* Asegura que las stats quepan en 2 columnas en móvil estrecho */
             #statsList { grid-template-columns: 1fr 1fr; gap: 10px; }
             .stat-item strong { font-size: 1.3rem; }
-            .stat-item span { font-size: 0.7rem; }
-            
             .games-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -341,7 +308,6 @@
 
         <section>
             <h2>📊 Datos Curiosos</h2>
-            <!-- La lista de stats ahora usa colores definidos por nth-child en CSS -->
             <div id="statsList">
                 <div class="stat-item"><strong id="stat-avg-rating">-</strong> <span>Nivel Promedio</span></div>
                 <div class="stat-item"><strong id="stat-players">0</strong> <span>Jugadores</span></div>
@@ -359,11 +325,9 @@
             <div class="games-grid">
                 <div class="partida-container">
                     <h3>⏳ La Partida Maratón</h3>
-                    <div class="iframe-wrapper" id="wrapper-1">
-                        <button class="btn-close-board" onclick="deactivateBoard('wrapper-1')">❌ Cerrar</button>
-                        <div class="iframe-overlay">
-                            <button class="btn-activate" onclick="activateBoard('wrapper-1')">👆 Activar</button>
-                        </div>
+                    <!-- Wrapper inteligente: onmouseleave desactiva el tablero (PC) -->
+                    <div class="iframe-wrapper" id="wrapper-1" onmouseleave="deactivateBoard('wrapper-1')">
+                        <div class="iframe-shield" onclick="activateBoard('wrapper-1')"></div>
                         <iframe id="game-iframe-1" src="" allowtransparency="true"></iframe>
                     </div>
                     <p id="game-1-info" style="font-weight:bold; color: #6c5ce7; font-size: 0.9rem; margin-top:8px;"></p>
@@ -371,11 +335,8 @@
                 
                 <div class="partida-container">
                     <h3>🧠 Duelo de Titanes</h3>
-                    <div class="iframe-wrapper" id="wrapper-2">
-                        <button class="btn-close-board" onclick="deactivateBoard('wrapper-2')">❌ Cerrar</button>
-                        <div class="iframe-overlay">
-                            <button class="btn-activate" onclick="activateBoard('wrapper-2')">👆 Activar</button>
-                        </div>
+                    <div class="iframe-wrapper" id="wrapper-2" onmouseleave="deactivateBoard('wrapper-2')">
+                        <div class="iframe-shield" onclick="activateBoard('wrapper-2')"></div>
                         <iframe id="game-iframe-2" src="" allowtransparency="true"></iframe>
                     </div>
                     <p id="game-2-info" style="font-weight:bold; color: #6c5ce7; font-size: 0.9rem; margin-top:8px;"></p>
@@ -383,11 +344,8 @@
 
                 <div class="partida-container">
                     <h3>⚡ El Rayo (Mate Rápido)</h3>
-                    <div class="iframe-wrapper" id="wrapper-mate">
-                        <button class="btn-close-board" onclick="deactivateBoard('wrapper-mate')">❌ Cerrar</button>
-                        <div class="iframe-overlay">
-                            <button class="btn-activate" onclick="activateBoard('wrapper-mate')">👆 Activar</button>
-                        </div>
+                    <div class="iframe-wrapper" id="wrapper-mate" onmouseleave="deactivateBoard('wrapper-mate')">
+                        <div class="iframe-shield" onclick="activateBoard('wrapper-mate')"></div>
                         <iframe id="game-iframe-global-mate" src="" allowtransparency="true"></iframe>
                     </div>
                     <p id="game-global-mate-info" style="font-weight:bold; color: #6c5ce7; font-size: 0.9rem; margin-top:8px;"></p>
@@ -406,27 +364,24 @@
                 <div class="games-grid">
                     <div class="partida-container">
                         <h3>Su Partida Más Larga</h3>
-                        <div class="iframe-wrapper" id="wrapper-3">
-                            <button class="btn-close-board" onclick="deactivateBoard('wrapper-3')">❌ Cerrar</button>
-                            <div class="iframe-overlay"><button class="btn-activate" onclick="activateBoard('wrapper-3')">👆 Ver</button></div>
+                        <div class="iframe-wrapper" id="wrapper-3" onmouseleave="deactivateBoard('wrapper-3')">
+                            <div class="iframe-shield" onclick="activateBoard('wrapper-3')"></div>
                             <iframe id="game-iframe-3" src="" allowtransparency="true"></iframe>
                         </div>
                         <p id="game-3-info" style="margin-top:8px; font-weight:bold; color:#6c5ce7; font-size:0.9rem;"></p>
                     </div>
                     <div class="partida-container">
                         <h3>Su Rival Más Fuerte</h3>
-                        <div class="iframe-wrapper" id="wrapper-4">
-                            <button class="btn-close-board" onclick="deactivateBoard('wrapper-4')">❌ Cerrar</button>
-                            <div class="iframe-overlay"><button class="btn-activate" onclick="activateBoard('wrapper-4')">👆 Ver</button></div>
+                        <div class="iframe-wrapper" id="wrapper-4" onmouseleave="deactivateBoard('wrapper-4')">
+                            <div class="iframe-shield" onclick="activateBoard('wrapper-4')"></div>
                             <iframe id="game-iframe-4" src="" allowtransparency="true"></iframe>
                         </div>
                         <p id="game-4-info" style="margin-top:8px; font-weight:bold; color:#6c5ce7; font-size:0.9rem;"></p>
                     </div>
                     <div class="partida-container">
                         <h3>Su Mejor Jaque Mate</h3>
-                        <div class="iframe-wrapper" id="wrapper-5">
-                            <button class="btn-close-board" onclick="deactivateBoard('wrapper-5')">❌ Cerrar</button>
-                            <div class="iframe-overlay"><button class="btn-activate" onclick="activateBoard('wrapper-5')">👆 Ver</button></div>
+                        <div class="iframe-wrapper" id="wrapper-5" onmouseleave="deactivateBoard('wrapper-5')">
+                            <div class="iframe-shield" onclick="activateBoard('wrapper-5')"></div>
                             <iframe id="game-iframe-5" src="" allowtransparency="true"></iframe>
                         </div>
                         <p id="game-5-info" style="margin-top:8px; font-weight:bold; color:#6c5ce7; font-size:0.9rem;"></p>
@@ -441,19 +396,28 @@
         const formatNumber = (num) => (num || 0).toLocaleString('es-ES');
         let tournamentGames = []; 
 
-        // --- SEGURIDAD DE TABLEROS ---
-        function activateBoard(wrapperId) {
-            document.getElementById(wrapperId).classList.add('active');
+        // --- SEGURIDAD INVISIBLE DE TABLEROS ---
+        // 1. Al tocar/hacer clic: Quita el escudo, activa el iframe
+        function activateBoard(shieldElement) {
+            const wrapper = shieldElement.closest('.iframe-wrapper');
+            wrapper.classList.add('active');
         }
         
+        // 2. Al sacar el mouse (PC): Desactiva automáticamente
         function deactivateBoard(wrapperId) {
-            const wrapper = document.getElementById(wrapperId);
-            wrapper.classList.remove('active');
-            // Truco adicional: Quitar el foco del iframe para devolver el control al teclado/mouse
-            if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-            }
+            document.getElementById(wrapperId).classList.remove('active');
         }
+
+        // 3. Listener GLOBAL (Móvil): Si tocas fuera de un tablero activo, lo desactiva
+        document.addEventListener('click', function(event) {
+            // Si lo que toqué NO está dentro de un wrapper activo...
+            if (!event.target.closest('.iframe-wrapper.active')) {
+                // ... desactivar todos los tableros activos
+                document.querySelectorAll('.iframe-wrapper.active').forEach(w => {
+                    w.classList.remove('active');
+                });
+            }
+        }, true); // Fase de captura para asegurar que detecta el toque
 
         // --- CARGA DE DATOS ---
         async function loadTournamentList() {
@@ -491,7 +455,6 @@
             } catch (error) {
                 console.error(error);
                 document.getElementById('torneoNombre').textContent = "Error leyendo torneos.csv";
-                // Fallback si falla CSV (ej. local sin server)
                 const select = document.getElementById('csv-selector');
                 select.innerHTML = '<option>Error de Carga</option>';
             }
@@ -533,7 +496,6 @@
                     .filter(o => o && (o.username || o.name) && o.rank)
                     .sort((a, b) => a.rank - b.rank);
 
-                // Llenar podio
                 const setWinner = (idx, elId, tooltipId) => {
                     const p = players[idx];
                     const el = document.getElementById(elId);
@@ -550,7 +512,6 @@
                 setWinner(1, 'winner-2', 'tooltip-2');
                 setWinner(2, 'winner-3', 'tooltip-3');
 
-                // Llenar categorías
                 const setCat = (limit, elId) => {
                     const p = players.find(x => x.rating < limit && x.rating > 0);
                     const el = document.getElementById(elId);
@@ -561,7 +522,6 @@
                 setCat(1200, 'best-u1200');
                 setCat(800, 'best-u800');
 
-                // Rating Promedio
                 const ratedPlayers = players.filter(p => p.rating > 0);
                 const avgElo = ratedPlayers.length ? Math.round(ratedPlayers.reduce((a,b)=>a+b.rating,0)/ratedPlayers.length) : "N/A";
                 document.getElementById('stat-avg-rating').textContent = avgElo;
@@ -590,7 +550,6 @@
 
                 if (tournamentGames.length === 0) return;
 
-                // 1. Larga
                 let longest = tournamentGames[0];
                 let maxMoves = 0;
                 tournamentGames.forEach(g => {
@@ -600,7 +559,6 @@
                 updateBoardSource('game-iframe-1', longest.id);
                 setInfo('game-1-info', longest, `${Math.floor(maxMoves/2)} turnos`);
 
-                // 2. Mejor
                 let best = tournamentGames[0];
                 let maxAvg = 0;
                 tournamentGames.forEach(g => {
@@ -612,7 +570,6 @@
                 updateBoardSource('game-iframe-2', best.id);
                 setInfo('game-2-info', best, `ELO Promedio: ${Math.round(maxAvg)}`);
 
-                // 3. Mate
                 const mateGames = tournamentGames.filter(g => g.status === 'mate');
                 let quickestMate = null;
                 let minMoves = 9999;
@@ -641,7 +598,6 @@
             const iframe = document.getElementById(iframeId);
             if (iframe) {
                 iframe.src = `https://lichess.org/embed/${gameId}?theme=blue&bg=light`;
-                // Resetear estado al cargar nueva
                 const wrapper = iframe.closest('.iframe-wrapper');
                 if(wrapper) wrapper.classList.remove('active');
             }
