@@ -155,7 +155,7 @@
         .stat-item:nth-child(7) { background-color: #e84393; }
         .stat-item:nth-child(8) { background-color: #636e72; }
 
-        /* --- IFRAMES FLUIDOS (SIN BOTONES) --- */
+        /* --- IFRAMES FLUIDOS (CENTRADOS Y SEGUROS) --- */
         .games-grid {
             display: grid;
             gap: 30px;
@@ -163,15 +163,21 @@
         }
         .partida-container {
             background: #fff;
-            padding: 10px;
+            padding: 15px; /* Más padding para que respire */
             border-radius: 15px;
             border: 2px solid #eee;
+            /* Flexbox para centrar el título y contenido si es necesario */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .partida-container h3 {
             font-family: 'Fredoka', sans-serif;
             color: var(--primary);
             text-align: center;
             font-size: 1.1rem;
+            margin-bottom: 15px;
+            width: 100%;
         }
 
         .iframe-wrapper {
@@ -182,6 +188,10 @@
             overflow: hidden;
             background: #eee; 
             transition: box-shadow 0.3s;
+            /* --- FIX DE CENTRADO --- */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         /* Brillo al estar activo */
@@ -194,22 +204,26 @@
             height: 100%;
             border: none;
             display: block; 
-            pointer-events: none; /* Bloqueado por defecto */
+            /* Por defecto, pointer-events: none asegura que el scroll funcione en móvil.
+               En PC, el escudo manejará el primer click. */
+            pointer-events: none; 
         }
 
+        /* Cuando está activo, permitimos interacción */
         .iframe-wrapper.active iframe {
-            pointer-events: auto; /* Desbloqueado al activar */
+            pointer-events: auto; 
         }
 
         /* Escudo invisible */
         .iframe-shield {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 10;
-            cursor: pointer;
-            background: transparent; 
+            z-index: 20; /* Encima del iframe */
+            cursor: pointer; /* Manita para indicar interactividad */
+            background: transparent; /* Invisible */
         }
 
+        /* Cuando activamos, quitamos el escudo */
         .iframe-wrapper.active .iframe-shield {
             display: none;
         }
@@ -267,7 +281,6 @@
         
         <section id="podio">
             <h2>🏆 Galería de Campeones</h2>
-            <!-- Texto eliminado a petición -->
             <div class="card-grid">
                 <div id="card-1" class="podium-card rank-1">
                     <div class="podium-details" id="tooltip-1">...</div>
@@ -318,8 +331,9 @@
             <div class="games-grid">
                 <div class="partida-container">
                     <h3>⏳ La Partida Maratón</h3>
-                    <!-- Wrapper inteligente: onmouseleave desactiva el tablero (PC) -->
+                    <!-- Wrapper inteligente: el onmouseleave ahora desactiva -->
                     <div class="iframe-wrapper" id="wrapper-1" onmouseleave="deactivateBoard('wrapper-1')">
+                        <!-- El escudo invisible está encima del iframe por defecto -->
                         <div class="iframe-shield" onclick="activateBoard('wrapper-1')"></div>
                         <iframe id="game-iframe-1" src="" allowtransparency="true"></iframe>
                     </div>
@@ -389,19 +403,21 @@
         const formatNumber = (num) => (num || 0).toLocaleString('es-ES');
         let tournamentGames = []; 
 
-        // --- SEGURIDAD INVISIBLE DE TABLEROS ---
-        // CORRECCIÓN: Ahora acepta el ID del wrapper directamente
+        // --- SEGURIDAD INVISIBLE DE TABLEROS (Versión PC/Móvil) ---
+        
+        // 1. Activar: Clic en el escudo -> quita el escudo, habilita iframe
         function activateBoard(wrapperId) {
             const wrapper = document.getElementById(wrapperId);
             if (wrapper) wrapper.classList.add('active');
         }
         
-        // Desactivar al salir (PC)
+        // 2. Desactivar (PC): Al sacar el mouse del área
         function deactivateBoard(wrapperId) {
-            document.getElementById(wrapperId).classList.remove('active');
+            const wrapper = document.getElementById(wrapperId);
+            if (wrapper) wrapper.classList.remove('active');
         }
 
-        // Desactivar al tocar fuera (Móvil)
+        // 3. Desactivar (Móvil): Clic fuera del tablero
         document.addEventListener('click', function(event) {
             if (!event.target.closest('.iframe-wrapper.active')) {
                 document.querySelectorAll('.iframe-wrapper.active').forEach(w => {
