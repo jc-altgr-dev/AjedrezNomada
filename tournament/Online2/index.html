@@ -181,13 +181,12 @@
             border-radius: 10px;
             overflow: hidden;
             background: #eee; 
-            /* Borde sutil para indicar interactividad */
             transition: box-shadow 0.3s;
         }
         
-        /* Cuando está activo, brilla un poco */
+        /* Brillo al estar activo */
         .iframe-wrapper.active {
-            box-shadow: 0 0 0 3px var(--secondary);
+            box-shadow: 0 0 0 4px var(--secondary);
         }
         
         .iframe-wrapper iframe {
@@ -195,26 +194,22 @@
             height: 100%;
             border: none;
             display: block; 
-            /* Por defecto, el iframe NO recibe eventos del mouse (scroll/click) */
-            pointer-events: none; 
+            pointer-events: none; /* Bloqueado por defecto */
         }
 
-        /* Cuando está activo, el iframe SÍ recibe eventos */
         .iframe-wrapper.active iframe {
-            pointer-events: auto;
+            pointer-events: auto; /* Desbloqueado al activar */
         }
 
-        /* El escudo invisible que captura el primer clic */
+        /* Escudo invisible */
         .iframe-shield {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: 10;
             cursor: pointer;
-            /* Totalmente transparente */
             background: transparent; 
         }
 
-        /* Cuando está activo, el escudo desaparece para dejar jugar */
         .iframe-wrapper.active .iframe-shield {
             display: none;
         }
@@ -272,9 +267,7 @@
         
         <section id="podio">
             <h2>🏆 Galería de Campeones</h2>
-            <p style="text-align: center; font-size: 0.9rem; color: #636e72; margin-bottom: 15px;">
-                (Toca las tarjetas para ver detalles)
-            </p>
+            <!-- Texto eliminado a petición -->
             <div class="card-grid">
                 <div id="card-1" class="podium-card rank-1">
                     <div class="podium-details" id="tooltip-1">...</div>
@@ -397,27 +390,25 @@
         let tournamentGames = []; 
 
         // --- SEGURIDAD INVISIBLE DE TABLEROS ---
-        // 1. Al tocar/hacer clic: Quita el escudo, activa el iframe
-        function activateBoard(shieldElement) {
-            const wrapper = shieldElement.closest('.iframe-wrapper');
-            wrapper.classList.add('active');
+        // CORRECCIÓN: Ahora acepta el ID del wrapper directamente
+        function activateBoard(wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (wrapper) wrapper.classList.add('active');
         }
         
-        // 2. Al sacar el mouse (PC): Desactiva automáticamente
+        // Desactivar al salir (PC)
         function deactivateBoard(wrapperId) {
             document.getElementById(wrapperId).classList.remove('active');
         }
 
-        // 3. Listener GLOBAL (Móvil): Si tocas fuera de un tablero activo, lo desactiva
+        // Desactivar al tocar fuera (Móvil)
         document.addEventListener('click', function(event) {
-            // Si lo que toqué NO está dentro de un wrapper activo...
             if (!event.target.closest('.iframe-wrapper.active')) {
-                // ... desactivar todos los tableros activos
                 document.querySelectorAll('.iframe-wrapper.active').forEach(w => {
                     w.classList.remove('active');
                 });
             }
-        }, true); // Fase de captura para asegurar que detecta el toque
+        }, true);
 
         // --- CARGA DE DATOS ---
         async function loadTournamentList() {
