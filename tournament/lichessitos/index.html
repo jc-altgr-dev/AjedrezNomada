@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏫♟️ ENAEL | Torneos Online Lichessitos</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap');
+
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #fdcb6e;
+            --bg-body: #dfe6e9;
+            --text-main: #2d3436;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            background-image: radial-gradient(#b2bec3 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 30px 15px;
+            text-align: center;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2rem;
+            margin: 0;
+            text-shadow: 2px 2px 0 var(--text-main);
+        }
+
+        header a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 800;
+            border-bottom: 2px dashed var(--secondary);
+        }
+
+        main {
+            width: 95%;
+            max-width: 1100px;
+            margin: auto;
+            padding-bottom: 60px;
+        }
+
+        section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 3px solid #fff;
+        }
+
+        h2 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.6rem;
+            border-bottom: 4px dotted var(--secondary);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        /* --- GRID PODIO --- */
+        .card-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .podium-card {
+            position: relative;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            background: #fff;
+            transition: transform 0.3s;
+            border: 2px solid transparent;
+            cursor: help;
+        }
+        .podium-card:hover { transform: scale(1.03); z-index: 10; }
+        .podium-card h3 { font-family: 'Fredoka', sans-serif; margin: 10px 0; color: var(--text-main); }
+        
+        .rank-1 { background-color: #fff9c4; border-bottom: 6px solid #f1c40f; }
+        .rank-2 { background-color: #f5f6fa; border-bottom: 6px solid #b2bec3; }
+        .rank-3 { background-color: #ffccbc; border-bottom: 6px solid #e17055; }
+
+        .podium-details {
+            visibility: hidden; opacity: 0; position: absolute; bottom: 110%; left: 50%;
+            transform: translateX(-50%); background: var(--text-main); color: #fff;
+            padding: 10px; border-radius: 10px; width: 160px; font-size: 0.85rem;
+            z-index: 20; transition: all 0.2s; box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+        }
+        .podium-card:hover .podium-details { visibility: visible; opacity: 1; bottom: 100%; }
+
+        /* --- ESTADÍSTICAS --- */
+        #statsList {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .stat-item {
+            color: white;
+            padding: 15px 10px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .stat-item:hover { transform: translateY(-3px); }
+        
+        .stat-item strong { 
+            font-family: 'Fredoka', sans-serif; 
+            font-size: 1.6rem; 
+            display: block; 
+            line-height: 1.1;
+        }
+        .stat-item span { 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            opacity: 0.95; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* Colores Stats */
+        .stat-item:nth-child(1) { background-color: #00b894; }
+        .stat-item:nth-child(2) { background-color: #0984e3; }
+        .stat-item:nth-child(3) { background-color: #6c5ce7; }
+        .stat-item:nth-child(4) { background-color: #e17055; }
+        .stat-item:nth-child(5) { background-color: #fdcb6e; color: #2d3436; }
+        .stat-item:nth-child(6) { background-color: #d63031; }
+        .stat-item:nth-child(7) { background-color: #e84393; }
+        .stat-item:nth-child(8) { background-color: #636e72; }
+
+        /* --- IFRAMES FLUIDOS (CENTRADOS Y SEGUROS) --- */
+        .games-grid {
+            display: grid;
+            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        .partida-container {
+            background: #fff;
+            padding: 15px; /* Más padding para que respire */
+            border-radius: 15px;
+            border: 2px solid #eee;
+            /* Flexbox para centrar el título y contenido si es necesario */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .partida-container h3 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .iframe-wrapper {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #eee; 
+            transition: box-shadow 0.3s;
+            /* --- FIX DE CENTRADO --- */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Brillo al estar activo */
+        .iframe-wrapper.active {
+            box-shadow: 0 0 0 4px var(--secondary);
+        }
+        
+        .iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block; 
+            /* Por defecto, pointer-events: none asegura que el scroll funcione en móvil.
+               En PC, el escudo manejará el primer click. */
+            pointer-events: none; 
+        }
+
+        /* Cuando está activo, permitimos interacción */
+        .iframe-wrapper.active iframe {
+            pointer-events: auto; 
+        }
+
+        /* Escudo invisible */
+        .iframe-shield {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 20; /* Encima del iframe */
+            cursor: pointer; /* Manita para indicar interactividad */
+            background: transparent; /* Invisible */
+        }
+
+        /* Cuando activamos, quitamos el escudo */
+        .iframe-wrapper.active .iframe-shield {
+            display: none;
+        }
+
+        /* Selectores */
+        #selector-area {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: inline-block;
+            border: 2px dashed rgba(255,255,255,0.5);
+            max-width: 90%;
+        }
+        select {
+            padding: 10px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: bold;
+            border-radius: 10px;
+            border: 2px solid #fdcb6e;
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+        }
+        .player-select-container {
+            background: #fff9c4;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px dashed #fdcb6e;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; }
+            header { padding: 20px 10px; }
+            main { padding: 10px; width: 98%; }
+            #statsList { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-item strong { font-size: 1.3rem; }
+            .games-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="torneoNombre">🚀 Cargando Torneo...</h1>
+        <p>🏫 Resultados Oficiales | <a id="torneoLink" href="#" target="_blank">Ver en Lichess</a></p>
+        <p>🏫 Página de Facebook | <a id="" href="https://www.facebook.com/AjedrezEmanuelLasker" target="_blank">Ver Página</a></p>
+        <p>🏫 Página Web Club ENAEL | <a id="" href="https://enael.com.mx" target="_blank">Ver Principal</a></p>
+        <p><img src="enael_logo.png" alt="logo ENAEL oficial" width="200px"></p>
+
+        <div id="selector-area">
+            <label for="csv-selector" style="display:block; margin-bottom:5px; font-weight:bold;">📅 Seleccionar Evento:</label>
+            <select id="csv-selector"><option value="">Leyendo lista...</option></select>
+        </div>
+    </header>
+
+    <main id="content-area" style="opacity: 0.5; pointer-events: none;"> 
+        
+        <section id="podio">
+            <h2>🏆 Galería de Campeones</h2>
+            <div class="card-grid">
+                <div id="card-1" class="podium-card rank-1">
+                    <div class="podium-details" id="tooltip-1">...</div>
+                    <h3>🥇 Gran Campeón</h3><p id="winner-1">-</p>
+                </div>
+                <div id="card-2" class="podium-card rank-2">
+                    <div class="podium-details" id="tooltip-2">...</div>
+                    <h3>🥈 Subcampeón</h3><p id="winner-2">-</p>
+                </div>
+                <div id="card-3" class="podium-card rank-3">
+                    <div class="podium-details" id="tooltip-3">...</div>
+                    <h3>🥉 Tercer Lugar</h3><p id="winner-3">-</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="premios-categoria">
+            <h2>🎖️ Menciones Honoríficas</h2>
+            <div class="card-grid">
+                <div class="podium-card cat-u1600" style="background:#e3f2fd; border-bottom: 5px solid #64b5f6;">
+                    <h3>🚀 Mejor Sub-1600</h3><p id="best-u1600">-</p>
+                </div>
+                <div class="podium-card cat-u1200" style="background:#e8f5e9; border-bottom: 5px solid #81c784;">
+                    <h3>🌱 Mejor Sub-1200</h3><p id="best-u1200">-</p>
+                </div>
+                <div class="podium-card cat-u800" style="background:#fff3e0; border-bottom: 5px solid #ffb74d;">
+                    <h3>🐣 Mejor Sub-800</h3><p id="best-u800">-</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>📊 Datos Curiosos</h2>
+            <div id="statsList">
+                <div class="stat-item"><strong id="stat-avg-rating">-</strong> <span>Nivel Promedio</span></div>
+                <div class="stat-item"><strong id="stat-players">0</strong> <span>Jugadores</span></div>
+                <div class="stat-item"><strong id="stat-games">0</strong> <span>Partidas</span></div>
+                <div class="stat-item"><strong id="stat-moves">0</strong> <span>Movimientos</span></div>
+                <div class="stat-item"><strong id="stat-berserk">0%</strong> <span>Modo Berserk</span></div>
+                <div class="stat-item"><strong id="stat-white">0%</strong> <span>Ganan Blancas</span></div>
+                <div class="stat-item"><strong id="stat-black">0%</strong> <span>Ganan Negras</span></div>
+                <div class="stat-item"><strong id="stat-draw">0%</strong> <span>Tablas</span></div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>♟️ Salón de la Fama</h2>
+            <div class="games-grid">
+                <div class="partida-container">
+                    <h3>⏳ La Partida Maratón</h3>
+                    <!-- Wrapper inteligente: el onmouseleave ahora desactiva -->
+                    <div class="iframe-wrapper" id="wrapper-1" onmouseleave="deactivateBoard('wrapper-1')">
+                        <!-- El escudo invisible está encima del iframe por defecto -->
+                        <div class="iframe-shield" onclick="activateBoard('wrapper-1')"></div>
+                        <iframe id="game-iframe-1" src="" allowtransparency="true"></iframe>
+                    </div>
+                    <p id="game-1-info" style="font-weight:bold; color: #6c5ce7; font-size: 0.9rem; margin-top:8px;"></p>
+                </div>
+                
+                <div class="partida-container">
+                    <h3>🧠 Duelo de Titanes</h3>
+                    <div class="iframe-wrapper" id="wrapper-2" onmouseleave="deactivateBoard('wrapper-2')">
+                        <div class="iframe-shield" onclick="activateBoard('wrapper-2')"></div>
+                        <iframe id="game-iframe-2" src="" allowtransparency="true"></iframe>
+                    </div>
+                    <p id="game-2-info" style="font-weight:bold; color: #6c5ce7; font-size: 0.9rem; margin-top:8px;"></p>
+                </div>
+
+                <div class="partida-container">
+                    <h3>⚡ El Rayo (Mate Rápido)</h3>
+                    <div class="iframe-wrapper" id="wrapper-mate" onmouseleave="deactivateBoard('wrapper-mate')">
+                        <div class="iframe-shield" onclick="activateBoard('wrapper-mate')"></div>
+                        <iframe id="game-iframe-global-mate" src="" allowtransparency="true"></iframe>
+                    </div>
+                    <p id="game-global-mate-info" style="font-weight:bold; color: #6c5ce7; font-size: 0.9rem; margin-top:8px;"></p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>🔎 Detective de Jugadores</h2>
+            <div class="player-select-container">
+                <label for="player-selector">Busca un nombre:</label>
+                <select id="player-selector"><option value="">Cargando...</option></select>
+            </div>
+            
+            <div id="player-games-area" style="display:none;">
+                <div class="games-grid">
+                    <div class="partida-container">
+                        <h3>Su Partida Más Larga</h3>
+                        <div class="iframe-wrapper" id="wrapper-3" onmouseleave="deactivateBoard('wrapper-3')">
+                            <div class="iframe-shield" onclick="activateBoard('wrapper-3')"></div>
+                            <iframe id="game-iframe-3" src="" allowtransparency="true"></iframe>
+                        </div>
+                        <p id="game-3-info" style="margin-top:8px; font-weight:bold; color:#6c5ce7; font-size:0.9rem;"></p>
+                    </div>
+                    <div class="partida-container">
+                        <h3>Su Rival Más Fuerte</h3>
+                        <div class="iframe-wrapper" id="wrapper-4" onmouseleave="deactivateBoard('wrapper-4')">
+                            <div class="iframe-shield" onclick="activateBoard('wrapper-4')"></div>
+                            <iframe id="game-iframe-4" src="" allowtransparency="true"></iframe>
+                        </div>
+                        <p id="game-4-info" style="margin-top:8px; font-weight:bold; color:#6c5ce7; font-size:0.9rem;"></p>
+                    </div>
+                    <div class="partida-container">
+                        <h3>Su Mejor Jaque Mate</h3>
+                        <div class="iframe-wrapper" id="wrapper-5" onmouseleave="deactivateBoard('wrapper-5')">
+                            <div class="iframe-shield" onclick="activateBoard('wrapper-5')"></div>
+                            <iframe id="game-iframe-5" src="" allowtransparency="true"></iframe>
+                        </div>
+                        <p id="game-5-info" style="margin-top:8px; font-weight:bold; color:#6c5ce7; font-size:0.9rem;"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const formatNumber = (num) => (num || 0).toLocaleString('es-ES');
+        let tournamentGames = []; 
+
+        // --- SEGURIDAD INVISIBLE DE TABLEROS (Versión PC/Móvil) ---
+        
+        // 1. Activar: Clic en el escudo -> quita el escudo, habilita iframe
+        function activateBoard(wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (wrapper) wrapper.classList.add('active');
+        }
+        
+        // 2. Desactivar (PC): Al sacar el mouse del área
+        function deactivateBoard(wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (wrapper) wrapper.classList.remove('active');
+        }
+
+        // 3. Desactivar (Móvil): Clic fuera del tablero
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.iframe-wrapper.active')) {
+                document.querySelectorAll('.iframe-wrapper.active').forEach(w => {
+                    w.classList.remove('active');
+                });
+            }
+        }, true);
+
+        // --- CARGA DE DATOS ---
+        async function loadTournamentList() {
+            try {
+                const response = await fetch('torneos.csv');
+                if (!response.ok) throw new Error("Falta torneos.csv");
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                const select = document.getElementById('csv-selector');
+                select.innerHTML = ''; 
+                let firstId = null;
+
+                lines.forEach(line => {
+                    const parts = line.split(',');
+                    if (parts.length >= 2) {
+                        const id = parts[0].trim();
+                        const name = parts.slice(1).join(',').trim();
+                        if (id && id.length > 4) {
+                            const option = document.createElement('option');
+                            option.value = id;
+                            option.textContent = name;
+                            select.appendChild(option);
+                            if (!firstId) firstId = id;
+                        }
+                    }
+                });
+
+                select.addEventListener('change', (e) => {
+                    if(e.target.value) loadTournamentData(e.target.value);
+                });
+
+                if (firstId) loadTournamentData(firstId);
+                else document.getElementById('torneoNombre').textContent = "Lista vacía.";
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('torneoNombre').textContent = "Error leyendo torneos.csv";
+                const select = document.getElementById('csv-selector');
+                select.innerHTML = '<option>Error de Carga</option>';
+            }
+        }
+
+        async function loadTournamentData(id) {
+            document.querySelectorAll('.iframe-wrapper').forEach(w => w.classList.remove('active'));
+            document.getElementById('content-area').style.opacity = "0.5";
+            document.getElementById('torneoNombre').textContent = "Leyendo...";
+            
+            const detailsUrl = `https://lichess.org/api/tournament/${id}`;
+            const resultsUrl = `https://lichess.org/api/tournament/${id}/results`;
+            const gamesUrl = `https://lichess.org/api/tournament/${id}/games`; 
+            document.getElementById('torneoLink').href = `https://lichess.org/tournament/${id}`;
+
+            try {
+                const detailsRes = await fetch(detailsUrl);
+                if(!detailsRes.ok) throw new Error("Error API");
+                const details = await detailsRes.json();
+
+                document.getElementById('torneoNombre').textContent = `🏆 ${details.fullName}`;
+                
+                const stats = details.stats || {};
+                const totalGames = stats.games || 0;
+                const calcPct = (val) => totalGames > 0 ? Math.round((val || 0) / totalGames * 100) + '%' : '0%';
+                
+                document.getElementById('stat-players').textContent = formatNumber(details.nbPlayers);
+                document.getElementById('stat-games').textContent = formatNumber(stats.games);
+                document.getElementById('stat-moves').textContent = formatNumber(stats.moves);
+                document.getElementById('stat-white').textContent = calcPct(stats.whiteWins);
+                document.getElementById('stat-black').textContent = calcPct(stats.blackWins);
+                document.getElementById('stat-draw').textContent = calcPct(stats.draws);
+                document.getElementById('stat-berserk').textContent = totalGames > 0 ? Math.round((stats.berserks || 0) / (totalGames * 2) * 100) + '%' : '0%';
+
+                const resultsRes = await fetch(resultsUrl);
+                const resultsText = await resultsRes.text();
+                const players = resultsText.trim().split('\n')
+                    .map(line => { try { return JSON.parse(line); } catch(e){return null} })
+                    .filter(o => o && (o.username || o.name) && o.rank)
+                    .sort((a, b) => a.rank - b.rank);
+
+                const setWinner = (idx, elId, tooltipId) => {
+                    const p = players[idx];
+                    const el = document.getElementById(elId);
+                    const tip = document.getElementById(tooltipId);
+                    if(p) {
+                        const name = p.username || p.name;
+                        const title = p.title ? `[${p.title}] ` : '';
+                        el.innerHTML = `<strong>${title}${name}</strong><br>${p.score} pts`;
+                        const perf = p.performance ? `Performance: ${p.performance}` : 'Sin datos perf.';
+                        tip.innerHTML = `<strong>${name}</strong><br>${perf}<br>Ranking: #${p.rank}`;
+                    } else { el.textContent = "-"; tip.textContent = "Vacante"; }
+                };
+                setWinner(0, 'winner-1', 'tooltip-1');
+                setWinner(1, 'winner-2', 'tooltip-2');
+                setWinner(2, 'winner-3', 'tooltip-3');
+
+                const setCat = (limit, elId) => {
+                    const p = players.find(x => x.rating < limit && x.rating > 0);
+                    const el = document.getElementById(elId);
+                    if(p) el.innerHTML = `<strong>#${p.rank} ${p.username || p.name}</strong><br>${p.rating} ELO`;
+                    else el.textContent = "Nadie";
+                };
+                setCat(1600, 'best-u1600');
+                setCat(1200, 'best-u1200');
+                setCat(800, 'best-u800');
+
+                const ratedPlayers = players.filter(p => p.rating > 0);
+                const avgElo = ratedPlayers.length ? Math.round(ratedPlayers.reduce((a,b)=>a+b.rating,0)/ratedPlayers.length) : "N/A";
+                document.getElementById('stat-avg-rating').textContent = avgElo;
+
+                setupPlayerSelector(players);
+                loadFeaturedGames(gamesUrl);
+
+                document.getElementById('content-area').style.opacity = "1";
+                document.getElementById('content-area').style.pointerEvents = "auto";
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('torneoNombre').textContent = "Error de carga";
+            }
+        }
+
+        async function loadFeaturedGames(gamesUrl) {
+            try {
+                const res = await fetch(`${gamesUrl}?max=100&clocks=false&evals=false&opening=true`, {
+                    headers: { 'Accept': 'application/x-ndjson' }
+                });
+                const text = await res.text();
+                tournamentGames = text.trim().split('\n')
+                    .map(line => { try { return JSON.parse(line); } catch(e){return null} })
+                    .filter(g => g);
+
+                if (tournamentGames.length === 0) return;
+
+                let longest = tournamentGames[0];
+                let maxMoves = 0;
+                tournamentGames.forEach(g => {
+                    const m = g.moves ? g.moves.split(' ').length : 0;
+                    if(m > maxMoves) { maxMoves = m; longest = g; }
+                });
+                updateBoardSource('game-iframe-1', longest.id);
+                setInfo('game-1-info', longest, `${Math.floor(maxMoves/2)} turnos`);
+
+                let best = tournamentGames[0];
+                let maxAvg = 0;
+                tournamentGames.forEach(g => {
+                    const avg = (getRating(g, 'white') + getRating(g, 'black')) / 2;
+                    if(avg > maxAvg && (tournamentGames.length === 1 || g.id !== longest.id)) {
+                        maxAvg = avg; best = g;
+                    }
+                });
+                updateBoardSource('game-iframe-2', best.id);
+                setInfo('game-2-info', best, `ELO Promedio: ${Math.round(maxAvg)}`);
+
+                const mateGames = tournamentGames.filter(g => g.status === 'mate');
+                let quickestMate = null;
+                let minMoves = 9999;
+                if (mateGames.length > 0) {
+                    mateGames.forEach(g => {
+                        const m = g.moves ? g.moves.split(' ').length : 9999;
+                        const isDuplicate = (g.id === longest.id || g.id === best.id);
+                        if (m < minMoves && (!isDuplicate || mateGames.length < 3)) {
+                            minMoves = m;
+                            quickestMate = g;
+                        }
+                    });
+                }
+                if (quickestMate) {
+                    updateBoardSource('game-iframe-global-mate', quickestMate.id);
+                    setInfo('game-global-mate-info', quickestMate, `Mate en ${Math.ceil(minMoves/2)} jugadas`);
+                } else {
+                    document.getElementById('game-iframe-global-mate').src = "https://placehold.co/600x400/e0f7fa/006064?text=Sin+Mates";
+                    document.getElementById('game-global-mate-info').textContent = "Sin partidas definidas por mate.";
+                }
+
+            } catch (e) { console.error("Error partidas", e); }
+        }
+
+        function updateBoardSource(iframeId, gameId) {
+            const iframe = document.getElementById(iframeId);
+            if (iframe) {
+                iframe.src = `https://lichess.org/embed/${gameId}?theme=blue&bg=light`;
+                const wrapper = iframe.closest('.iframe-wrapper');
+                if(wrapper) wrapper.classList.remove('active');
+            }
+        }
+
+        function getRating(g, color) { return g.players[color].rating || 0; }
+        function getName(g, color) { return g.players[color].user ? g.players[color].user.name : "Anónimo"; }
+        
+        function setInfo(elId, g, extra) {
+            const w = `${getName(g,'white')} (${getRating(g,'white')})`;
+            const b = `${getName(g,'black')} (${getRating(g,'black')})`;
+            document.getElementById(elId).textContent = `${w} vs ${b} | ${extra}`;
+        }
+
+        function setupPlayerSelector(players) {
+            const select = document.getElementById('player-selector');
+            select.innerHTML = '<option value="">-- Elige un Estudiante --</option>';
+            [...players].sort((a,b) => (a.username||"").localeCompare(b.username||""))
+                .forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.username || p.name;
+                    opt.textContent = p.username || p.name;
+                    select.appendChild(opt);
+                });
+            select.onchange = (e) => updatePlayerGames(e.target.value);
+        }
+
+        function updatePlayerGames(user) {
+            const area = document.getElementById('player-games-area');
+            if(!user) { area.style.display = "none"; return; }
+            area.style.display = "block";
+
+            const myGames = tournamentGames.filter(g => 
+                getName(g,'white') === user || getName(g,'black') === user
+            );
+
+            if(myGames.length === 0) return;
+
+            let longest = myGames[0];
+            let maxM = 0;
+            myGames.forEach(g => {
+                const m = g.moves ? g.moves.split(' ').length : 0;
+                if(m > maxM) { maxM = m; longest = g; }
+            });
+            updateBoardSource('game-iframe-3', longest.id);
+            setInfo('game-3-info', longest, `${Math.floor(maxM/2)} turnos`);
+
+            let hardest = myGames[0];
+            let maxR = 0;
+            myGames.forEach(g => {
+                const avg = (getRating(g,'white') + getRating(g,'black'))/2;
+                if(avg > maxR && (myGames.length===1 || g.id !== longest.id)) {
+                    maxR = avg; hardest = g;
+                }
+            });
+            updateBoardSource('game-iframe-4', hardest.id);
+            setInfo('game-4-info', hardest, `Nivel: ${Math.round(maxR)}`);
+
+            let bestMate = null;
+            let minMateMoves = 9999;
+            const myMateGames = myGames.filter(g => g.status === 'mate');
+            let wonMates = myMateGames.filter(g => {
+                const userColor = getName(g, 'white') === user ? 'white' : 'black';
+                return g.winner === userColor;
+            });
+            const candidateMates = wonMates.length > 0 ? wonMates : myMateGames;
+
+            if (candidateMates.length > 0) {
+                candidateMates.forEach(g => {
+                    const m = g.moves ? g.moves.split(' ').length : 9999;
+                    const isDup = (g.id === longest.id || g.id === hardest.id);
+                    if (m < minMateMoves && (!isDup || candidateMates.length < 3)) {
+                        minMateMoves = m;
+                        bestMate = g;
+                    }
+                });
+            }
+
+            if (bestMate) {
+                updateBoardSource('game-iframe-5', bestMate.id);
+                const userColor = getName(bestMate, 'white') === user ? 'white' : 'black';
+                const resultText = bestMate.winner === userColor ? "¡Victoria!" : "Aprendizaje";
+                setInfo('game-5-info', bestMate, `${resultText} en ${Math.ceil(minMateMoves/2)} jugadas`);
+            } else {
+                document.getElementById('game-iframe-5').src = "https://placehold.co/600x400/e0f7fa/006064?text=Sin+Mates";
+                document.getElementById('game-5-info').textContent = "Sin partidas definidas por mate.";
+            }
+        }
+
+        loadTournamentList();
+    </script>
+</body>
+</html>
