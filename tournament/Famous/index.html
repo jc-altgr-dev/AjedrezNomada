@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Salón de la Fama del Ajedrez Junior</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fuente Inter para una apariencia moderna */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Un fondo suave */
+        }
+        /* Estilo para los cards de logros */
+        .achievement-card {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .achievement-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="app" class="max-w-7xl mx-auto">
+        <!-- Encabezado y Título -->
+        <header class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold text-indigo-800">
+                <span class="inline-block transform mr-2">♜</span>Salón de la Fama del Ajedrez Junior
+            </h1>
+            <p class="mt-2 text-xl text-gray-600">¡Celebrando la Estrategia y Dominio en el tablero!</p>
+            <p id="loading-status" class="mt-4 text-orange-500 font-semibold">Cargando datos...</p>
+        </header>
+
+        <!-- Sección de Récords Globales -->
+        <section id="global-stats-section" class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-amber-500 pb-2">🏅 Récords Históricos del Circuito</h2>
+            <div id="global-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Las tarjetas de logros se renderizarán aquí -->
+            </div>
+        </section>
+
+        <!-- Sección de Búsqueda de Jugadores -->
+        <section id="player-search-section" class="mb-12 p-6 bg-white rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-indigo-500 pb-2">🔍 Busca a tu Jugador</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <input type="text" id="player-search-input" placeholder="Escribe el nombre del jugador (ej: Ana, Luis)"
+                       class="flex-grow p-3 border-2 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg">
+                <button id="search-button" 
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-150 ease-in-out shadow-md">
+                    Buscar Logros
+                </button>
+            </div>
+            
+            <div id="player-stats-result" class="mt-6">
+                <!-- La tarjeta del jugador aparecerá aquí -->
+            </div>
+            
+            <p class="text-sm text-gray-500 mt-4">ID de Sesión: <span id="user-id-display" class="font-mono text-xs bg-gray-100 p-1 rounded"></span></p>
+        </section>
+
+        <!-- Contenedor de Torneos (Opcional, para debug o listado) -->
+        <section class="mt-10">
+            <h3 class="text-2xl font-semibold text-gray-700 mb-4">Torneos Cargados (Simulación Lichess CSV)</h3>
+            <div id="tournaments-list" class="space-y-4 text-sm text-gray-600 max-h-60 overflow-y-auto p-4 bg-white rounded-lg shadow-inner">
+                <!-- Se mostrarán los torneos cargados -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Configuración y variables globales
+        setLogLevel('Debug');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-junior-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let app, db, auth, userId = null;
+        let allTournaments = [];
+        let allPlayerStats = {}; // Cache para estadísticas individuales
+
+        const loadingStatusEl = document.getElementById('loading-status');
+        const globalStatsContainer = document.getElementById('global-stats-container');
+        const playerStatsResult = document.getElementById('player-stats-result');
+        const tournamentsListEl = document.getElementById('tournaments-list');
+        const userIdDisplayEl = document.getElementById('user-id-display');
+
+        // --- FUNCIONES DE UTILIDAD PARA FIREBASE Y MOCK DATA ---
+
+        /** Inicializa Firebase y autentica al usuario. */
+        async function initializeFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    loadingStatusEl.textContent = 'Error: Configuración de Firebase no encontrada.';
+                    return;
+                }
+                
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Autenticación
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplayEl.textContent = userId;
+                        loadingStatusEl.textContent = 'Conectado. Cargando torneos...';
+                        setupFirestoreListener();
+                        // Importante: Inicializar datos de ejemplo si la lista está vacía
+                        checkAndInitializeMockData(); 
+                    } else {
+                        userId = crypto.randomUUID(); // Usar UUID si la autenticación falla
+                        userIdDisplayEl.textContent = 'Anon (Error Auth)';
+                        loadingStatusEl.textContent = 'Error de autenticación. Intentando modo anónimo.';
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error al inicializar Firebase o autenticar:", error);
+                loadingStatusEl.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        /** Inicializa datos de ejemplo de Ajedrez simulando el formato de resultados de Lichess (W/D/L). */
+        async function checkAndInitializeMockData() {
+            // Mock data now simulates Lichess tournament structure (simplified)
+            // Lichess data usually comes as PGNs or API results, but here we simulate the final match results.
+            const mockTournaments = [
+                {
+                    // Simulación de los IDs y nombres de torneo del CSV
+                    id: 101, name: "Blitz Primavera 2024", description: "Primer Torneo Blitz Rápido", 
+                    partidas: [
+                        // resultado: "1-0" (JugadorA gana), "0-1" (JugadorB gana), "0.5-0.5" (Empate)
+                        { jugadorA: "Ana", resultado: "1-0", jugadorB: "Luis" }, 
+                        { jugadorA: "Pedro", resultado: "0.5-0.5", jugadorB: "Ana" }, 
+                        { jugadorA: "Javi", resultado: "0-1", jugadorB: "Luis" }, 
+                        { jugadorA: "Javi", resultado: "1-0", jugadorB: "Pedro" } 
+                    ]
+                },
+                {
+                    id: 102, name: "Clásico Verano 2024", description: "Torneo de Ritmo Clásico", 
+                    partidas: [
+                        { jugadorA: "Ana", resultado: "1-0", jugadorB: "Javi" }, 
+                        { jugadorA: "Pedro", resultado: "1-0", jugadorB: "Luis" }, 
+                        { jugadorA: "Ana", resultado: "1-0", jugadorB: "Pedro" }, 
+                        { jugadorA: "Javi", resultado: "0.5-0.5", jugadorB: "Luis" } 
+                    ]
+                },
+                 {
+                    id: 103, name: "Temático Otoño 2024", description: "Defensa Siciliana", 
+                    partidas: [
+                        { jugadorA: "Ana", resultado: "0-1", jugadorB: "Luis" }, 
+                        { jugadorA: "Pedro", resultado: "0-1", jugadorB: "Javi" }, 
+                        { jugadorA: "Javi", resultado: "1-0", jugadorB: "Luis" }, 
+                        { jugadorA: "Ana", resultado: "1-0", jugadorB: "Pedro" } 
+                    ]
+                }
+            ];
+
+            const collectionRef = collection(db, `artifacts/${appId}/public/data/junior_hall_of_fame`);
+            
+            // Si la lista de torneos está vacía después del primer fetch (onSnapshot), inicializar.
+            if (allTournaments.length === 0) {
+                 for (const mockTournament of mockTournaments) {
+                    await setDoc(doc(collectionRef, mockTournament.id.toString()), mockTournament)
+                        .catch(err => console.warn("No se pudo escribir el mock data (quizás ya existe):", err.message));
+                }
+            }
+        }
+
+        /** Configura el listener de tiempo real para los torneos. */
+        function setupFirestoreListener() {
+            if (!db) return;
+            const tournamentsColRef = collection(db, `artifacts/${appId}/public/data/junior_hall_of_fame`);
+
+            onSnapshot(tournamentsColRef, (snapshot) => {
+                allTournaments = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allTournaments.push(data);
+                });
+
+                loadingStatusEl.textContent = `Datos de ${allTournaments.length} torneos cargados.`;
+                
+                // Recalcular y Renderizar al recibir datos nuevos
+                const { globalStats, playerStats } = calculateAllStats(allTournaments);
+                allPlayerStats = playerStats; // Guardar para la búsqueda
+                renderGlobalStats(globalStats);
+                renderTournamentList(allTournaments);
+                
+                // Si había una búsqueda, actualizarla
+                const playerName = document.getElementById('player-search-input').value;
+                if (playerName) {
+                     renderPlayerStats(playerName, allPlayerStats);
+                }
+
+            }, (error) => {
+                console.error("Error al escuchar torneos:", error);
+                loadingStatusEl.textContent = 'Error al cargar datos. Revisa la consola.';
+            });
+        }
+
+        // --- LÓGICA CENTRAL DE CÁLCULO DE ESTADÍSTICAS (EL MOTOR) ---
+
+        /** * Calcula la tabla final de posiciones de un torneo (Ajedrez).
+         * Retorna un array de jugadores ordenados por puntos (descendente).
+         */
+        function calculateTournamentStandings(tournament) {
+            // { 'nombre': { puntos: 0, W: 0, L: 0, D: 0, P: 0, posicion: 0 } }
+            const playerScores = {}; 
+
+            tournament.partidas.forEach(p => {
+                // Parsear el resultado (Ej: "1-0", "0.5-0.5")
+                const [scoreA, scoreB] = p.resultado.split('-').map(s => parseFloat(s));
+                
+                // Inicializar jugadores
+                if (!playerScores[p.jugadorA]) playerScores[p.jugadorA] = { puntos: 0, W: 0, L: 0, D: 0, P: 0 };
+                if (!playerScores[p.jugadorB]) playerScores[p.jugadorB] = { puntos: 0, W: 0, L: 0, D: 0, P: 0 };
+                
+                // Sumar puntos totales
+                playerScores[p.jugadorA].puntos += scoreA;
+                playerScores[p.jugadorB].puntos += scoreB;
+                
+                // Sumar partidas jugadas
+                playerScores[p.jugadorA].P += 1;
+                playerScores[p.jugadorB].P += 1;
+
+                // Sumar Victorias (W), Derrotas (L), Empates (D)
+                if (scoreA === 1) playerScores[p.jugadorA].W += 1;
+                else if (scoreA === 0) playerScores[p.jugadorA].L += 1;
+                else playerScores[p.jugadorA].D += 1; // 0.5
+
+                if (scoreB === 1) playerScores[p.jugadorB].W += 1;
+                else if (scoreB === 0) playerScores[p.jugadorB].L += 1;
+                else playerScores[p.jugadorB].D += 1; // 0.5
+            });
+            
+            // Convertir a array para ordenar
+            let standings = Object.entries(playerScores).map(([name, stats]) => ({
+                name,
+                score: stats.puntos, 
+                ...stats
+            }));
+
+            // Ordenar: 1. Puntos Totales (descendente), 2. Victorias (W, descendente)
+            standings.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return b.W - a.W; // Más victorias es el desempate (Sonneborn-Berger es más complejo)
+            });
+
+            // Asignar posición
+            standings.forEach((s, index) => s.posicion = index + 1);
+
+            return standings;
+        }
+
+
+        /** Calcula todas las estadísticas globales e individuales (Ajedrez). */
+        function calculateAllStats(tournaments) {
+            const globalPlayerStats = {}; // Estadísticas acumuladas por jugador
+            const achievements = {
+                'Maestro de Puntos': { value: 0, holder: 'Nadie', icon: '♛' }, // Total Points
+                'Coleccionista de Trofeos': { value: 0, holder: 'Nadie', icon: '🏆' }, // Torneos Ganados
+                'Rey de las Tablas': { value: 0, holder: 'Nadie', icon: '🤝', highIsBetter: true }, // Mayor % de Empates (min 5 partidas)
+                'Maratonista': { value: 0, holder: 'Nadie', icon: '🏃' }, // Más partidas jugadas
+                'Podio Habitual (Top 3)': { value: 0, holder: 'Nadie', icon: '🥉' },
+                // '5 Fantásticos (Top 5)' Eliminado por ser un ranking bajo
+                'Top Ten Indiscutible (Top 10)': { value: 0, holder: 'Nadie', icon: '🔟' },
+                'Racha Incendiaria': { value: 0, holder: 'Nadie', icon: '🔥' }, // Victorias consecutivas (solo 1.0)
+            };
+            
+            // 1. Procesar Torneos Individuales para Ranks, Partidas y Racha
+            tournaments.forEach(tournament => {
+                const standings = calculateTournamentStandings(tournament);
+                const totalPlayers = standings.length;
+                let currentStreak = {}; // Para la racha por jugador (se resetea por torneo)
+
+                standings.forEach(player => {
+                    const name = player.name;
+                    if (!globalPlayerStats[name]) {
+                        globalPlayerStats[name] = { 
+                            totalPoints: 0, 
+                            wins: 0, 
+                            losses: 0, 
+                            draws: 0, 
+                            gamesPlayed: 0, 
+                            tournamentsPlayed: new Set(), 
+                            top3: 0, 
+                            top10: 0, 
+                            trophies: 0,
+                            maxStreak: 0
+                        };
+                    }
+
+                    // Acumular estadísticas básicas
+                    globalPlayerStats[name].totalPoints += player.puntos;
+                    globalPlayerStats[name].gamesPlayed += player.P;
+                    globalPlayerStats[name].wins += player.W;
+                    globalPlayerStats[name].losses += player.L;
+                    globalPlayerStats[name].draws += player.D;
+                    globalPlayerStats[name].tournamentsPlayed.add(tournament.id);
+
+                    // Contar Tops
+                    if (player.posicion <= 3 && totalPlayers >= 3) globalPlayerStats[name].top3 += 1;
+                    if (player.posicion <= 10 && totalPlayers >= 10) globalPlayerStats[name].top10 += 1;
+
+                    // Contar Coleccionista de Trofeos
+                    if (player.posicion === 1) {
+                        const currentTrophies = achievements['Coleccionista de Trofeos'].value;
+                        const newTrophies = (globalPlayerStats[name].trophies || 0) + 1;
+                        globalPlayerStats[name].trophies = newTrophies;
+
+                        if (newTrophies > currentTrophies) {
+                            achievements['Coleccionista de Trofeos'] = { value: newTrophies, holder: name, icon: '🏆' };
+                        }
+                    }
+                });
+
+                // Calcular Racha Incendiaria (Victorias consecutivas - 1.0)
+                tournament.partidas.forEach(p => {
+                    const [scoreA, scoreB] = p.resultado.split('-').map(s => parseFloat(s));
+                    
+                    // Lógica para Jugador A
+                    if (scoreA === 1) {
+                        currentStreak[p.jugadorA] = (currentStreak[p.jugadorA] || 0) + 1;
+                        if (currentStreak[p.jugadorA] > achievements['Racha Incendiaria'].value) {
+                            achievements['Racha Incendiaria'] = { value: currentStreak[p.jugadorA], holder: p.jugadorA, icon: '🔥' };
+                        }
+                    } else {
+                        currentStreak[p.jugadorA] = 0; // Se rompe la racha si no gana (0 o 0.5)
+                    }
+                    
+                    // Lógica para Jugador B
+                    if (scoreB === 1) {
+                        currentStreak[p.jugadorB] = (currentStreak[p.jugadorB] || 0) + 1;
+                        if (currentStreak[p.jugadorB] > achievements['Racha Incendiaria'].value) {
+                            achievements['Racha Incendiaria'] = { value: currentStreak[p.jugadorB], holder: p.jugadorB, icon: '🔥' };
+                        }
+                    } else {
+                        currentStreak[p.jugadorB] = 0; // Se rompe la racha si no gana (0 o 0.5)
+                    }
+                });
+            });
+
+            // 2. Procesar Logros Globales Basados en Acumulados
+            Object.keys(globalPlayerStats).forEach(name => {
+                const stats = globalPlayerStats[name];
+                
+                // Maestro de Puntos
+                if (stats.totalPoints > achievements['Maestro de Puntos'].value) {
+                    achievements['Maestro de Puntos'] = { value: stats.totalPoints, holder: name, icon: '♛' };
+                }
+
+                // Maratonista
+                if (stats.gamesPlayed > achievements['Maratonista'].value) {
+                    achievements['Maratonista'] = { value: stats.gamesPlayed, holder: name, icon: '🏃' };
+                }
+
+                // Rey de las Tablas (min 5 partidas)
+                if (stats.gamesPlayed >= 5) {
+                    const drawRatio = stats.draws / stats.gamesPlayed;
+                    if (drawRatio > achievements['Rey de las Tablas'].value) {
+                        achievements['Rey de las Tablas'] = { 
+                            value: drawRatio, 
+                            holder: name, 
+                            icon: '🤝', 
+                            highIsBetter: true,
+                            displayValue: (drawRatio * 100).toFixed(1)
+                        };
+                    }
+                }
+                
+                // Tops y Rankings
+                if (stats.top3 > achievements['Podio Habitual (Top 3)'].value) {
+                    achievements['Podio Habitual (Top 3)'] = { value: stats.top3, holder: name, icon: '🥉' };
+                }
+                if (stats.top10 > achievements['Top Ten Indiscutible (Top 10)'].value) {
+                    achievements['Top Ten Indiscutible (Top 10)'] = { value: stats.top10, holder: name, icon: '🔟' };
+                }
+
+                // Calcular efectividad y experiencia
+                // Efectividad = Puntos Totales / Partidas Jugadas
+                stats.effectiveness = stats.gamesPlayed > 0 ? ((stats.totalPoints / stats.gamesPlayed) * 100).toFixed(1) : '0.0';
+                stats.tournamentsCount = stats.tournamentsPlayed.size;
+                if (stats.tournamentsCount >= 5) {
+                    stats.experienceLevel = "Gran Maestro";
+                } else if (stats.tournamentsCount >= 3) {
+                    stats.experienceLevel = "Maestro Nacional";
+                } else {
+                    stats.experienceLevel = "Aspirante";
+                }
+            });
+
+            // Post-procesamiento para formatear todos los logros
+            const finalGlobalStats = Object.keys(achievements).map(key => {
+                const achievement = achievements[key];
+                let unit;
+                if (key === 'Rey de las Tablas') {
+                    unit = '%';
+                } else if (key === 'Maestro de Puntos') {
+                    unit = 'puntos';
+                } else if (key === 'Maratonista' || key === 'Racha Incendiaria') {
+                    unit = 'partidas';
+                } else {
+                    unit = 'veces';
+                }
+                
+                let displayValue = achievement.displayValue || (achievement.value === 0 && !achievement.highIsBetter ? '0' : achievement.value.toLocaleString('es-ES'));
+                if (achievement.value === 0 && key === 'Rey de las Tablas') displayValue = '0.0'; // Asegurar formato para porcentaje
+
+                return {
+                    name: key,
+                    icon: achievement.icon,
+                    holder: achievement.holder,
+                    value: displayValue,
+                    unit: unit
+                };
+            }).filter(stat => stat.name !== '5 Fantásticos (Top 5)'); // Filtrar logros no implementados
+
+            return { globalStats: finalGlobalStats, playerStats: globalPlayerStats };
+        }
+
+        // --- FUNCIONES DE RENDERIZADO (UI) ---
+
+        /** Renderiza las estadísticas globales en tarjetas. */
+        function renderGlobalStats(stats) {
+            globalStatsContainer.innerHTML = ''; // Limpiar
+            
+            stats.forEach(stat => {
+                const isPlaceholder = stat.value === 0 || stat.value === 'Nadie' || stat.value === '0.0';
+                const cardHtml = `
+                    <div class="achievement-card p-6 rounded-xl text-white ${isPlaceholder ? 'bg-gray-400' : 'bg-gradient-to-br from-indigo-500 to-purple-600'}">
+                        <div class="text-4xl mb-2">${stat.icon}</div>
+                        <h3 class="text-xl font-bold mb-1">${stat.name}</h3>
+                        ${isPlaceholder ? `
+                            <p class="text-3xl font-extrabold text-gray-800">N/A</p>
+                            <p class="mt-1 text-sm">¡Necesitamos más datos!</p>
+                        ` : `
+                            <p class="text-3xl font-extrabold">${stat.value} <span class="text-xl font-light">${stat.unit}</span></p>
+                            <p class="mt-1 text-sm font-semibold">Logrado por: ${stat.holder}</p>
+                        `}
+                    </div>
+                `;
+                globalStatsContainer.innerHTML += cardHtml;
+            });
+        }
+
+        /** Renderiza la lista de torneos cargados. */
+        function renderTournamentList(tournaments) {
+            tournamentsListEl.innerHTML = '';
+            tournaments.sort((a, b) => a.id - b.id);
+            tournaments.forEach(t => {
+                const totalPartidas = t.partidas ? t.partidas.length : 0;
+                tournamentsListEl.innerHTML += `
+                    <p class="bg-gray-50 p-2 rounded-lg border-l-4 border-indigo-500">
+                        <strong>#${t.id} ${t.name}</strong> (${totalPartidas} partidas) - ${t.description || 'Sin descripción'}
+                    </p>
+                `;
+            });
+            if (tournaments.length === 0) {
+                 tournamentsListEl.innerHTML = `<p class="text-center text-gray-500">No se encontraron torneos. Se cargarán datos de ejemplo automáticamente.</p>`;
+            }
+        }
+
+        /** Renderiza las estadísticas de un jugador específico. */
+        function renderPlayerStats(playerName, statsData) {
+            const normalizedName = playerName.trim();
+            const player = statsData[normalizedName];
+            
+            playerStatsResult.innerHTML = ''; // Limpiar resultado anterior
+
+            if (!normalizedName) {
+                return;
+            }
+
+            if (!player) {
+                playerStatsResult.innerHTML = `
+                    <div class="p-6 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg">
+                        <p class="font-bold">¡Jugador no encontrado!</p>
+                        <p>Asegúrate de escribir el nombre exactamente como aparece en los registros (ej. Ana, Luis).</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Mapeo de colores para el nivel de experiencia
+            let expColor = 'bg-gray-500';
+            if (player.experienceLevel === 'Gran Maestro') expColor = 'bg-amber-500';
+            else if (player.experienceLevel === 'Maestro Nacional') expColor = 'bg-blue-500';
+            else expColor = 'bg-green-500';
+
+            const playerCardHtml = `
+                <div class="relative p-6 bg-white border-4 border-indigo-500 rounded-xl shadow-2xl achievement-card">
+                    <!-- Insignia de Nivel -->
+                    <span class="absolute top-0 right-0 ${expColor} text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                        ${player.experienceLevel}
+                    </span>
+                    
+                    <h3 class="text-3xl font-extrabold text-indigo-700 mb-4">${normalizedName}</h3>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <!-- Stat 1: Puntos Totales -->
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <p class="text-sm font-medium text-gray-600">Puntos Totales</p>
+                            <p class="text-2xl font-bold text-indigo-800">${player.totalPoints.toLocaleString('es-ES')}</p>
+                        </div>
+                        <!-- Stat 2: Partidas Jugadas -->
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <p class="text-sm font-medium text-gray-600">Partidas Jugadas</p>
+                            <p class="text-2xl font-bold text-indigo-800">${player.gamesPlayed}</p>
+                        </div>
+                        <!-- Stat 3: Efectividad (Puntos/Partidas) -->
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <p class="text-sm font-medium text-gray-600">Efectividad</p>
+                            <p class="text-2xl font-bold text-indigo-800">${player.effectiveness}%</p>
+                        </div>
+                        <!-- Stat 4: Torneos Jugados -->
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <p class="text-sm font-medium text-gray-600">Torneos Jugados</p>
+                            <p class="text-2xl font-bold text-indigo-800">${player.tournamentsCount}</p>
+                        </div>
+                    </div>
+
+                    <!-- Historial de Tops -->
+                    <div class="mt-6">
+                        <h4 class="text-xl font-semibold text-gray-700 mb-3 border-b pb-1">Historial de Dominio</h4>
+                        <div class="flex justify-around items-center">
+                            <div class="text-center">
+                                <span class="text-4xl">♜</span>
+                                <p class="text-2xl font-bold">${player.wins}</p>
+                                <p class="text-sm text-gray-500">Victorias</p>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-4xl">♟️</span>
+                                <p class="text-2xl font-bold">${player.draws}</p>
+                                <p class="text-sm text-gray-500">Empates (Tablas)</p>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-4xl">🥉</span>
+                                <p class="text-2xl font-bold">${player.top3}</p>
+                                <p class="text-sm text-gray-500">Veces Top 3</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            playerStatsResult.innerHTML = playerCardHtml;
+            
+            // Efecto de Confeti (opcional, para records)
+            if (player.top3 > 0 || player.totalPoints > 5) {
+                 // Aquí iría el código para lanzar confeti si tu entorno lo soporta
+            }
+        }
+
+        // --- EVENT LISTENERS Y ARRANQUE ---
+
+        document.getElementById('search-button').addEventListener('click', () => {
+            const playerName = document.getElementById('player-search-input').value;
+            renderPlayerStats(playerName, allPlayerStats);
+        });
+
+        // Permitir búsqueda al presionar ENTER
+        document.getElementById('player-search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('search-button').click();
+            }
+        });
+
+        // Iniciar la aplicación al cargar la página
+        window.onload = initializeFirebase;
+
+    </script>
+</body>
+</html>
