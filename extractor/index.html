@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor Chess-Results</title>
-    <!-- Usamos Tailwind CSS para estilos rápidos y bonitos -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Animación de carga */
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #3498db;
@@ -20,35 +18,49 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Estilo para el contenido escrapeado */
-        .scraped-content table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .scraped-content td, .scraped-content th { border: 1px solid #ddd; padding: 8px; font-size: 0.9em; }
-        .scraped-content tr:nth-child(even) { background-color: #f2f2f2; }
+        /* Estilos para la tabla visualizada */
+        .scraped-content { overflow-x: auto; }
+        .scraped-content table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .scraped-content td, .scraped-content th { border: 1px solid #e2e8f0; padding: 6px; white-space: nowrap; }
+        .scraped-content tr:nth-child(even) { background-color: #f8fafc; }
+        .scraped-content th { background-color: #e2e8f0; font-weight: bold; text-align: left; }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-slate-800">
 
-    <div class="max-w-4xl mx-auto p-6">
+    <div class="max-w-5xl mx-auto p-6">
         
-        <!-- Cabecera -->
-        <header class="bg-white p-6 rounded-lg shadow-md mb-6 border-l-4 border-blue-600">
-            <h1 id="main-title" class="text-3xl font-bold text-gray-800">Selecciona un Torneo</h1>
-            <p class="text-gray-500 mt-2">Visor de datos externos de Chess-Results</p>
+        <header class="bg-white p-6 rounded-lg shadow-md mb-6 border-l-4 border-blue-600 flex justify-between items-center">
+            <div>
+                <h1 id="main-title" class="text-3xl font-bold text-gray-800">Visor de Torneos</h1>
+                <p class="text-gray-500 mt-1">Chess-Results Data Extractor</p>
+            </div>
+            <!-- Botón de Exportar (Oculto inicialmente) -->
+            <button id="btn-export" onclick="exportarTablaACSV()" class="hidden bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Descargar CSV
+            </button>
         </header>
 
         <!-- Controles -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Elegir enlace del CSV:</label>
-            <div class="flex gap-2">
-                <select id="tournament-selector" class="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">-- Cargar CSV primero --</option>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Torneo:</label>
+            <div class="flex flex-col md:flex-row gap-2">
+                <select id="tournament-selector" onchange="verificarManual()" class="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">-- Cargando lista... --</option>
                 </select>
-                <button onclick="cargarDatosTorneo()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
-                    Ver
+                
+                <!-- Input Manual (Oculto por defecto) -->
+                <input type="text" id="manual-input" placeholder="Ej: 1065880" class="hidden w-full md:w-48 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                
+                <button onclick="cargarDatosTorneo()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition whitespace-nowrap">
+                    Cargar Datos
                 </button>
             </div>
-            <!-- Mensajes de Estado -->
-            <div id="status-msg" class="mt-2 text-sm text-gray-500 italic">Esperando carga...</div>
+            
+            <div id="status-msg" class="mt-2 text-sm text-gray-500 italic">Esperando acción...</div>
             <div id="error-box" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded border border-red-300"></div>
         </div>
 
@@ -57,25 +69,21 @@
             <div class="loader" id="loader"></div>
             
             <div id="content" class="space-y-4">
-                <!-- Aquí se inyectarán los datos -->
                 <div class="flex justify-between items-start border-b pb-4">
                     <div>
-                        <h2 id="tournament-name" class="text-2xl font-bold text-blue-800">Nombre del Torneo</h2>
-                        <span id="tournament-info" class="text-sm text-gray-500">Detalles cargados</span>
+                        <h2 id="tournament-name" class="text-2xl font-bold text-blue-800">...</h2>
+                        <a id="original-link" href="#" target="_blank" class="text-sm text-blue-500 hover:underline">Ver en Chess-Results original ↗</a>
                     </div>
-                    <a id="original-link" href="#" target="_blank" class="text-xs bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-gray-700">Abrir Original ↗</a>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div class="bg-blue-50 p-4 rounded border border-blue-100">
-                        <h3 class="font-bold text-blue-900 mb-2">Datos Extraídos</h3>
-                        <div id="extracted-data" class="text-sm text-gray-700">
-                            <!-- Datos específicos aquí -->
-                        </div>
+                <!-- Contenedor para la tabla extraída -->
+                <div class="bg-white rounded border border-gray-200 overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 font-semibold text-gray-700 flex justify-between">
+                        <span>Vista Previa de Datos</span>
+                        <span class="text-xs font-normal text-gray-500 mt-1">Se muestra la tabla principal detectada</span>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded border border-gray-200">
-                        <h3 class="font-bold text-gray-900 mb-2">Resumen</h3>
-                        <p id="meta-data" class="text-sm">Selecciona un torneo para ver su información.</p>
+                    <div id="extracted-data" class="scraped-content p-4 text-sm text-gray-700">
+                        <!-- Aquí se inyecta la tabla -->
                     </div>
                 </div>
             </div>
@@ -85,127 +93,186 @@
 
     <script>
         const selector = document.getElementById('tournament-selector');
+        const manualInput = document.getElementById('manual-input');
         const statusMsg = document.getElementById('status-msg');
         const errorBox = document.getElementById('error-box');
+        const btnExport = document.getElementById('btn-export');
         
+        let datosTablaActual = null; // Para guardar datos para el CSV
+        let nombreArchivoActual = "torneo";
+
         // 1. Cargar el CSV al iniciar
         window.addEventListener('DOMContentLoaded', async () => {
             if (window.location.protocol === 'file:') {
-                mostrarError("⚠️ Estás abriendo el archivo directamente (file://). El navegador bloqueará la carga del CSV. <br>Necesitas usar un Servidor Local (Live Server en VSCode) o subirlo a la web.");
+                mostrarError("⚠️ Error: Protocolo file:// detectado. Usa un servidor local.");
                 return;
             }
 
             try {
-                statusMsg.innerText = "Leyendo torneos.csv...";
+                statusMsg.innerText = "Cargando lista de torneos...";
                 const response = await fetch('torneos.csv');
-                
-                if (!response.ok) throw new Error("No se encontró el archivo torneos.csv");
+                if (!response.ok) throw new Error("No se encontró torneos.csv");
                 
                 const text = await response.text();
                 const lines = text.split('\n');
                 
-                selector.innerHTML = '<option value="">-- Selecciona un torneo --</option>';
+                selector.innerHTML = '<option value="">-- Selecciona un ID --</option>';
+                
                 let count = 0;
-
-                lines.forEach((line, index) => {
-                    const url = line.trim();
-                    // Validar que parece una URL de chess-results
-                    if (url && url.includes('chess-results.com') && !url.startsWith('url')) {
-                        // Extraer el ID del torneo para mostrar algo en el menú
-                        // Ejemplo: tnr1065880
-                        const match = url.match(/tnr(\d+)/);
-                        const label = match ? `Torneo ID: ${match[1]}` : `Enlace #${index}`;
-                        
+                lines.forEach((line) => {
+                    // Limpiamos la línea y buscamos solo números (IDs)
+                    const id = line.trim();
+                    // Aceptamos si es numérico y tiene longitud razonable (ej. > 3 dígitos)
+                    if (id && !isNaN(id) && id.length > 3) {
                         const option = document.createElement('option');
-                        option.value = url;
-                        option.textContent = label;
+                        option.value = id;
+                        option.textContent = `Torneo ID: ${id}`;
                         selector.appendChild(option);
                         count++;
                     }
                 });
 
-                if (count === 0) {
-                    mostrarError("El CSV se cargó pero no parece tener enlaces válidos de chess-results.com");
-                } else {
-                    statusMsg.innerText = `✅ CSV Cargado. ${count} torneos encontrados.`;
-                }
+                // Opción para entrada manual
+                const manualOption = document.createElement('option');
+                manualOption.value = "manual";
+                manualOption.textContent = "➕ Ingresar otro torneo manualmente...";
+                manualOption.style.fontWeight = "bold";
+                selector.appendChild(manualOption);
+
+                statusMsg.innerText = `✅ Lista cargada (${count} torneos).`;
 
             } catch (error) {
                 mostrarError(`Error cargando CSV: ${error.message}`);
             }
         });
 
-        // 2. Función principal para cargar datos del torneo seleccionado
+        // Toggle para mostrar input manual
+        function verificarManual() {
+            if (selector.value === 'manual') {
+                manualInput.classList.remove('hidden');
+                manualInput.focus();
+            } else {
+                manualInput.classList.add('hidden');
+            }
+        }
+
+        // 2. Cargar Datos
         async function cargarDatosTorneo() {
-            const url = selector.value;
-            if (!url) return;
+            let idTorneo = selector.value;
+            
+            // Si es manual, tomamos el valor del input
+            if (idTorneo === 'manual') {
+                idTorneo = manualInput.value.trim();
+                // Limpieza básica si pegan un link completo por error
+                if (idTorneo.includes('tnr')) {
+                    const match = idTorneo.match(/tnr(\d+)/);
+                    if (match) idTorneo = match[1];
+                }
+            }
+
+            if (!idTorneo) {
+                alert("Por favor selecciona o ingresa un ID válido.");
+                return;
+            }
+
+            // Construir URL estándar de Chess-Results (Ranking art=1 es lo más común para exportar)
+            // Usamos lan=2 (Inglés/Internacional) para consistencia en encabezados si es posible, o mantenemos el del torneo.
+            const targetUrl = `https://chess-results.com/tnr${idTorneo}.aspx?lan=2&art=1&turdet=YES`;
 
             // UI Reset
             document.getElementById('display-area').classList.remove('hidden');
             document.getElementById('loader').style.display = 'block';
             document.getElementById('content').style.opacity = '0.3';
-            statusMsg.innerText = "Contactando proxy...";
+            btnExport.classList.add('hidden');
             errorBox.classList.add('hidden');
+            statusMsg.innerText = "Obteniendo datos...";
 
             try {
-                // Usamos AllOrigins como proxy
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                // Proxy
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
                 const response = await fetch(proxyUrl);
                 const data = await response.json();
 
-                if (!data.contents) throw new Error("El proxy no devolvió contenido.");
+                if (!data.contents) throw new Error("Error de conexión con el proxy.");
 
-                // Parsear el HTML
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(data.contents, "text/html");
 
-                // --- LÓGICA DE SCRAPING CHESS-RESULTS ---
+                // --- EXTRACCIÓN ---
                 
-                // 1. Buscar el Título (Suele ser un H2 o H1 con clase CR)
-                let titulo = doc.querySelector('h1')?.innerText || doc.querySelector('h2')?.innerText;
-                if (!titulo) titulo = "Título no encontrado";
-                
-                // Limpiar el título (quitar espacios extra)
+                // Título
+                let titulo = doc.querySelector('h1')?.innerText || doc.querySelector('h2')?.innerText || `Torneo ${idTorneo}`;
                 titulo = titulo.replace(/\s+/g, ' ').trim();
+                nombreArchivoActual = titulo.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
-                // 2. Buscar datos de la tabla de info (Organizador, lugar, etc)
-                // En chess-results suelen estar en tablas con clase CR
-                const infoRows = doc.querySelectorAll('.CR');
-                let infoExtra = "";
-                
-                // Intentamos capturar las primeras líneas de texto relevante
-                // Esto es experimental porque la estructura varía
-                let dataCount = 0;
-                infoRows.forEach(el => {
-                    if(dataCount < 5 && el.tagName === 'TD' && el.innerText.trim().length > 3) {
-                         infoExtra += `<div class="mb-1 border-b border-gray-100 pb-1">${el.innerText}</div>`;
-                         dataCount++;
-                    }
-                });
+                // Buscar la TABLA PRINCIPAL (Clase .CRs1 o .CRs2 en chess-results)
+                const tabla = doc.querySelector('.CRs1') || doc.querySelector('.CRs2') || doc.querySelector('table');
 
-                // ACTUALIZAR LA UI
-                document.getElementById('main-title').innerText = titulo; // Título de la página principal
-                document.getElementById('tournament-name').innerText = titulo; // Título de la tarjeta
-                document.getElementById('tournament-info').innerText = url;
-                document.getElementById('original-link').href = url;
-                
-                document.getElementById('extracted-data').innerHTML = infoExtra || "No se pudo extraer información detallada automáticamente.";
-                
-                document.getElementById('meta-data').innerHTML = `
-                    <p><strong>Fuente:</strong> Chess-Results.com</p>
-                    <p><strong>Estado:</strong> Lectura exitosa</p>
-                    <p class="text-xs text-gray-400 mt-2">Los datos mostrados dependen de la estructura HTML de la página original.</p>
-                `;
+                if (tabla) {
+                    // Limpiamos atributos para la vista previa
+                    tabla.removeAttribute('width');
+                    tabla.removeAttribute('bgcolor');
+                    tabla.style.width = "100%";
+                    
+                    // Renderizar vista previa
+                    const contenedorTabla = document.getElementById('extracted-data');
+                    contenedorTabla.innerHTML = ''; // Limpiar
+                    contenedorTabla.appendChild(tabla); // Mover la tabla del DOM virtual al real
+                    
+                    // Guardar referencia para exportar
+                    datosTablaActual = tabla;
+                    btnExport.classList.remove('hidden');
+                    statusMsg.innerText = "✅ Datos cargados correctamente.";
+                } else {
+                    document.getElementById('extracted-data').innerHTML = "<p class='text-orange-500'>No se detectó una tabla de resultados válida en esta página.</p>";
+                    statusMsg.innerText = "⚠️ Carga incompleta.";
+                }
 
-                statusMsg.innerText = "✅ Datos visualizados.";
+                // UI Final
+                document.getElementById('main-title').innerText = "Visor de Torneos";
+                document.getElementById('tournament-name').innerText = titulo;
+                document.getElementById('original-link').href = targetUrl;
 
             } catch (error) {
-                mostrarError(`Error al leer Chess-Results: ${error.message}`);
-                console.error(error);
+                mostrarError(`Error: ${error.message}`);
             } finally {
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('content').style.opacity = '1';
             }
+        }
+
+        // 3. Lógica de Exportación a CSV
+        function exportarTablaACSV() {
+            if (!datosTablaActual) return;
+
+            let csv = [];
+            const rows = datosTablaActual.querySelectorAll("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+                
+                for (let j = 0; j < cols.length; j++) {
+                    // Limpiar texto: quitar saltos de línea y comillas dobles
+                    let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
+                    // Escapar comillas para CSV
+                    data = data.replace(/"/g, '""');
+                    // Envolver en comillas
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(","));
+            }
+
+            const csvString = csv.join("\n");
+            const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${nombreArchivoActual}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function mostrarError(msg) {
