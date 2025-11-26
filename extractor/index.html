@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Chess-Results</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; background-color: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-2px); }
+        .card-content h3 { margin: 0 0 5px 0; color: #005a9e; font-size: 1.1rem; }
+        .card-content p { margin: 0; color: #666; font-size: 0.9rem; }
+        .btn {
+            background-color: #005a9e;
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .btn:hover { background-color: #004a80; }
+        .loading { text-align: center; color: #666; }
+        .error { color: red; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 Torneos en Chess-Results</h1>
+    <div id="lista-torneos">
+        <p class="loading">Cargando torneos desde el CSV...</p>
+    </div>
+
+    <script>
+        // 1. Función para leer el CSV
+        async function cargarCSV() {
+            const response = await fetch('torneos.csv');
+            const data = await response.text();
+            
+            // Separar por líneas y eliminar la cabecera
+            const urls = data.split('\n')
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('url')); // Ignorar cabecera y líneas vacías
+
+            const container = document.getElementById('lista-torneos');
+            container.innerHTML = ''; // Limpiar mensaje de carga
+
+            // Procesar cada URL
+            urls.forEach(url => procesarChessResults(url, container));
+        }
+
+        // 2. Función para extraer datos de Chess-Results (Scraping)
+        async function procesarChessResults(url, container) {
+            // Crear la tarjeta visual (Skeleton)
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-content">
+                    <h3>Cargando...</h3>
+                    <p>Obteniendo datos...</p>
+                </div>
+                <a href="${url}" target="_blank" class="btn">Ver</a>
+            `;
+            container.appendChild(card);
+
+            try {
+                // Usamos 'allorigins' para evitar el bloqueo CORS
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
+                const json = await response.json();
+                
+                // Parsear el HTML recibido (convertir texto a un documento virtual)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(json.contents, "text/html");
+
+                // --- LÓGICA DE EXTRACCIÓN (SCRAPING) ---
+                // Chess-results suele poner el título en un h2 o h1
+                const titulo = doc.querySelector('h2')?.innerText || doc.querySelector('h1')?.innerText || "Título no encontrado";
+                
+                // Buscamos información extra (Organizador, fecha, etc. depende de la estructura actual)
+                // Esto busca la tabla de datos del torneo
+                const infoLines = doc.querySelectorAll('.CRdb'); 
+                let detalles = "Info no disponible";
+                
+                // Intento simple de buscar el organizador o la fecha en el texto
+                if (infoLines.length > 0) {
+                    detalles = "Click en 'Ver' para detalles";
+                }
+
+                // Actualizar la tarjeta
+                card.querySelector('h3').innerText = titulo;
+                card.querySelector('p').innerText = detalles;
+
+            } catch (error) {
+                card.querySelector('h3').innerText = "Error al cargar";
+                card.querySelector('p').classList.add('error');
+                card.querySelector('p').innerText = "No se pudo leer el enlace.";
+                console.error(error);
+            }
+        }
+
+        // Iniciar
+        cargarCSV();
+
+    </script>
+</body>
+</html>
