@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>♟️ Panel de Ajedrez: Enlaces y Herramientas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        /* Estilos personalizados para un toque elegante */
+        body {
+            background-color: #f5f5f5; /* Fondo claro */
+        }
+        .hero {
+            background-color: #363636; /* Gris oscuro elegante para el encabezado */
+            color: #ffffff;
+            border-bottom: 5px solid #00d1b2; /* Un toque de color */
+        }
+        .link-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero is-medium">
+        <div class="hero-body">
+            <p class="title is-1 has-text-white">
+                ♟️ Centro de Enlaces de Ajedrez
+            </p>
+            <p class="subtitle has-text-white">
+                Herramientas, reportes y gestores clave para torneos y análisis.
+            </p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-multiline" id="links-container">
+                </div>
+            <div id="loading-message" class="has-text-centered">
+                <p class="is-size-4 has-text-grey">Cargando enlaces...</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
