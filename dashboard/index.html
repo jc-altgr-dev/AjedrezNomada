@@ -238,6 +238,10 @@
                     fetchAndParseCSV(CSV_METAS_FILE)
                 ]);
 
+                // CAMBIO: Definir meta global (tomamos la primera fila de datos de metas.csv)
+                // Como quitaste las columnas de ID, asumimos que todos los alumnos comparten la misma meta
+                const globalGoals = goalsData.length > 0 ? goalsData[0] : {};
+
                 // Fusionar datos
                 const dataMap = {};
                 
@@ -248,17 +252,15 @@
                             userId: userId,
                             name: row['Nombre'] || userId,
                             initials: row,
-                            goals: {}
+                            goals: globalGoals // Asignamos la meta global a cada usuario
                         };
                     }
                 });
 
-                goalsData.forEach(row => {
-                    const userId = row['Lichess']?.toLowerCase();
-                    if(dataMap[userId]) {
-                        dataMap[userId].goals = row;
-                    }
-                });
+                // Ya no necesitamos buscar coincidencia por usuario en metas.csv
+                /*
+                goalsData.forEach(row => { ... });
+                */
 
                 trackingData = Object.values(dataMap);
 
