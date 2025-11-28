@@ -1,204 +1,362 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard de Entrenamiento</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
-    h1 { text-align: center; }
-    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    label { margin-right: 10px; }
-    input, select { margin: 5px; padding: 5px; }
-    .btn { padding: 10px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 6px; }
-    .btn-primary { background: #007bff; color: white; }
-    .btn-danger { background: #dc3545; color: white; }
-    .btn-export { background: #28a745; color: white; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background: #343a40; color: white; }
-    .chart-container { width: 90%; margin: auto; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📈 Seguimiento de Metas Lichess</title>
+    <!-- Incluye Tailwind CSS a través de CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para la animación y la fuente */
+        :root {
+            --progress-transition-duration: 1.5s; /* Duración de la animación de la barra */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .progress-bar-inner {
+            /* Habilita la transición para la animación de la barra */
+            transition: width var(--progress-transition-duration) ease-out;
+            width: 0%; /* Inicia en 0% para la animación */
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
+    <div class="p-4 sm:p-8 max-w-6xl mx-auto">
+        <header class="mb-8 p-4 bg-white shadow-md rounded-xl">
+            <h1 class="text-3xl font-extrabold text-indigo-700">
+                📈 Seguimiento de Metas Lichess
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">
+                Herramienta de monitoreo de progreso basada en la API de Lichess.
+            </p>
+        </header>
 
-  <h1>Dashboard de Entrenamiento</h1>
+        <main class="space-y-6">
+            <!-- Selector de Usuario -->
+            <div class="p-5 bg-white shadow-xl rounded-xl border border-indigo-200">
+                <label for="user-select" class="block text-lg font-medium text-gray-700 mb-2">
+                    Selecciona un Usuario a Monitorear:
+                </label>
+                <select
+                    id="user-select"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
+                >
+                    <!-- Las opciones se inyectarán con JavaScript -->
+                </select>
+            </div>
 
-  <!-- Sección de inicio de sesión -->
-  <div id="loginCard" class="card">
-    <h3>Iniciar entrenamiento</h3>
-    <label>Jugador:</label>
-    <input type="text" id="jugadorInput" required>
-    
-    <label>Ejercicio:</label>
-    <select id="ejercicioInput">
-      <option value="Coordenadas">Coordenadas</option>
-      <option value="Racer">Racer</option>
-      <option value="Storm">Storm</option>
-      <option value="Streak">Streak</option>
-      <option value="Matein1">Matein1</option>
-      <option value="Matein2">Matein2</option>
-      <option value="Matein3">Matein3</option>
-      <option value="Matein4">Matein4</option>
-      <option value="Matein5+">Matein5+</option>
-      <option value="Puzzles">Puzzles</option>
-    </select>
-    
-    <button class="btn btn-primary" onclick="iniciarSesion()">✅ Iniciar</button>
-  </div>
+            <!-- Contenedores de estado (Carga/Error/Progreso) -->
+            <div id="status-container" class="hidden"></div>
+            <div id="progress-container" class="hidden bg-white p-6 rounded-xl shadow-2xl">
+                <!-- Los datos de progreso se inyectarán aquí -->
+            </div>
+        </main>
+    </div>
 
-  <!-- Sección activa de entrenamiento -->
-  <div id="trainingCard" class="card" style="display:none;">
-    <h3 id="tituloSesion"></h3>
-    <label>Puntaje:</label>
-    <input type="number" id="puntaje" required>
-    <button class="btn btn-primary" onclick="registrarPuntaje()">➕ Registrar</button>
-    <button class="btn btn-danger" onclick="finalizarSesion()">⏹ Finalizar entrenamiento</button>
-  </div>
+    <script>
+        // --- Variables Globales y Configuración (Simulación) ---
+        // Se asume que en tu servidor real, la clave y la configuración se manejarán del lado del servidor.
+        const LICHESS_API_BASE = 'https://lichess.org/api/user/';
+        const SELECTOR_ID = 'user-select';
+        const STATUS_ID = 'status-container';
+        const PROGRESS_ID = 'progress-container';
+        let trackingData = []; // Almacenará los datos iniciales y metas.
 
-  <!-- Botón exportar -->
-  <button class="btn btn-export" onclick="exportarPDF()">📄 Exportar a PDF</button>
+        // Simulación de los datos iniciales y metas (basados en el "CSV")
+        const mockTrackingData = [
+            {
+                userId: 'alice_chess_pro', // ID de Lichess
+                initials: {
+                    bullet: 1800, numBulletGames: 50, blitz: 2000, numBlitzGames: 120, rapid: 1600, numRapidGames: 30,
+                    classical: 1500, numClassicalGames: 10, puzzles: 2200, numPuzzles: 500, storm: 15, numStorm: 5, streak: 10, numStreak: 20, racer: 8, numRacer: 15,
+                },
+                goals: {
+                    bullet: 1950, numBulletGames: 100, blitz: 2100, numBlitzGames: 200, rapid: 1750, numRapidGames: 60,
+                    classical: 1700, numClassicalGames: 30, puzzles: 2300, numPuzzles: 700, storm: 30, numStorm: 15, streak: 20, numStreak: 40, racer: 15, numRacer: 30,
+                }
+            },
+            {
+                userId: 'bob_tactics_guy',
+                initials: {
+                    bullet: 1500, numBulletGames: 20, blitz: 1850, numBlitzGames: 80, rapid: 1900, numRapidGames: 50,
+                    classical: 1750, numClassicalGames: 25, puzzles: 2000, numPuzzles: 300, storm: 10, numStorm: 2, streak: 5, numStreak: 10, racer: 5, numRacer: 8,
+                },
+                goals: {
+                    bullet: 1600, numBulletGames: 40, blitz: 1950, numBlitzGames: 150, rapid: 2000, numRapidGames: 80,
+                    classical: 1850, numClassicalGames: 50, puzzles: 2200, numPuzzles: 550, storm: 25, numStorm: 10, streak: 15, numStreak: 25, racer: 10, numRacer: 18,
+                }
+            },
+        ];
 
-  <!-- Tabla de resultados -->
-  <table id="tablaEntrenamiento">
-    <thead>
-      <tr>
-        <th>Jugador</th>
-        <th>Ejercicio</th>
-        <th>Puntajes</th>
-        <th>Promedio</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+        // Definición de las métricas que se mostrarán
+        const metricDefinitions = [
+            { key: 'bullet', name: 'Bullet Rating (Elo)', isRating: true },
+            { key: 'numBulletGames', name: 'Juegos Bullet', isRating: false },
+            { key: 'blitz', name: 'Blitz Rating (Elo)', isRating: true },
+            { key: 'numBlitzGames', name: 'Juegos Blitz', isRating: false },
+            { key: 'rapid', name: 'Rapid Rating (Elo)', isRating: true },
+            { key: 'numRapidGames', name: 'Juegos Rapid', isRating: false },
+            { key: 'puzzles', name: 'Puzzles Rating (Elo)', isRating: true },
+            { key: 'numPuzzles', name: 'Puzzles Resueltos', isRating: false },
+            { key: 'storm', name: 'Storm Score (Máx)', isRating: true },
+            { key: 'numStorm', name: 'Juegos Storm', isRating: false },
+        ];
 
-  <!-- Gráfica -->
-  <div class="chart-container">
-    <canvas id="graficoLinea"></canvas>
-  </div>
 
-  <script>
-    let registros = JSON.parse(localStorage.getItem("registros")) || {};
-    let jugadorActivo = null;
-    let ejercicioActivo = null;
-    let chart;
+        /**
+         * Muestra mensajes de estado (carga o error) en la UI.
+         * @param {string} type 'loading' o 'error'.
+         * @param {string} message Mensaje a mostrar.
+         */
+        function updateStatus(type, message) {
+            const statusContainer = document.getElementById(STATUS_ID);
+            statusContainer.classList.remove('hidden');
+            document.getElementById(PROGRESS_ID).classList.add('hidden');
 
-    // Iniciar sesión de jugador
-    function iniciarSesion() {
-      const jugador = document.getElementById("jugadorInput").value.trim();
-      const ejercicio = document.getElementById("ejercicioInput").value;
-
-      if (jugador === "") {
-        alert("Escribe un nombre de jugador");
-        return;
-      }
-
-      jugadorActivo = jugador;
-      ejercicioActivo = ejercicio;
-
-      document.getElementById("loginCard").style.display = "none";
-      document.getElementById("trainingCard").style.display = "block";
-      document.getElementById("tituloSesion").innerText = 
-        "Entrenando: " + jugadorActivo + " en " + ejercicioActivo;
-    }
-
-    // Finalizar sesión
-    function finalizarSesion() {
-      jugadorActivo = null;
-      ejercicioActivo = null;
-
-      document.getElementById("loginCard").style.display = "block";
-      document.getElementById("trainingCard").style.display = "none";
-    }
-
-    // Registrar puntaje
-    function registrarPuntaje() {
-      const puntaje = parseInt(document.getElementById("puntaje").value);
-
-      if (!puntaje) {
-        alert("Ingresa un puntaje válido");
-        return;
-      }
-
-      if (!registros[jugadorActivo]) registros[jugadorActivo] = {};
-      if (!registros[jugadorActivo][ejercicioActivo]) registros[jugadorActivo][ejercicioActivo] = [];
-      registros[jugadorActivo][ejercicioActivo].push(puntaje);
-
-      localStorage.setItem("registros", JSON.stringify(registros));
-
-      actualizarTabla();
-      actualizarGrafico();
-      document.getElementById("puntaje").value = "";
-    }
-
-    // Actualizar tabla
-    function actualizarTabla() {
-      const tbody = document.querySelector("#tablaEntrenamiento tbody");
-      tbody.innerHTML = "";
-
-      for (let jugador in registros) {
-        for (let ejercicio in registros[jugador]) {
-          let puntajes = registros[jugador][ejercicio];
-          let promedio = (puntajes.reduce((a,b) => a+b, 0) / puntajes.length).toFixed(2);
-
-          let fila = `<tr>
-            <td>${jugador}</td>
-            <td>${ejercicio}</td>
-            <td>${puntajes.join(", ")}</td>
-            <td>${promedio}</td>
-          </tr>`;
-          tbody.innerHTML += fila;
+            if (type === 'loading') {
+                statusContainer.innerHTML = `
+                    <div class="text-center p-6 bg-indigo-50 rounded-xl shadow-inner">
+                        <svg class="animate-spin h-5 w-5 mr-3 inline text-indigo-600" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="text-indigo-700 font-medium ml-2">${message}</span>
+                    </div>
+                `;
+            } else if (type === 'error') {
+                statusContainer.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative shadow-md" role="alert">
+                        <strong class="font-bold">¡Error!</strong>
+                        <span class="block sm:inline ml-2">${message}</span>
+                    </div>
+                `;
+            }
         }
-      }
-    }
 
-    // Actualizar gráfico
-    function actualizarGrafico() {
-      const ctx = document.getElementById("graficoLinea").getContext("2d");
-      if (chart) chart.destroy();
+        /**
+         * Función para simular/realizar llamadas a la API de Lichess.
+         * En un entorno real, esta función haría un 'fetch' real.
+         */
+        async function fetchLichessStats(username) {
+            // Función para manejar el reintento con backoff exponencial
+            const maxRetries = 3;
+            let delay = 1000;
 
-      let jugadores = Object.keys(registros);
-      if (jugadores.length === 0) return;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const url = `${LICHESS_API_BASE}${username}`;
+                    // **********************************************
+                    // * SIMULACIÓN DE LA RESPUESTA DE LA API *
+                    // **********************************************
+                    const currentRatings = {
+                        id: username,
+                        // Datos mock que simulan la respuesta en tiempo real y varían por usuario
+                        perfs: {
+                            bullet: { rating: 1850 + (username === 'bob_tactics_guy' ? 0 : 0) + (username === 'alice_chess_pro' ? 50 : 0) }, 
+                            blitz: { rating: 2050 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 50 : 0) },
+                            rapid: { rating: 1650 + (username === 'bob_tactics_guy' ? 5 : 0) + (username === 'alice_chess_pro' ? 50 : 0) },
+                            classical: { rating: 1600 + (username === 'bob_tactics_guy' ? 0 : 0) + (username === 'alice_chess_pro' ? 50 : 0) },
+                            puzzle: { rating: 2250 + (username === 'bob_tactics_guy' ? 100 : 0) + (username === 'alice_chess_pro' ? 50 : 0) }, 
+                            storm: { runs: [{ score: 20 }] }, 
+                            streak: { runs: [{ score: 15 }] },
+                            racer: { runs: [{ score: 10 }] },
+                        },
+                        count: {
+                            bullet: 75 + (username === 'bob_tactics_guy' ? 20 : 0) + (username === 'alice_chess_pro' ? 25 : 0),
+                            blitz: 150 + (username === 'bob_tactics_guy' ? 30 : 0) + (username === 'alice_chess_pro' ? 30 : 0),
+                            rapid: 45 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 15 : 0),
+                            classical: 20 + (username === 'bob_tactics_guy' ? 5 : 0) + (username === 'alice_chess_pro' ? 10 : 0),
+                        },
+                        // Contadores simulados para otras métricas
+                        numPuzzles: 600 + (username === 'bob_tactics_guy' ? 150 : 0) + (username === 'alice_chess_pro' ? 100 : 0),
+                        numStorm: 10 + (username === 'bob_tactics_guy' ? 5 : 0) + (username === 'alice_chess_pro' ? 5 : 0),
+                        numStreak: 25 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 5 : 0),
+                        numRacer: 20 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 5 : 0),
+                    };
 
-      let jugador = jugadores[0]; // de momento muestra el primero
-      let ejercicios = Object.keys(registros[jugador]);
-      let datasets = [];
+                    // Mapeo al formato de datos internos de la aplicación
+                    const currentStats = {
+                        bullet: currentRatings.perfs.bullet.rating,
+                        numBulletGames: currentRatings.count.bullet,
+                        blitz: currentRatings.perfs.blitz.rating,
+                        numBlitzGames: currentRatings.count.blitz,
+                        rapid: currentRatings.perfs.rapid.rating,
+                        numRapidGames: currentRatings.count.rapid,
+                        classical: currentRatings.perfs.classical.rating,
+                        numClassicalGames: currentRatings.count.classical,
+                        puzzles: currentRatings.perfs.puzzle.rating,
+                        numPuzzles: currentRatings.numPuzzles,
+                        storm: currentRatings.perfs.storm?.runs?.[0]?.score || 0,
+                        numStorm: currentRatings.numStorm,
+                        streak: currentRatings.perfs.streak?.runs?.[0]?.score || 0,
+                        numStreak: currentRatings.numStreak,
+                        racer: currentRatings.perfs.racer?.runs?.[0]?.score || 0,
+                        numRacer: currentRatings.numRacer,
+                    };
 
-      ejercicios.forEach((ejercicio, i) => {
-        datasets.push({
-          label: `${ejercicio}`,
-          data: registros[jugador][ejercicio],
-          borderColor: `hsl(${i*60}, 70%, 50%)`,
-          fill: false
+                    // Simulación de un retardo de red
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    return currentStats;
+
+                } catch (error) {
+                    console.error(`Error al obtener estadísticas de Lichess para ${username} (Intento ${i + 1}):`, error);
+                    if (i < maxRetries - 1) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Backoff exponencial
+                    } else {
+                        throw new Error("No se pudo conectar con la API de Lichess después de varios reintentos.");
+                    }
+                }
+            }
+        }
+
+        /**
+         * Renderiza la barra de progreso con animación.
+         * @param {Object} data Datos de la métrica.
+         * @returns {string} HTML de la tarjeta de progreso.
+         */
+        function renderProgressCard(data) {
+            // El ancho de la barra se establecerá en JS después de inyectar el HTML
+            const color = data.isRating ? 'bg-indigo-500' : 'bg-pink-500';
+
+            // Determinar color final si la meta es alcanzada
+            const percentColor = data.progress >= 100 ? 'text-green-600' : 'text-indigo-600';
+            const progressBg = data.progress >= 100 ? 'bg-green-500' : color;
+
+            return `
+                <div class="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 transition duration-300 hover:shadow-md" data-key="${data.key}">
+                    <h3 class="text-md font-semibold text-gray-900 mb-2">${data.name}</h3>
+
+                    <div class="flex justify-between text-sm mb-3 font-mono">
+                        <span class="text-gray-500">Inicial: <span class="text-indigo-600 font-bold">${data.initial}</span></span>
+                        <span class="text-gray-500">Meta: <span class="text-green-600 font-bold">${data.goal}</span></span>
+                    </div>
+                    <div class="text-lg font-extrabold text-indigo-700 mb-3 text-center">
+                        Actual: ${data.current}
+                    </div>
+
+                    <!-- Barra de Progreso -->
+                    <div class="flex flex-col space-y-1">
+                        <div class="flex justify-between text-sm">
+                            <span class="font-medium text-gray-700">Avance hacia la meta</span>
+                            <!-- ID para actualizar el porcentaje dinámicamente -->
+                            <span id="percent-${data.key}" class="font-bold ${percentColor}">${data.progress.toFixed(1)}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <!-- El width inicial es 0, se animará con JS -->
+                            <div
+                                id="bar-${data.key}"
+                                class="progress-bar-inner h-2.5 rounded-full ${progressBg}"
+                                style="width: 0%;"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        /**
+         * Inicia la animación de la barra de progreso después de un pequeño retraso.
+         * @param {string} key Clave de la métrica.
+         * @param {number} progress Porcentaje final (0-100).
+         */
+        function animateProgressBar(key, progress) {
+            const barElement = document.getElementById(`bar-${key}`);
+            const clampedProgress = Math.max(0, Math.min(100, progress));
+
+            // Asegura que el elemento exista antes de intentar animar
+            if (barElement) {
+                // Pequeño timeout para asegurar que el DOM se haya renderizado antes de empezar la transición
+                setTimeout(() => {
+                    barElement.style.width = `${clampedProgress}%`;
+                }, 50); 
+            }
+        }
+
+        /**
+         * Función principal para manejar la selección de usuario y la actualización de la UI.
+         */
+        async function handleUserSelect() {
+            const selectElement = document.getElementById(SELECTOR_ID);
+            const lichessId = selectElement.value;
+
+            if (!lichessId) {
+                document.getElementById(PROGRESS_ID).classList.add('hidden');
+                document.getElementById(STATUS_ID).classList.add('hidden');
+                return;
+            }
+
+            const selectedUser = trackingData.find(u => u.userId === lichessId);
+            if (!selectedUser) return;
+
+            updateStatus('loading', `Obteniendo datos actuales de Lichess para ${lichessId}...`);
+
+            try {
+                // Obtener datos en tiempo real de Lichess
+                const currentStats = await fetchLichessStats(selectedUser.userId);
+                
+                // Calcular el progreso para todas las métricas
+                const progressData = metricDefinitions.map(metric => {
+                    const initial = selectedUser.initials[metric.key] || 0;
+                    const goal = selectedUser.goals[metric.key] || 0;
+                    const current = currentStats[metric.key] || 0;
+
+                    const progress = goal !== initial
+                        ? ((current - initial) / (goal - initial)) * 100
+                        : (current >= goal ? 100 : 0); 
+
+                    return { ...metric, initial, goal, current, progress };
+                });
+
+                // Ocultar el estado de carga y mostrar el contenedor de progreso
+                document.getElementById(STATUS_ID).classList.add('hidden');
+                const progressContainer = document.getElementById(PROGRESS_ID);
+                progressContainer.classList.remove('hidden');
+
+                // Generar el HTML de las tarjetas
+                const cardsHtml = progressData.map(renderProgressCard).join('');
+                progressContainer.innerHTML = `
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                        Progreso de <span class="text-indigo-600 capitalize">${selectedUser.userId}</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${cardsHtml}
+                    </div>
+                `;
+                
+                // ANIMACIÓN: Animar cada barra de progreso
+                progressData.forEach(data => {
+                    animateProgressBar(data.key, data.progress);
+                });
+
+
+            } catch (e) {
+                updateStatus('error', `No se pudo obtener el progreso. Por favor, verifica el nombre de usuario. Detalle: ${e.message}`);
+                console.error(e);
+            }
+        }
+
+        /**
+         * Inicializa la aplicación al cargar el DOM.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectElement = document.getElementById(SELECTOR_ID);
+            
+            // 1. Cargar los datos mock/iniciales
+            trackingData = mockTrackingData;
+
+            // 2. Llenar el selector de usuarios
+            let optionsHtml = '<option value="" disabled selected>-- Selecciona un usuario --</option>';
+            trackingData.forEach(user => {
+                optionsHtml += `<option value="${user.userId}">${user.userId}</option>`;
+            });
+            selectElement.innerHTML = optionsHtml;
+
+            // 3. Añadir el listener para el cambio de selección
+            selectElement.addEventListener('change', handleUserSelect);
         });
-      });
 
-      chart = new Chart(ctx, {
-        type: "line",
-        data: { labels: Array.from({length: 10}, (_,i) => i+1), datasets },
-        options: {
-          responsive: true,
-          plugins: { title: { display: true, text: "Evolución de puntajes ("+jugador+")" } }
-        }
-      });
-    }
-
-    // Exportar a PDF
-    function exportarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text("Reporte de Entrenamiento", 20, 20);
-      doc.autoTable({ html: "#tablaEntrenamiento" });
-      doc.save("reporte_entrenamiento.pdf");
-    }
-
-    // Inicializar
-    actualizarTabla();
-    actualizarGrafico();
-  </script>
-
+    </script>
 </body>
 </html>
-
