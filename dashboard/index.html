@@ -3,359 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📈 Seguimiento de Metas Lichess</title>
-    <!-- Incluye Tailwind CSS a través de CDN -->
+    <title>🏆 Club de Ajedrez - Mis Logros</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Divertida para Niños -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+
     <style>
-        /* Estilos personalizados para la animación y la fuente */
-        :root {
-            --progress-transition-duration: 1.5s; /* Duración de la animación de la barra */
-        }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0fdf4; /* Fondo verde muy suave */
+            background-image: radial-gradient(#dcfce7 15%, transparent 16%), radial-gradient(#dcfce7 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
         }
-        .progress-bar-inner {
-            /* Habilita la transición para la animación de la barra */
-            transition: width var(--progress-transition-duration) ease-out;
-            width: 0%; /* Inicia en 0% para la animación */
+
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Animación de la barra de experiencia */
+        .xp-bar-fill {
+            transition: width 2s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto rebote suave */
+            background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+            background-size: 1rem 1rem;
+        }
+
+        .text-shadow-sm {
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        
+        /* Colores temáticos para categorías */
+        .theme-bullet { border-color: #fca5a5; background-color: #fef2f2; }
+        .theme-blitz { border-color: #fde047; background-color: #fefce8; }
+        .theme-rapid { border-color: #86efac; background-color: #f0fdf4; }
+        .theme-classical { border-color: #93c5fd; background-color: #eff6ff; }
+        .theme-puzzle { border-color: #d8b4fe; background-color: #faf5ff; }
+        .theme-fun { border-color: #fdba74; background-color: #fff7ed; }
+
+        /* Loader divertido */
+        .chess-loader {
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="p-4 sm:p-8 max-w-6xl mx-auto">
-        <header class="mb-8 p-4 bg-white shadow-md rounded-xl">
-            <h1 class="text-3xl font-extrabold text-indigo-700">
-                📈 Seguimiento de Metas Lichess
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                Herramienta de monitoreo de progreso basada en la API de Lichess.
-            </p>
+<body class="min-h-screen text-gray-800">
+    <div class="p-4 sm:p-8 max-w-7xl mx-auto">
+        
+        <!-- Encabezado Colorido -->
+        <header class="mb-10 text-center relative">
+            <div class="inline-block bg-white p-6 rounded-3xl shadow-xl border-4 border-indigo-200 transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                <h1 class="text-4xl sm:text-5xl font-bold text-indigo-600 text-shadow-sm flex items-center justify-center gap-3">
+                    <span>🏰</span> Club de Ajedrez <span>♟️</span>
+                </h1>
+                <p class="text-lg text-indigo-400 mt-2 font-medium">¡Sube de nivel completando tus metas!</p>
+            </div>
         </header>
 
-        <main class="space-y-6">
-            <!-- Selector de Usuario -->
-            <div class="p-5 bg-white shadow-xl rounded-xl border border-indigo-200">
-                <label for="user-select" class="block text-lg font-medium text-gray-700 mb-2">
-                    Selecciona un Usuario a Monitorear:
+        <main class="space-y-8">
+            <!-- Selector de Usuario con estilo de videojuego -->
+            <div class="max-w-xl mx-auto bg-white p-6 rounded-3xl shadow-lg border-b-8 border-indigo-200">
+                <label for="user-select" class="block text-xl font-bold text-center text-indigo-800 mb-4">
+                    👤 ¿Quién va a jugar hoy?
                 </label>
-                <select
-                    id="user-select"
-                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
-                >
-                    <!-- Las opciones se inyectarán con JavaScript -->
-                </select>
+                <div class="relative">
+                    <select
+                        id="user-select"
+                        class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer appearance-none transition-colors"
+                    >
+                        <option value="" disabled selected>Cargando lista de jugadores...</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-indigo-600">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
             </div>
 
-            <!-- Contenedores de estado (Carga/Error/Progreso) -->
-            <div id="status-container" class="hidden"></div>
-            <div id="progress-container" class="hidden bg-white p-6 rounded-xl shadow-2xl">
-                <!-- Los datos de progreso se inyectarán aquí -->
+            <!-- Panel de Estado -->
+            <div id="status-container" class="hidden max-w-2xl mx-auto"></div>
+
+            <!-- Dashboard de Progreso -->
+            <div id="progress-dashboard" class="hidden animate-fade-in-up">
+                
+                <!-- Perfil del Jugador -->
+                <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6">
+                    <div class="relative">
+                        <img id="player-avatar" src="https://lichess1.org/assets/images/missing_avatar.svg" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md">
+                        <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full shadow border-2 border-white">
+                            ⭐
+                        </div>
+                    </div>
+                    <div class="text-center sm:text-left">
+                        <h2 id="player-name" class="text-3xl font-bold text-purple-700">Jugador</h2>
+                        <a id="player-link" href="#" target="_blank" class="text-purple-400 font-semibold hover:text-purple-600 transition-colors">Ver en Lichess ↗</a>
+                        <div class="mt-2 flex gap-2 justify-center sm:justify-start">
+                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Novato</span>
+                            <!-- Aquí se podrían agregar más insignias dinámicas -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grilla de Tarjetas -->
+                <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Las tarjetas se generan aquí -->
+                </div>
             </div>
         </main>
     </div>
 
+    <!-- Script Principal -->
     <script>
-        // --- Variables Globales y Configuración (Simulación) ---
-        // Se asume que en tu servidor real, la clave y la configuración se manejarán del lado del servidor.
+        // --- Configuración ---
         const LICHESS_API_BASE = 'https://lichess.org/api/user/';
         const SELECTOR_ID = 'user-select';
         const STATUS_ID = 'status-container';
-        const PROGRESS_ID = 'progress-container';
-        let trackingData = []; // Almacenará los datos iniciales y metas.
+        const DASHBOARD_ID = 'progress-dashboard';
+        const CSV_BASE_FILE = 'base.csv';
+        const CSV_METAS_FILE = 'metas.csv';
 
-        // Simulación de los datos iniciales y metas (basados en el "CSV")
-        const mockTrackingData = [
-            {
-                userId: 'alice_chess_pro', // ID de Lichess
-                initials: {
-                    bullet: 1800, numBulletGames: 50, blitz: 2000, numBlitzGames: 120, rapid: 1600, numRapidGames: 30,
-                    classical: 1500, numClassicalGames: 10, puzzles: 2200, numPuzzles: 500, storm: 15, numStorm: 5, streak: 10, numStreak: 20, racer: 8, numRacer: 15,
-                },
-                goals: {
-                    bullet: 1950, numBulletGames: 100, blitz: 2100, numBlitzGames: 200, rapid: 1750, numRapidGames: 60,
-                    classical: 1700, numClassicalGames: 30, puzzles: 2300, numPuzzles: 700, storm: 30, numStorm: 15, streak: 20, numStreak: 40, racer: 15, numRacer: 30,
-                }
-            },
-            {
-                userId: 'bob_tactics_guy',
-                initials: {
-                    bullet: 1500, numBulletGames: 20, blitz: 1850, numBlitzGames: 80, rapid: 1900, numRapidGames: 50,
-                    classical: 1750, numClassicalGames: 25, puzzles: 2000, numPuzzles: 300, storm: 10, numStorm: 2, streak: 5, numStreak: 10, racer: 5, numRacer: 8,
-                },
-                goals: {
-                    bullet: 1600, numBulletGames: 40, blitz: 1950, numBlitzGames: 150, rapid: 2000, numRapidGames: 80,
-                    classical: 1850, numClassicalGames: 50, puzzles: 2200, numPuzzles: 550, storm: 25, numStorm: 10, streak: 15, numStreak: 25, racer: 10, numRacer: 18,
-                }
-            },
-        ];
+        let trackingData = [];
 
-        // Definición de las métricas que se mostrarán
+        // Definición de métricas basada en tus encabezados CSV y estructura Lichess
+        // Emoji: Icono visual
+        // Key: Nombre interno
+        // CsvKey: Columna en tu CSV
+        // ApiPath: Dónde buscar en la respuesta JSON de Lichess
+        // Theme: Clase de color
         const metricDefinitions = [
-            { key: 'bullet', name: 'Bullet Rating (Elo)', isRating: true },
-            { key: 'numBulletGames', name: 'Juegos Bullet', isRating: false },
-            { key: 'blitz', name: 'Blitz Rating (Elo)', isRating: true },
-            { key: 'numBlitzGames', name: 'Juegos Blitz', isRating: false },
-            { key: 'rapid', name: 'Rapid Rating (Elo)', isRating: true },
-            { key: 'numRapidGames', name: 'Juegos Rapid', isRating: false },
-            { key: 'puzzles', name: 'Puzzles Rating (Elo)', isRating: true },
-            { key: 'numPuzzles', name: 'Puzzles Resueltos', isRating: false },
-            { key: 'storm', name: 'Storm Score (Máx)', isRating: true },
-            { key: 'numStorm', name: 'Juegos Storm', isRating: false },
+            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', type: 'rating' },
+            { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', type: 'count' },
+            
+            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', type: 'rating' },
+            { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', type: 'count' },
+            
+            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', type: 'rating' },
+            { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', type: 'count' },
+            
+            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', type: 'rating' },
+            { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', type: 'count' },
+
+            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', type: 'rating' },
+            { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', type: 'count' },
+
+            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', type: 'score' },
+            { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', type: 'count' },
+
+            { id: 'streak_score', name: 'Racha Máxima', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', type: 'score' },
+            { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', type: 'count' },
+
+            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', type: 'score' },
+            { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', type: 'count' },
         ];
 
+        // --- Funciones de Utilidad ---
 
-        /**
-         * Muestra mensajes de estado (carga o error) en la UI.
-         * @param {string} type 'loading' o 'error'.
-         * @param {string} message Mensaje a mostrar.
-         */
-        function updateStatus(type, message) {
-            const statusContainer = document.getElementById(STATUS_ID);
-            statusContainer.classList.remove('hidden');
-            document.getElementById(PROGRESS_ID).classList.add('hidden');
+        // Función simple para leer CSV (asumiendo formato estándar con comas)
+        async function fetchAndParseCSV(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`No se pudo encontrar el archivo: ${url}`);
+            const text = await response.text();
+            
+            const lines = text.trim().split('\n');
+            if (lines.length < 2) return [];
 
-            if (type === 'loading') {
-                statusContainer.innerHTML = `
-                    <div class="text-center p-6 bg-indigo-50 rounded-xl shadow-inner">
-                        <svg class="animate-spin h-5 w-5 mr-3 inline text-indigo-600" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span class="text-indigo-700 font-medium ml-2">${message}</span>
-                    </div>
-                `;
-            } else if (type === 'error') {
-                statusContainer.innerHTML = `
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative shadow-md" role="alert">
-                        <strong class="font-bold">¡Error!</strong>
-                        <span class="block sm:inline ml-2">${message}</span>
-                    </div>
-                `;
-            }
-        }
+            // Detectar separador (coma o punto y coma o tab)
+            const firstLine = lines[0];
+            let separator = ',';
+            if (firstLine.includes('\t')) separator = '\t';
+            else if (firstLine.includes(';')) separator = ';';
 
-        /**
-         * Función para simular/realizar llamadas a la API de Lichess.
-         * En un entorno real, esta función haría un 'fetch' real.
-         */
-        async function fetchLichessStats(username) {
-            // Función para manejar el reintento con backoff exponencial
-            const maxRetries = 3;
-            let delay = 1000;
-
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const url = `${LICHESS_API_BASE}${username}`;
-                    // **********************************************
-                    // * SIMULACIÓN DE LA RESPUESTA DE LA API *
-                    // **********************************************
-                    const currentRatings = {
-                        id: username,
-                        // Datos mock que simulan la respuesta en tiempo real y varían por usuario
-                        perfs: {
-                            bullet: { rating: 1850 + (username === 'bob_tactics_guy' ? 0 : 0) + (username === 'alice_chess_pro' ? 50 : 0) }, 
-                            blitz: { rating: 2050 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 50 : 0) },
-                            rapid: { rating: 1650 + (username === 'bob_tactics_guy' ? 5 : 0) + (username === 'alice_chess_pro' ? 50 : 0) },
-                            classical: { rating: 1600 + (username === 'bob_tactics_guy' ? 0 : 0) + (username === 'alice_chess_pro' ? 50 : 0) },
-                            puzzle: { rating: 2250 + (username === 'bob_tactics_guy' ? 100 : 0) + (username === 'alice_chess_pro' ? 50 : 0) }, 
-                            storm: { runs: [{ score: 20 }] }, 
-                            streak: { runs: [{ score: 15 }] },
-                            racer: { runs: [{ score: 10 }] },
-                        },
-                        count: {
-                            bullet: 75 + (username === 'bob_tactics_guy' ? 20 : 0) + (username === 'alice_chess_pro' ? 25 : 0),
-                            blitz: 150 + (username === 'bob_tactics_guy' ? 30 : 0) + (username === 'alice_chess_pro' ? 30 : 0),
-                            rapid: 45 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 15 : 0),
-                            classical: 20 + (username === 'bob_tactics_guy' ? 5 : 0) + (username === 'alice_chess_pro' ? 10 : 0),
-                        },
-                        // Contadores simulados para otras métricas
-                        numPuzzles: 600 + (username === 'bob_tactics_guy' ? 150 : 0) + (username === 'alice_chess_pro' ? 100 : 0),
-                        numStorm: 10 + (username === 'bob_tactics_guy' ? 5 : 0) + (username === 'alice_chess_pro' ? 5 : 0),
-                        numStreak: 25 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 5 : 0),
-                        numRacer: 20 + (username === 'bob_tactics_guy' ? 10 : 0) + (username === 'alice_chess_pro' ? 5 : 0),
-                    };
-
-                    // Mapeo al formato de datos internos de la aplicación
-                    const currentStats = {
-                        bullet: currentRatings.perfs.bullet.rating,
-                        numBulletGames: currentRatings.count.bullet,
-                        blitz: currentRatings.perfs.blitz.rating,
-                        numBlitzGames: currentRatings.count.blitz,
-                        rapid: currentRatings.perfs.rapid.rating,
-                        numRapidGames: currentRatings.count.rapid,
-                        classical: currentRatings.perfs.classical.rating,
-                        numClassicalGames: currentRatings.count.classical,
-                        puzzles: currentRatings.perfs.puzzle.rating,
-                        numPuzzles: currentRatings.numPuzzles,
-                        storm: currentRatings.perfs.storm?.runs?.[0]?.score || 0,
-                        numStorm: currentRatings.numStorm,
-                        streak: currentRatings.perfs.streak?.runs?.[0]?.score || 0,
-                        numStreak: currentRatings.numStreak,
-                        racer: currentRatings.perfs.racer?.runs?.[0]?.score || 0,
-                        numRacer: currentRatings.numRacer,
-                    };
-
-                    // Simulación de un retardo de red
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    return currentStats;
-
-                } catch (error) {
-                    console.error(`Error al obtener estadísticas de Lichess para ${username} (Intento ${i + 1}):`, error);
-                    if (i < maxRetries - 1) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2; // Backoff exponencial
-                    } else {
-                        throw new Error("No se pudo conectar con la API de Lichess después de varios reintentos.");
+            const headers = lines[0].split(separator).map(h => h.trim());
+            
+            return lines.slice(1).map(line => {
+                const values = line.split(separator).map(v => v.trim());
+                const entry = {};
+                headers.forEach((header, index) => {
+                    // Convertir a número si es posible, excepto Nombre y Lichess
+                    let val = values[index];
+                    if (header !== 'Nombre' && header !== 'Lichess' && !isNaN(val) && val !== '') {
+                        val = Number(val);
                     }
-                }
+                    entry[header] = val;
+                });
+                return entry;
+            });
+        }
+
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((prev, curr) => prev ? prev[curr] : undefined, obj);
+        }
+
+        function updateStatus(type, message) {
+            const container = document.getElementById(STATUS_ID);
+            container.classList.remove('hidden');
+            
+            if (type === 'loading') {
+                container.innerHTML = `
+                    <div class="text-center p-8 bg-white rounded-3xl shadow-lg border-b-4 border-indigo-200">
+                        <div class="text-5xl chess-loader mb-4">♞</div>
+                        <h3 class="text-xl font-bold text-indigo-600 mb-2">Cargando Datos...</h3>
+                        <p class="text-gray-500">${message}</p>
+                    </div>`;
+            } else if (type === 'error') {
+                container.innerHTML = `
+                    <div class="bg-red-50 p-6 rounded-3xl border-2 border-red-200 text-center shadow-lg">
+                        <div class="text-4xl mb-2">🤕</div>
+                        <h3 class="text-xl font-bold text-red-600 mb-2">¡Ups! Algo salió mal</h3>
+                        <p class="text-red-500 font-medium">${message}</p>
+                        <p class="text-xs text-gray-400 mt-4">Asegúrate de que 'base.csv' y 'metas.csv' están en la carpeta.</p>
+                    </div>`;
+            } else {
+                container.classList.add('hidden');
             }
         }
 
-        /**
-         * Renderiza la barra de progreso con animación.
-         * @param {Object} data Datos de la métrica.
-         * @returns {string} HTML de la tarjeta de progreso.
-         */
-        function renderProgressCard(data) {
-            // El ancho de la barra se establecerá en JS después de inyectar el HTML
-            const color = data.isRating ? 'bg-indigo-500' : 'bg-pink-500';
+        // --- Lógica Principal ---
 
-            // Determinar color final si la meta es alcanzada
-            const percentColor = data.progress >= 100 ? 'text-green-600' : 'text-indigo-600';
-            const progressBg = data.progress >= 100 ? 'bg-green-500' : color;
+        async function initApp() {
+            try {
+                updateStatus('loading', 'Leyendo tus archivos de club...');
+                
+                // Cargar los dos CSVs
+                const [initialData, goalsData] = await Promise.all([
+                    fetchAndParseCSV(CSV_BASE_FILE),
+                    fetchAndParseCSV(CSV_METAS_FILE)
+                ]);
 
-            return `
-                <div class="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 transition duration-300 hover:shadow-md" data-key="${data.key}">
-                    <h3 class="text-md font-semibold text-gray-900 mb-2">${data.name}</h3>
+                // Fusionar datos
+                const dataMap = {};
+                
+                initialData.forEach(row => {
+                    const userId = row['Lichess']?.toLowerCase();
+                    if(userId) {
+                        dataMap[userId] = {
+                            userId: userId,
+                            name: row['Nombre'] || userId,
+                            initials: row,
+                            goals: {}
+                        };
+                    }
+                });
 
-                    <div class="flex justify-between text-sm mb-3 font-mono">
-                        <span class="text-gray-500">Inicial: <span class="text-indigo-600 font-bold">${data.initial}</span></span>
-                        <span class="text-gray-500">Meta: <span class="text-green-600 font-bold">${data.goal}</span></span>
-                    </div>
-                    <div class="text-lg font-extrabold text-indigo-700 mb-3 text-center">
-                        Actual: ${data.current}
-                    </div>
+                goalsData.forEach(row => {
+                    const userId = row['Lichess']?.toLowerCase();
+                    if(dataMap[userId]) {
+                        dataMap[userId].goals = row;
+                    }
+                });
 
-                    <!-- Barra de Progreso -->
-                    <div class="flex flex-col space-y-1">
-                        <div class="flex justify-between text-sm">
-                            <span class="font-medium text-gray-700">Avance hacia la meta</span>
-                            <!-- ID para actualizar el porcentaje dinámicamente -->
-                            <span id="percent-${data.key}" class="font-bold ${percentColor}">${data.progress.toFixed(1)}%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <!-- El width inicial es 0, se animará con JS -->
-                            <div
-                                id="bar-${data.key}"
-                                class="progress-bar-inner h-2.5 rounded-full ${progressBg}"
-                                style="width: 0%;"
-                            ></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        /**
-         * Inicia la animación de la barra de progreso después de un pequeño retraso.
-         * @param {string} key Clave de la métrica.
-         * @param {number} progress Porcentaje final (0-100).
-         */
-        function animateProgressBar(key, progress) {
-            const barElement = document.getElementById(`bar-${key}`);
-            const clampedProgress = Math.max(0, Math.min(100, progress));
+                trackingData = Object.values(dataMap);
 
-            // Asegura que el elemento exista antes de intentar animar
-            if (barElement) {
-                // Pequeño timeout para asegurar que el DOM se haya renderizado antes de empezar la transición
-                setTimeout(() => {
-                    barElement.style.width = `${clampedProgress}%`;
-                }, 50); 
+                // Llenar selector
+                const select = document.getElementById(SELECTOR_ID);
+                select.innerHTML = '<option value="" disabled selected>✨ Elige tu nombre aquí ✨</option>';
+                trackingData.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.userId;
+                    option.textContent = `${user.name} (${user.userId})`;
+                    select.appendChild(option);
+                });
+
+                updateStatus('ready');
+                select.disabled = false;
+
+                // Listener
+                select.addEventListener('change', (e) => loadUserProfile(e.target.value));
+
+            } catch (err) {
+                console.error(err);
+                // Fallback para demostración si fallan los CSV (opcional, para que veas el diseño)
+                updateStatus('error', err.message);
             }
         }
 
-        /**
-         * Función principal para manejar la selección de usuario y la actualización de la UI.
-         */
-        async function handleUserSelect() {
-            const selectElement = document.getElementById(SELECTOR_ID);
-            const lichessId = selectElement.value;
+        async function loadUserProfile(userId) {
+            const user = trackingData.find(u => u.userId === userId);
+            if (!user) return;
 
-            if (!lichessId) {
-                document.getElementById(PROGRESS_ID).classList.add('hidden');
-                document.getElementById(STATUS_ID).classList.add('hidden');
-                return;
-            }
-
-            const selectedUser = trackingData.find(u => u.userId === lichessId);
-            if (!selectedUser) return;
-
-            updateStatus('loading', `Obteniendo datos actuales de Lichess para ${lichessId}...`);
+            // UI Reset
+            document.getElementById(DASHBOARD_ID).classList.add('hidden');
+            updateStatus('loading', `Conectando con Lichess para ver a ${user.name}...`);
 
             try {
-                // Obtener datos en tiempo real de Lichess
-                const currentStats = await fetchLichessStats(selectedUser.userId);
-                
-                // Calcular el progreso para todas las métricas
-                const progressData = metricDefinitions.map(metric => {
-                    const initial = selectedUser.initials[metric.key] || 0;
-                    const goal = selectedUser.goals[metric.key] || 0;
-                    const current = currentStats[metric.key] || 0;
+                // LLAMADA API REAL
+                const response = await fetch(`${LICHESS_API_BASE}${userId}`);
+                if (!response.ok) throw new Error('Usuario no encontrado en Lichess');
+                const liveData = await response.json();
 
-                    const progress = goal !== initial
-                        ? ((current - initial) / (goal - initial)) * 100
-                        : (current >= goal ? 100 : 0); 
+                // Renderizar
+                renderDashboard(user, liveData);
+                updateStatus('ready');
+                document.getElementById(DASHBOARD_ID).classList.remove('hidden');
 
-                    return { ...metric, initial, goal, current, progress };
-                });
-
-                // Ocultar el estado de carga y mostrar el contenedor de progreso
-                document.getElementById(STATUS_ID).classList.add('hidden');
-                const progressContainer = document.getElementById(PROGRESS_ID);
-                progressContainer.classList.remove('hidden');
-
-                // Generar el HTML de las tarjetas
-                const cardsHtml = progressData.map(renderProgressCard).join('');
-                progressContainer.innerHTML = `
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
-                        Progreso de <span class="text-indigo-600 capitalize">${selectedUser.userId}</span>
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        ${cardsHtml}
-                    </div>
-                `;
-                
-                // ANIMACIÓN: Animar cada barra de progreso
-                progressData.forEach(data => {
-                    animateProgressBar(data.key, data.progress);
-                });
-
-
-            } catch (e) {
-                updateStatus('error', `No se pudo obtener el progreso. Por favor, verifica el nombre de usuario. Detalle: ${e.message}`);
-                console.error(e);
+            } catch (err) {
+                updateStatus('error', `Error al obtener datos de Lichess: ${err.message}`);
             }
         }
 
-        /**
-         * Inicializa la aplicación al cargar el DOM.
-         */
-        document.addEventListener('DOMContentLoaded', () => {
-            const selectElement = document.getElementById(SELECTOR_ID);
+        function renderDashboard(user, liveData) {
+            // Header del Jugador
+            document.getElementById('player-name').textContent = user.name;
+            document.getElementById('player-link').href = `https://lichess.org/@/${user.userId}`;
             
-            // 1. Cargar los datos mock/iniciales
-            trackingData = mockTrackingData;
+            // Perfil Lichess (si existe)
+            if (liveData.profile && liveData.profile.bio) {
+                // Podríamos poner la bio aquí
+            }
+            
+            // Intentar obtener un avatar real o usar uno por defecto basado en letras
+            // La API de Lichess no siempre devuelve URL de avatar directamente en este endpoint público simple si no es custom
+            // Pero intentamos:
+            /* Nota: Lichess no envía la URL del avatar en la respuesta pública ligera user/{id} a menos que estés autenticado o sea muy específico.
+               Sin embargo, la web usa https://lichess1.org/assets/images/missing_avatar.svg por defecto. 
+            */
+            document.getElementById('player-avatar').src = 'https://lichess1.org/assets/images/missing_avatar.svg'; 
 
-            // 2. Llenar el selector de usuarios
-            let optionsHtml = '<option value="" disabled selected>-- Selecciona un usuario --</option>';
-            trackingData.forEach(user => {
-                optionsHtml += `<option value="${user.userId}">${user.userId}</option>`;
+            const grid = document.getElementById('cards-grid');
+            grid.innerHTML = ''; // Limpiar
+
+            let totalProgress = 0;
+            let totalMetrics = 0;
+            let hasCelebration = false;
+
+            metricDefinitions.forEach(metric => {
+                // Obtener valores
+                const initialVal = user.initials[metric.csvKey] || 0;
+                const goalVal = user.goals[metric.csvKey] || 0;
+                
+                // Obtener valor actual de la API en vivo
+                // Si la métrica no existe en liveData (ej: nunca jugó racer), asumimos 0 o el inicial si es mayor
+                let currentVal = getNestedValue(liveData, metric.apiPath) || 0;
+                
+                // Cálculos
+                const totalGoalDist = goalVal - initialVal;
+                const currentDist = currentVal - initialVal;
+                
+                let percent = 0;
+                if (totalGoalDist > 0) {
+                    percent = (currentDist / totalGoalDist) * 100;
+                } else if (currentVal >= goalVal && goalVal > 0) {
+                    percent = 100; // Meta ya superada desde el inicio o meta es igual a inicio
+                }
+
+                // Clampear porcentaje entre 0 y 100 visualmente (aunque permitimos >100 en texto)
+                const visualPercent = Math.max(0, Math.min(100, percent));
+                
+                // Si hay progreso significativo en alguna métrica, preparamos confeti
+                if (percent >= 100) hasCelebration = true;
+
+                // Crear Tarjeta HTML
+                const card = document.createElement('div');
+                card.className = `card-hover bg-white rounded-3xl p-5 border-b-8 shadow-sm ${metric.theme}`;
+                
+                // Color de la barra
+                let barColorClass = 'bg-indigo-400';
+                if (visualPercent >= 100) barColorClass = 'bg-yellow-400';
+                else if (visualPercent >= 50) barColorClass = 'bg-green-400';
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl filter drop-shadow-sm">${metric.emoji}</span>
+                            <h3 class="font-bold text-gray-700 text-lg">${metric.name}</h3>
+                        </div>
+                        ${visualPercent >= 100 ? '<span class="animate-bounce text-2xl">🏆</span>' : ''}
+                    </div>
+
+                    <div class="flex justify-between text-sm font-bold text-gray-400 mb-1 px-1">
+                        <span>Inicio: ${initialVal}</span>
+                        <span>Meta: ${goalVal}</span>
+                    </div>
+
+                    <!-- Barra de Experiencia (XP) -->
+                    <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-inner">
+                        <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" id="bar-${metric.id}">
+                            <span class="text-[10px] text-white font-bold text-shadow-sm">${percent.toFixed(0)}%</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 text-center">
+                        <span class="text-2xl font-bold text-gray-800">${currentVal}</span>
+                        <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Actual</span>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+
+                // Activar animación con un pequeño delay
+                setTimeout(() => {
+                    const bar = document.getElementById(`bar-${metric.id}`);
+                    if(bar) bar.style.width = `${visualPercent}%`;
+                }, 100 * totalMetrics); // Stagger animation
+
+                totalMetrics++;
             });
-            selectElement.innerHTML = optionsHtml;
 
-            // 3. Añadir el listener para el cambio de selección
-            selectElement.addEventListener('change', handleUserSelect);
-        });
+            if (hasCelebration) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // Iniciar App cuando carga
+        document.addEventListener('DOMContentLoaded', initApp);
 
     </script>
 </body>
