@@ -337,37 +337,28 @@
             let hasCelebration = false;
 
             metricDefinitions.forEach(metric => {
-                // Obtener valores ASEGURÁNDONOS QUE SEAN NÚMEROS
-                const initialVal = Number(user.initials[metric.csvKey]) || 0;
-                const goalVal = Number(user.goals[metric.csvKey]) || 0;
+                // Obtener valores
+                const initialVal = user.initials[metric.csvKey] || 0;
+                const goalVal = user.goals[metric.csvKey] || 0;
                 
                 // Obtener valor actual de la API en vivo
-                let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
+                // Si la métrica no existe en liveData (ej: nunca jugó racer), asumimos 0 o el inicial si es mayor
+                let currentVal = getNestedValue(liveData, metric.apiPath) || 0;
                 
-                // Cálculos mejorados
+                // Cálculos
                 const totalGoalDist = goalVal - initialVal;
                 const currentDist = currentVal - initialVal;
                 
                 let percent = 0;
-                
-                // Lógica de porcentaje:
-                // 1. Si la meta es mayor al inicio (progreso normal)
                 if (totalGoalDist > 0) {
                     percent = (currentDist / totalGoalDist) * 100;
-                } 
-                // 2. Si ya superamos la meta en términos absolutos
-                else if (currentVal >= goalVal && goalVal > 0) {
-                    percent = 100; 
+                } else if (currentVal >= goalVal && goalVal > 0) {
+                    percent = 100; // Meta ya superada desde el inicio o meta es igual a inicio
                 }
 
                 // Clampear porcentaje entre 0 y 100 visualmente (aunque permitimos >100 en texto)
-                let visualPercent = Math.max(0, Math.min(100, percent));
+                const visualPercent = Math.max(0, Math.min(100, percent));
                 
-                // TRUCO VISUAL: Si hay algo de progreso positivo pero es muy pequeño, mostrar al menos un 5%
-                if (percent > 0 && visualPercent < 5) {
-                    visualPercent = 5;
-                }
-
                 // Si hay progreso significativo en alguna métrica, preparamos confeti
                 if (percent >= 100) hasCelebration = true;
 
@@ -395,10 +386,9 @@
                     </div>
 
                     <!-- Barra de Experiencia (XP) -->
-                    <!-- Añadimos 'title' para debug: pon el mouse encima de la barra para ver el cálculo real -->
-                    <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-inner" title="Progreso real: ${percent.toFixed(2)}% (${currentDist}/${totalGoalDist})">
+                    <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-inner">
                         <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" id="bar-${metric.id}">
-                            <span class="text-[10px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>
+                            <span class="text-[10px] text-white font-bold text-shadow-sm">${percent.toFixed(0)}%</span>
                         </div>
                     </div>
 
@@ -410,14 +400,11 @@
 
                 grid.appendChild(card);
 
-                // Activar animación
-                // Usamos requestAnimationFrame doble para asegurar que el navegador registre el cambio de ancho 0 -> X
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                         const bar = document.getElementById(`bar-${metric.id}`);
-                         if(bar) bar.style.width = `${visualPercent}%`;
-                    });
-                });
+                // Activar animación con un pequeño delay
+                setTimeout(() => {
+                    const bar = document.getElementById(`bar-${metric.id}`);
+                    if(bar) bar.style.width = `${visualPercent}%`;
+                }, 100 * totalMetrics); // Stagger animation
 
                 totalMetrics++;
             });
