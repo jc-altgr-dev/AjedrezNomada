@@ -24,9 +24,11 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04);
         }
+        /* Nueva sombra de tarjetas para que se vea como un bloque */
+        .card-hover { border-bottom-width: 6px; }
 
         /* Animación de la barra de experiencia */
         .xp-bar-fill {
@@ -71,20 +73,20 @@
         </header>
 
         <main class="space-y-8">
-            <!-- Selector de Usuario con estilo de videojuego -->
+            <!-- Buscador de Usuario (Autocomplete) -->
             <div class="max-w-xl mx-auto bg-white p-6 rounded-3xl shadow-lg border-b-8 border-indigo-200">
-                <label for="user-select" class="block text-xl font-bold text-center text-indigo-800 mb-4">
-                    👤 ¿Quién va a jugar hoy?
+                <label for="user-search" class="block text-xl font-bold text-center text-indigo-800 mb-4">
+                    🔍 Encuentra a tu Jugador (Mínimo 3 letras)
                 </label>
                 <div class="relative">
-                    <select
-                        id="user-select"
-                        class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 cursor-pointer appearance-none transition-colors"
+                    <input
+                        type="text"
+                        id="user-search"
+                        placeholder="Escribe el Nickname de Lichess o el Nombre..."
+                        class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 appearance-none transition-colors"
                     >
-                        <option value="" disabled selected>Cargando lista de jugadores...</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-indigo-600">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                    <div id="search-suggestions" class="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto hidden">
+                        <!-- Suggestions go here -->
                     </div>
                 </div>
             </div>
@@ -96,15 +98,15 @@
             <div id="progress-dashboard" class="hidden animate-fade-in-up">
                 
                 <!-- Perfil del Jugador -->
-                <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6">
+                <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6 max-w-4xl mx-auto">
                     <div class="relative">
-                        <img id="player-avatar" src="Ajedrez-05.png" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md">
+                        <img id="player-avatar" src="https://lichess1.org/assets/images/missing_avatar.svg" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md">
                         <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full shadow border-2 border-white">
                             ⭐
                         </div>
                     </div>
                     <div class="text-center sm:text-left">
-                        <h2 id="player-name" class="text-3xl font-bold text-purple-700">Jugador</h2>
+                        <h2 id="player-name" class="text-3xl font-bold text-purple-700">Jugador Seleccionado</h2>
                         <a id="player-link" href="#" target="_blank" class="text-purple-400 font-semibold hover:text-purple-600 transition-colors">Ver en Lichess ↗</a>
                         <div class="mt-2 flex gap-2 justify-center sm:justify-start">
                             <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Novato</span>
@@ -113,9 +115,9 @@
                     </div>
                 </div>
 
-                <!-- Grilla de Tarjetas -->
-                <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Las tarjetas se generan aquí -->
+                <!-- Contenedor para Zonas -->
+                <div id="zones-container" class="max-w-4xl mx-auto space-y-10">
+                    <!-- Las zonas y tarjetas se generan aquí -->
                 </div>
             </div>
         </main>
@@ -125,49 +127,46 @@
     <script>
         // --- Configuración ---
         const LICHESS_API_BASE = 'https://lichess.org/api/user/';
-        const SELECTOR_ID = 'user-select';
+        const SEARCH_INPUT_ID = 'user-search';
         const STATUS_ID = 'status-container';
         const DASHBOARD_ID = 'progress-dashboard';
+        const ZONES_CONTAINER_ID = 'zones-container';
         const CSV_BASE_FILE = 'base.csv';
         const CSV_METAS_FILE = 'metas.csv';
 
         let trackingData = [];
 
-        // Definición de métricas basada en tus encabezados CSV y estructura Lichess
-        // Emoji: Icono visual
-        // Key: Nombre interno
-        // CsvKey: Columna en tu CSV
-        // ApiPath: Dónde buscar en la respuesta JSON de Lichess
-        // Theme: Clase de color
+        // Definición de métricas agrupadas por el nuevo sistema
         const metricDefinitions = [
-            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', type: 'rating' },
-            { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', type: 'count' },
+            // --- ZONA 1: Rendimiento en Vivo (Partidas y Rating) ---
+            // SUB-ZONA 1.1: Rayo Veloz (Bullet y Blitz)
+            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
+            { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
+            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
+            { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
             
-            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', type: 'rating' },
-            { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', type: 'count' },
+            // SUB-ZONA 1.2: Ritmo Reflexivo (Rapid y Classical)
+            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
+            { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
+            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
+            { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
+
+            // --- ZONA 2: Gimnasio Cerebral (Táctica y Agudeza Mental) ---
+            // SUB-ZONA 2.1: Foco Profundo (Puzzle y Streak)
+            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
+            { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
+            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
+            { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
             
-            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', type: 'rating' },
-            { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', type: 'count' },
-            
-            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', type: 'rating' },
-            { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', type: 'count' },
-
-            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', type: 'rating' },
-            { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', type: 'count' },
-
-            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', type: 'score' },
-            { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', type: 'count' },
-
-            { id: 'streak_score', name: 'Racha Máxima', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', type: 'score' },
-            { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', type: 'count' },
-
-            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', type: 'score' },
-            { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', type: 'count' },
+            // SUB-ZONA 2.2: Reacción Extrema (Racer y Storm)
+            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
+            { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
+            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
+            { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
         ];
 
         // --- Funciones de Utilidad ---
 
-        // Función simple para leer CSV (asumiendo formato estándar con comas)
         async function fetchAndParseCSV(url) {
             const response = await fetch(url);
             if (!response.ok) throw new Error(`No se pudo encontrar el archivo: ${url}`);
@@ -176,7 +175,6 @@
             const lines = text.trim().split('\n');
             if (lines.length < 2) return [];
 
-            // Detectar separador (coma o punto y coma o tab)
             const firstLine = lines[0];
             let separator = ',';
             if (firstLine.includes('\t')) separator = '\t';
@@ -188,7 +186,6 @@
                 const values = line.split(separator).map(v => v.trim());
                 const entry = {};
                 headers.forEach((header, index) => {
-                    // Convertir a número si es posible, excepto Nombre y Lichess
                     let val = values[index];
                     if (header !== 'Nombre' && header !== 'Lichess' && !isNaN(val) && val !== '') {
                         val = Number(val);
@@ -227,6 +224,41 @@
             }
         }
 
+        // --- Lógica del Buscador ---
+        function handleSearchInput(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const suggestionsDiv = document.getElementById('search-suggestions');
+            suggestionsDiv.innerHTML = '';
+
+            if (query.length < 3) {
+                suggestionsDiv.classList.add('hidden');
+                return;
+            }
+
+            // Filtrar y limitar a 5 sugerencias
+            const matchedUsers = trackingData.filter(user => 
+                user.userId.includes(query) || user.name.toLowerCase().includes(query)
+            ).slice(0, 5); 
+
+            if (matchedUsers.length > 0) {
+                suggestionsDiv.classList.remove('hidden');
+                matchedUsers.forEach(user => {
+                    const suggestion = document.createElement('div');
+                    suggestion.className = 'p-3 hover:bg-indigo-100 cursor-pointer border-b border-indigo-100 last:border-b-0 transition-colors';
+                    suggestion.textContent = `${user.name} (${user.userId})`;
+                    suggestion.dataset.userId = user.userId;
+                    suggestion.onclick = () => {
+                        document.getElementById(SEARCH_INPUT_ID).value = user.name;
+                        suggestionsDiv.classList.add('hidden');
+                        loadUserProfile(user.userId);
+                    };
+                    suggestionsDiv.appendChild(suggestion);
+                });
+            } else {
+                suggestionsDiv.classList.add('hidden');
+            }
+        }
+
         // --- Lógica Principal ---
 
         async function initApp() {
@@ -239,13 +271,10 @@
                     fetchAndParseCSV(CSV_METAS_FILE)
                 ]);
 
-                // CAMBIO: Definir meta global (tomamos la primera fila de datos de metas.csv)
-                // Como quitaste las columnas de ID, asumimos que todos los alumnos comparten la misma meta
                 const globalGoals = goalsData.length > 0 ? goalsData[0] : {};
 
                 // Fusionar datos
                 const dataMap = {};
-                
                 initialData.forEach(row => {
                     const userId = row['Lichess']?.toLowerCase();
                     if(userId) {
@@ -253,32 +282,20 @@
                             userId: userId,
                             name: row['Nombre'] || userId,
                             initials: row,
-                            goals: globalGoals // Asignamos la meta global a cada usuario
+                            goals: globalGoals
                         };
                     }
                 });
 
                 trackingData = Object.values(dataMap);
 
-                // Llenar selector
-                const select = document.getElementById(SELECTOR_ID);
-                select.innerHTML = '<option value="" disabled selected>✨ Elige tu nombre aquí ✨</option>';
-                trackingData.forEach(user => {
-                    const option = document.createElement('option');
-                    option.value = user.userId;
-                    option.textContent = `${user.name} (${user.userId})`;
-                    select.appendChild(option);
-                });
-
                 updateStatus('ready');
-                select.disabled = false;
-
-                // Listener
-                select.addEventListener('change', (e) => loadUserProfile(e.target.value));
+                
+                // Asignar listener al input de búsqueda
+                document.getElementById(SEARCH_INPUT_ID).addEventListener('input', handleSearchInput);
 
             } catch (err) {
                 console.error(err);
-                // Fallback para demostración si fallan los CSV (opcional, para que veas el diseño)
                 updateStatus('error', err.message);
             }
         }
@@ -287,17 +304,14 @@
             const user = trackingData.find(u => u.userId === userId);
             if (!user) return;
 
-            // UI Reset
             document.getElementById(DASHBOARD_ID).classList.add('hidden');
             updateStatus('loading', `Conectando con Lichess para ver a ${user.name}...`);
 
             try {
-                // LLAMADA API REAL
                 const response = await fetch(`${LICHESS_API_BASE}${userId}`);
                 if (!response.ok) throw new Error('Usuario no encontrado en Lichess');
                 const liveData = await response.json();
 
-                // Renderizar
                 renderDashboard(user, liveData);
                 updateStatus('ready');
                 document.getElementById(DASHBOARD_ID).classList.remove('hidden');
@@ -307,109 +321,146 @@
             }
         }
 
+        function createCardHTML(metric, liveData, user, hasCelebrationRef) {
+            // OBTENER Y CONVERTIR VALORES A NÚMEROS
+            const initialVal = Number(user.initials[metric.csvKey]) || 0;
+            const goalVal = Number(user.goals[metric.csvKey]) || 0;
+            let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
+            
+            const totalGoalDist = goalVal - initialVal;
+            const currentDist = currentVal - initialVal;
+            
+            let percent = 0;
+            
+            if (totalGoalDist > 0) {
+                percent = (currentDist / totalGoalDist) * 100;
+            } else if (currentVal >= goalVal && goalVal > 0) {
+                percent = 100; 
+            }
+
+            let visualPercent = Math.max(0, Math.min(100, percent));
+            
+            if (percent > 0 && visualPercent > 0 && visualPercent < 5) {
+                visualPercent = 5;
+            }
+            
+            if (percent >= 100) hasCelebrationRef.value = true;
+
+            let barColorClass = 'bg-indigo-400';
+            if (visualPercent >= 100) barColorClass = 'bg-yellow-400';
+            else if (visualPercent >= 50) barColorClass = 'bg-green-400';
+
+            return `
+                <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme}">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-2xl filter drop-shadow-sm">${metric.emoji}</span>
+                        <h4 class="font-bold text-gray-700 text-base flex-grow">${metric.name}</h4>
+                        ${visualPercent >= 100 ? '<span class="animate-bounce text-xl">🏆</span>' : ''}
+                    </div>
+
+                    <div class="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
+                        <span>Inicio: ${initialVal}</span>
+                        <span>Meta: ${goalVal}</span>
+                    </div>
+
+                    <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)">
+                        <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" data-percent="${visualPercent}" id="bar-${metric.id}">
+                            <span class="text-[9px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 text-center">
+                        <span class="text-xl font-bold text-gray-800">${currentVal}</span>
+                        <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Actual</span>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderDashboard(user, liveData) {
             // Header del Jugador
             document.getElementById('player-name').textContent = user.name;
             document.getElementById('player-link').href = `https://lichess.org/@/${user.userId}`;
             
-            // Perfil Lichess (si existe)
-            if (liveData.profile && liveData.profile.bio) {
-                // Podríamos poner la bio aquí
-            }
+            document.getElementById('player-avatar').src = 'https://lichess1.org/assets/images/missing_avatar.svg'; 
+
+            const zonesContainer = document.getElementById(ZONES_CONTAINER_ID);
+            zonesContainer.innerHTML = ''; // Limpiar
             
-            // Intentar obtener un avatar real o usar uno por defecto basado en letras
-            document.getElementById('player-avatar').src = 'Ajedrez-05.png'; 
+            let hasCelebration = { value: false }; // Usamos un objeto para pasar por referencia
+            let fullHtml = `<div class="space-y-10">`;
 
-            const grid = document.getElementById('cards-grid');
-            grid.innerHTML = ''; // Limpiar
-
-            let totalMetrics = 0;
-            let hasCelebration = false;
-
+            // 1. Agrupar métricas por Zonas (usando un mapa para orden garantizado)
+            const groupedMetrics = {
+                'Rendimiento en Vivo': {
+                    'Rayo Veloz': [], 
+                    'Ritmo Reflexivo': []
+                },
+                'Gimnasio Cerebral': {
+                    'Foco Profundo': [], 
+                    'Reacción Extrema': []
+                }
+            };
+            
             metricDefinitions.forEach(metric => {
-                // OBTENER Y CONVERTIR VALORES A NÚMEROS (IMPORTANTE para las barras)
-                const initialVal = Number(user.initials[metric.csvKey]) || 0;
-                const goalVal = Number(user.goals[metric.csvKey]) || 0;
-                
-                // Obtener valor actual de la API en vivo y convertir a número
-                let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
-                
-                // Cálculos
-                const totalGoalDist = goalVal - initialVal;
-                const currentDist = currentVal - initialVal;
-                
-                let percent = 0;
-                
-                // Lógica de porcentaje:
-                if (totalGoalDist > 0) {
-                    percent = (currentDist / totalGoalDist) * 100;
-                } else if (currentVal >= goalVal && goalVal > 0) {
-                    percent = 100; 
+                if (groupedMetrics[metric.mainZone] && groupedMetrics[metric.mainZone][metric.subZone]) {
+                    groupedMetrics[metric.mainZone][metric.subZone].push(metric);
                 }
-
-                // Clampear porcentaje entre 0 y 100 visualmente (aunque permitimos >100 en texto)
-                let visualPercent = Math.max(0, Math.min(100, percent));
-                
-                // TRUCO VISUAL: Si hay algo de progreso positivo pero es muy pequeño, mostrar al menos un 5%
-                if (percent > 0 && visualPercent > 0 && visualPercent < 5) {
-                    visualPercent = 5;
-                }
-                
-                // Si hay progreso significativo en alguna métrica, preparamos confeti
-                if (percent >= 100) hasCelebration = true;
-
-                // Crear Tarjeta HTML
-                const card = document.createElement('div');
-                card.className = `card-hover bg-white rounded-3xl p-5 border-b-8 shadow-sm ${metric.theme}`;
-                
-                // Color de la barra
-                let barColorClass = 'bg-indigo-400';
-                if (visualPercent >= 100) barColorClass = 'bg-yellow-400';
-                else if (visualPercent >= 50) barColorClass = 'bg-green-400';
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl filter drop-shadow-sm">${metric.emoji}</span>
-                            <h3 class="font-bold text-gray-700 text-lg">${metric.name}</h3>
-                        </div>
-                        ${visualPercent >= 100 ? '<span class="animate-bounce text-2xl">🏆</span>' : ''}
-                    </div>
-
-                    <div class="flex justify-between text-sm font-bold text-gray-400 mb-1 px-1">
-                        <span>Inicio: ${initialVal}</span>
-                        <span>Meta: ${goalVal}</span>
-                    </div>
-
-                    <!-- Barra de Experiencia (XP) -->
-                    <!-- Añadimos 'title' para debug: pon el mouse encima de la barra para ver el cálculo real -->
-                    <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-inner" title="Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)">
-                        <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" id="bar-${metric.id}">
-                            <span class="text-[10px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-3 text-center">
-                        <span class="text-2xl font-bold text-gray-800">${currentVal}</span>
-                        <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Actual</span>
-                    </div>
-                `;
-
-                grid.appendChild(card);
-
-                // Activar animación con requestAnimationFrame para garantizar el inicio suave
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                         const bar = document.getElementById(`bar-${metric.id}`);
-                         if(bar) bar.style.width = `${visualPercent}%`;
-                    });
-                });
-
-                totalMetrics++;
             });
 
-            if (hasCelebration) {
-                // CORRECCIÓN: Verificar si la función existe antes de llamarla
+            // 2. Renderizar Zonas y Sub-Zonas
+            for (const [mainZoneTitle, subZones] of Object.entries(groupedMetrics)) {
+                // Main Zone Header
+                fullHtml += `
+                    <section class="bg-white p-6 rounded-3xl shadow-xl border-t-8 border-indigo-200">
+                        <h3 class="text-3xl font-extrabold text-center text-purple-700 mb-6 py-2 border-b-2 border-purple-200">${mainZoneTitle}</h3>
+                        <div class="space-y-8">
+                `;
+
+                for (const [subZoneTitle, metrics] of Object.entries(subZones)) {
+                    // Sub-Zone Header
+                    fullHtml += `
+                        <div>
+                            <h4 class="text-xl font-bold text-indigo-600 mb-4 ml-2 flex items-center gap-2 border-b border-indigo-100 pb-1">
+                                <span class="text-3xl">🎯</span> ${subZoneTitle}
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    `;
+                    
+                    // Metric Cards
+                    metrics.forEach(metric => {
+                        fullHtml += createCardHTML(metric, liveData, user, hasCelebration);
+                    });
+
+                    fullHtml += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                fullHtml += `
+                        </div>
+                    </section>
+                `;
+            }
+
+            fullHtml += `</div>`;
+            zonesContainer.innerHTML = fullHtml;
+
+            // 3. Activar Animación de las Barras
+            const allBars = zonesContainer.querySelectorAll('[data-percent]');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    allBars.forEach(bar => {
+                        const percent = bar.getAttribute('data-percent');
+                        bar.style.width = `${percent}%`;
+                    });
+                });
+            });
+
+
+            // 4. Celebración con Confeti
+            if (hasCelebration.value) {
                 if (typeof confetti !== 'undefined') {
                     confetti({
                         particleCount: 100,
