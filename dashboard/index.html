@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Divertida para Niños -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Script de Confetti -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
 
     <style>
@@ -257,11 +258,6 @@
                     }
                 });
 
-                // Ya no necesitamos buscar coincidencia por usuario en metas.csv
-                /*
-                goalsData.forEach(row => { ... });
-                */
-
                 trackingData = Object.values(dataMap);
 
                 // Llenar selector
@@ -322,42 +318,42 @@
             }
             
             // Intentar obtener un avatar real o usar uno por defecto basado en letras
-            // La API de Lichess no siempre devuelve URL de avatar directamente en este endpoint público simple si no es custom
-            // Pero intentamos:
-            /* Nota: Lichess no envía la URL del avatar en la respuesta pública ligera user/{id} a menos que estés autenticado o sea muy específico.
-               Sin embargo, la web usa https://lichess1.org/assets/images/missing_avatar.svg por defecto. 
-            */
             document.getElementById('player-avatar').src = 'https://lichess1.org/assets/images/missing_avatar.svg'; 
 
             const grid = document.getElementById('cards-grid');
             grid.innerHTML = ''; // Limpiar
 
-            let totalProgress = 0;
             let totalMetrics = 0;
             let hasCelebration = false;
 
             metricDefinitions.forEach(metric => {
-                // Obtener valores
-                const initialVal = user.initials[metric.csvKey] || 0;
-                const goalVal = user.goals[metric.csvKey] || 0;
+                // OBTENER Y CONVERTIR VALORES A NÚMEROS (IMPORTANTE para las barras)
+                const initialVal = Number(user.initials[metric.csvKey]) || 0;
+                const goalVal = Number(user.goals[metric.csvKey]) || 0;
                 
-                // Obtener valor actual de la API en vivo
-                // Si la métrica no existe en liveData (ej: nunca jugó racer), asumimos 0 o el inicial si es mayor
-                let currentVal = getNestedValue(liveData, metric.apiPath) || 0;
+                // Obtener valor actual de la API en vivo y convertir a número
+                let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
                 
                 // Cálculos
                 const totalGoalDist = goalVal - initialVal;
                 const currentDist = currentVal - initialVal;
                 
                 let percent = 0;
+                
+                // Lógica de porcentaje:
                 if (totalGoalDist > 0) {
                     percent = (currentDist / totalGoalDist) * 100;
                 } else if (currentVal >= goalVal && goalVal > 0) {
-                    percent = 100; // Meta ya superada desde el inicio o meta es igual a inicio
+                    percent = 100; 
                 }
 
                 // Clampear porcentaje entre 0 y 100 visualmente (aunque permitimos >100 en texto)
-                const visualPercent = Math.max(0, Math.min(100, percent));
+                let visualPercent = Math.max(0, Math.min(100, percent));
+                
+                // TRUCO VISUAL: Si hay algo de progreso positivo pero es muy pequeño, mostrar al menos un 5%
+                if (percent > 0 && visualPercent > 0 && visualPercent < 5) {
+                    visualPercent = 5;
+                }
                 
                 // Si hay progreso significativo en alguna métrica, preparamos confeti
                 if (percent >= 100) hasCelebration = true;
@@ -386,9 +382,10 @@
                     </div>
 
                     <!-- Barra de Experiencia (XP) -->
-                    <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-inner">
+                    <!-- Añadimos 'title' para debug: pon el mouse encima de la barra para ver el cálculo real -->
+                    <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-inner" title="Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)">
                         <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" id="bar-${metric.id}">
-                            <span class="text-[10px] text-white font-bold text-shadow-sm">${percent.toFixed(0)}%</span>
+                            <span class="text-[10px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>
                         </div>
                     </div>
 
@@ -400,21 +397,28 @@
 
                 grid.appendChild(card);
 
-                // Activar animación con un pequeño delay
-                setTimeout(() => {
-                    const bar = document.getElementById(`bar-${metric.id}`);
-                    if(bar) bar.style.width = `${visualPercent}%`;
-                }, 100 * totalMetrics); // Stagger animation
+                // Activar animación con requestAnimationFrame para garantizar el inicio suave
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                         const bar = document.getElementById(`bar-${metric.id}`);
+                         if(bar) bar.style.width = `${visualPercent}%`;
+                    });
+                });
 
                 totalMetrics++;
             });
 
             if (hasCelebration) {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
+                // CORRECCIÓN: Verificar si la función existe antes de llamarla
+                if (typeof confetti !== 'undefined') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                } else {
+                    console.warn("La función confetti no está definida. No se mostrará la animación de celebración.");
+                }
             }
         }
 
