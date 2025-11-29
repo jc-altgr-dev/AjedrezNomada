@@ -100,7 +100,8 @@
                 <!-- Perfil del Jugador -->
                 <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6 max-w-4xl mx-auto">
                     <div class="relative">
-                        <img id="player-avatar" src="https://lichess1.org/assets/images/missing_avatar.svg" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md">
+                        <!-- La imagen de peoncito se cargará aquí -->
+                        <img id="player-avatar" src="https://lichess1.org/assets/images/missing_avatar.svg" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md object-cover">
                         <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full shadow border-2 border-white">
                             ⭐
                         </div>
@@ -133,41 +134,46 @@
         const ZONES_CONTAINER_ID = 'zones-container';
         const CSV_BASE_FILE = 'base.csv';
         const CSV_METAS_FILE = 'metas.csv';
+        const TOTAL_AVATARS = 18; // Número total de imágenes peoncitos_X.png
 
         let trackingData = [];
 
         // Definición de métricas agrupadas por el nuevo sistema
         const metricDefinitions = [
+            // type: 'rating' usa la lógica de progreso directo (Current vs Goal)
+            // type: 'count' usa la lógica de trabajo realizado (Work Done vs Total Work)
+            
             // --- ZONA 1: Rendimiento en Vivo (Partidas y Rating) ---
             // SUB-ZONA 1.1: Rayo Veloz (Bullet y Blitz)
-            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
-            { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
-            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
-            { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz' },
+            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
+            { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
+            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
+            { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
             
             // SUB-ZONA 1.2: Ritmo Reflexivo (Rapid y Classical)
-            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
-            { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
-            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
-            { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo' },
+            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
+            { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
+            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
+            { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
 
             // --- ZONA 2: Gimnasio Cerebral (Táctica y Agudeza Mental) ---
             // SUB-ZONA 2.1: Foco Profundo (Puzzle y Streak)
-            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
-            { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
-            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
-            { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo' },
+            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' },
+            { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
+            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
             
             // SUB-ZONA 2.2: Reacción Extrema (Racer y Storm)
-            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
-            { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
-            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
-            { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema' },
+            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
+            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
         ];
 
         // --- Funciones de Utilidad ---
 
         async function fetchAndParseCSV(url) {
+            // Implementación de carga de CSV (sin cambios, ya que funciona)
             const response = await fetch(url);
             if (!response.ok) throw new Error(`No se pudo encontrar el archivo: ${url}`);
             const text = await response.text();
@@ -224,18 +230,32 @@
             }
         }
 
+        // Función para generar un avatar aleatorio
+        function getAvatarUrl(userId) {
+            // Usamos el userId para generar un número pseudo-aleatorio consistente
+            // Esto asegura que cada jugador tenga el mismo avatar cada vez que carga la página
+            let hash = 0;
+            for (let i = 0; i < userId.length; i++) {
+                const char = userId.charCodeAt(i);
+                hash = ((hash<<5)-hash)+char;
+                hash |= 0; // Convert to 32bit integer
+            }
+            const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1;
+            return `peoncitos/peoncitos_${avatarIndex}.png`;
+        }
+
         // --- Lógica del Buscador ---
         function handleSearchInput(e) {
             const query = e.target.value.toLowerCase().trim();
             const suggestionsDiv = document.getElementById('search-suggestions');
             suggestionsDiv.innerHTML = '';
 
+            // Solo mostrar sugerencias después de 3 letras
             if (query.length < 3) {
                 suggestionsDiv.classList.add('hidden');
                 return;
             }
 
-            // Filtrar y limitar a 5 sugerencias
             const matchedUsers = trackingData.filter(user => 
                 user.userId.includes(query) || user.name.toLowerCase().includes(query)
             ).slice(0, 5); 
@@ -259,13 +279,21 @@
             }
         }
 
+        // Ocultar sugerencias al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            const searchContainer = document.querySelector('.max-w-xl.mx-auto');
+            const suggestionsDiv = document.getElementById('search-suggestions');
+            if (searchContainer && !searchContainer.contains(e.target) && !suggestionsDiv.classList.contains('hidden')) {
+                suggestionsDiv.classList.add('hidden');
+            }
+        });
+
         // --- Lógica Principal ---
 
         async function initApp() {
             try {
                 updateStatus('loading', 'Leyendo tus archivos de club...');
                 
-                // Cargar los dos CSVs
                 const [initialData, goalsData] = await Promise.all([
                     fetchAndParseCSV(CSV_BASE_FILE),
                     fetchAndParseCSV(CSV_METAS_FILE)
@@ -291,7 +319,6 @@
 
                 updateStatus('ready');
                 
-                // Asignar listener al input de búsqueda
                 document.getElementById(SEARCH_INPUT_ID).addEventListener('input', handleSearchInput);
 
             } catch (err) {
@@ -327,15 +354,35 @@
             const goalVal = Number(user.goals[metric.csvKey]) || 0;
             let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
             
-            const totalGoalDist = goalVal - initialVal;
-            const currentDist = currentVal - initialVal;
-            
             let percent = 0;
+            let distDescription = '';
             
-            if (totalGoalDist > 0) {
-                percent = (currentDist / totalGoalDist) * 100;
-            } else if (currentVal >= goalVal && goalVal > 0) {
-                percent = 100; 
+            if (metric.type === 'rating') {
+                // Lógica de Rating (Progreso Directo)
+                const totalGoalDist = goalVal - initialVal;
+                const currentDist = currentVal - initialVal;
+                
+                if (totalGoalDist > 0) {
+                    percent = (currentDist / totalGoalDist) * 100;
+                } else if (currentVal >= goalVal && goalVal > 0) {
+                    percent = 100; 
+                }
+                
+                distDescription = `Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)`;
+
+            } else if (metric.type === 'count') {
+                // Lógica de Conteo (Trabajo Realizado)
+                const totalWorkNeeded = goalVal - initialVal;
+                const workDone = currentVal - initialVal;
+
+                if (totalWorkNeeded > 0) {
+                    percent = (workDone / totalWorkNeeded) * 100;
+                } else if (workDone >= 0 && goalVal > 0) {
+                     // Si la meta ya se superó en la base, o si no hay meta incremental
+                    percent = 100; 
+                }
+
+                distDescription = `Trabajo Realizado: ${Math.max(0, percent).toFixed(2)}% (${workDone} partidas/intentos completados de ${totalWorkNeeded} necesarios)`;
             }
 
             let visualPercent = Math.max(0, Math.min(100, percent));
@@ -363,7 +410,7 @@
                         <span>Meta: ${goalVal}</span>
                     </div>
 
-                    <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)">
+                    <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="${distDescription}">
                         <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" data-percent="${visualPercent}" id="bar-${metric.id}">
                             <span class="text-[9px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>
                         </div>
@@ -382,7 +429,17 @@
             document.getElementById('player-name').textContent = user.name;
             document.getElementById('player-link').href = `https://lichess.org/@/${user.userId}`;
             
-            document.getElementById('player-avatar').src = 'https://lichess1.org/assets/images/missing_avatar.svg'; 
+            // Avatar
+            const avatarImg = document.getElementById('player-avatar');
+            const customAvatarUrl = getAvatarUrl(user.userId);
+            
+            // Asignar el avatar del "peoncito" y un fallback
+            avatarImg.src = customAvatarUrl;
+            avatarImg.onerror = () => {
+                // Si la imagen del peoncito falla (no está subida), usa el avatar de lichess por defecto
+                avatarImg.src = 'https://lichess1.org/assets/images/missing_avatar.svg';
+            };
+
 
             const zonesContainer = document.getElementById(ZONES_CONTAINER_ID);
             zonesContainer.innerHTML = ''; // Limpiar
@@ -390,7 +447,7 @@
             let hasCelebration = { value: false }; // Usamos un objeto para pasar por referencia
             let fullHtml = `<div class="space-y-10">`;
 
-            // 1. Agrupar métricas por Zonas (usando un mapa para orden garantizado)
+            // 1. Agrupar métricas por Zonas
             const groupedMetrics = {
                 'Rendimiento en Vivo': {
                     'Rayo Veloz': [], 
@@ -410,9 +467,12 @@
 
             // 2. Renderizar Zonas y Sub-Zonas
             for (const [mainZoneTitle, subZones] of Object.entries(groupedMetrics)) {
+                // Definir color de borde de la zona principal
+                const mainZoneColor = mainZoneTitle === 'Rendimiento en Vivo' ? 'border-sky-400' : 'border-pink-400';
+
                 // Main Zone Header
                 fullHtml += `
-                    <section class="bg-white p-6 rounded-3xl shadow-xl border-t-8 border-indigo-200">
+                    <section class="bg-white p-6 rounded-3xl shadow-xl border-t-8 ${mainZoneColor}">
                         <h3 class="text-3xl font-extrabold text-center text-purple-700 mb-6 py-2 border-b-2 border-purple-200">${mainZoneTitle}</h3>
                         <div class="space-y-8">
                 `;
