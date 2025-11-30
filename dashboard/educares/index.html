@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Club de Ajedrez - Mis Logros</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Divertida para Niños -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Script de Confetti -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0fdf4; /* Fondo verde muy suave */
+            background-image: radial-gradient(#dcfce7 15%, transparent 16%), radial-gradient(#dcfce7 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+        }
+
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04);
+        }
+        /* Nueva sombra de tarjetas para que se vea como un bloque */
+        .card-hover { border-bottom-width: 6px; }
+
+        /* Animación de la barra de experiencia */
+        .xp-bar-fill {
+            transition: width 2s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto rebote suave */
+            background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+            background-size: 1rem 1rem;
+        }
+
+        .text-shadow-sm {
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        
+        /* Colores temáticos para categorías */
+        .theme-bullet { border-color: #fca5a5; background-color: #fef2f2; }
+        .theme-blitz { border-color: #fde047; background-color: #fefce8; }
+        .theme-rapid { border-color: #86efac; background-color: #f0fdf4; }
+        .theme-classical { border-color: #93c5fd; background-color: #eff6ff; }
+        .theme-puzzle { border-color: #d8b4fe; background-color: #faf5ff; }
+        .theme-fun { border-color: #fdba74; background-color: #fff7ed; }
+
+        /* Loader divertido */
+        .chess-loader {
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800">
+    <div class="p-4 sm:p-8 max-w-7xl mx-auto">
+        
+        <!-- Encabezado Colorido -->
+        <header class="mb-10 text-center relative">
+            <div class="inline-block bg-white p-6 rounded-3xl shadow-xl border-4 border-indigo-200 transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                <h1 class="text-4xl sm:text-5xl font-bold text-indigo-600 text-shadow-sm flex items-center justify-center gap-3">
+                    <span>🏰</span> Club de Ajedrez <span>♟️</span>
+                </h1>
+                <p class="text-lg text-indigo-400 mt-2 font-medium">¡Sube de nivel completando tus metas!</p>
+            </div>
+        </header>
+
+        <main class="space-y-8">
+            <!-- Buscador de Usuario (Autocomplete) -->
+            <div class="max-w-xl mx-auto bg-white p-6 rounded-3xl shadow-lg border-b-8 border-indigo-200">
+                <label for="user-search" class="block text-xl font-bold text-center text-indigo-800 mb-4">
+                    🔍 Encuentra a tu Jugador (Mínimo 3 letras)
+                </label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="user-search"
+                        placeholder="Escribe el Nickname de Lichess o el Nombre..."
+                        class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 appearance-none transition-colors"
+                    >
+                    <div id="search-suggestions" class="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto hidden">
+                        <!-- Suggestions go here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Estado -->
+            <div id="status-container" class="hidden max-w-2xl mx-auto"></div>
+
+            <!-- Dashboard de Progreso -->
+            <div id="progress-dashboard" class="hidden animate-fade-in-up">
+                
+                <!-- Perfil del Jugador -->
+                <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6 max-w-4xl mx-auto">
+                    <div class="relative">
+                        <!-- La imagen de peoncito se cargará aquí -->
+                        <img id="player-avatar" src="https://lichess1.org/assets/images/missing_avatar.svg" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md object-cover">
+                        <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full shadow border-2 border-white">
+                            ⭐
+                        </div>
+                    </div>
+                    <div class="text-center sm:text-left">
+                        <h2 id="player-name" class="text-3xl font-bold text-purple-700">Jugador Seleccionado</h2>
+                        <a id="player-link" href="#" target="_blank" class="text-purple-400 font-semibold hover:text-purple-600 transition-colors">Ver en Lichess ↗</a>
+                        <div class="mt-2 flex gap-2 justify-center sm:justify-start">
+                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Novato</span>
+                            <!-- Aquí se podrían agregar más insignias dinámicas -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenedor para Zonas -->
+                <div id="zones-container" class="max-w-4xl mx-auto space-y-10">
+                    <!-- Las zonas y tarjetas se generan aquí -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script Principal -->
+    <script>
+        // --- Configuración ---
+        const LICHESS_API_BASE = 'https://lichess.org/api/user/';
+        const SEARCH_INPUT_ID = 'user-search';
+        const STATUS_ID = 'status-container';
+        const DASHBOARD_ID = 'progress-dashboard';
+        const ZONES_CONTAINER_ID = 'zones-container';
+        const CSV_BASE_FILE = 'base.csv';
+        const CSV_METAS_FILE = 'metas.csv';
+        const TOTAL_AVATARS = 18; // Número total de imágenes peoncitos_X.png
+
+        let trackingData = [];
+
+        // Definición de métricas agrupadas por el nuevo sistema
+        const metricDefinitions = [
+            // type: 'rating' usa la lógica de progreso directo (Current vs Goal)
+            // type: 'count' usa la lógica de trabajo realizado (Work Done vs Total Work)
+            
+            // --- ZONA 1: Rendimiento en Vivo (Partidas y Rating) ---
+            // SUB-ZONA 1.1: Rayo Veloz (Bullet y Blitz)
+            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
+            { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
+            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
+            { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
+            
+            // SUB-ZONA 1.2: Ritmo Reflexivo (Rapid y Classical)
+            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
+            { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
+            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
+            { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
+
+            // --- ZONA 2: Gimnasio Cerebral (Táctica y Agudeza Mental) ---
+            // SUB-ZONA 2.1: Foco Profundo (Puzzle y Streak)
+            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' },
+            { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
+            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
+            
+            // SUB-ZONA 2.2: Reacción Extrema (Racer y Storm)
+            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
+            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
+        ];
+
+        // --- Funciones de Utilidad ---
+
+        async function fetchAndParseCSV(url) {
+            // Implementación de carga de CSV (sin cambios, ya que funciona)
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`No se pudo encontrar el archivo: ${url}`);
+            const text = await response.text();
+            
+            const lines = text.trim().split('\n');
+            if (lines.length < 2) return [];
+
+            const firstLine = lines[0];
+            let separator = ',';
+            if (firstLine.includes('\t')) separator = '\t';
+            else if (firstLine.includes(';')) separator = ';';
+
+            const headers = lines[0].split(separator).map(h => h.trim());
+            
+            return lines.slice(1).map(line => {
+                const values = line.split(separator).map(v => v.trim());
+                const entry = {};
+                headers.forEach((header, index) => {
+                    let val = values[index];
+                    if (header !== 'Nombre' && header !== 'Lichess' && !isNaN(val) && val !== '') {
+                        val = Number(val);
+                    }
+                    entry[header] = val;
+                });
+                return entry;
+            });
+        }
+
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((prev, curr) => prev ? prev[curr] : undefined, obj);
+        }
+
+        function updateStatus(type, message) {
+            const container = document.getElementById(STATUS_ID);
+            container.classList.remove('hidden');
+            
+            if (type === 'loading') {
+                container.innerHTML = `
+                    <div class="text-center p-8 bg-white rounded-3xl shadow-lg border-b-4 border-indigo-200">
+                        <div class="text-5xl chess-loader mb-4">♞</div>
+                        <h3 class="text-xl font-bold text-indigo-600 mb-2">Cargando Datos...</h3>
+                        <p class="text-gray-500">${message}</p>
+                    </div>`;
+            } else if (type === 'error') {
+                container.innerHTML = `
+                    <div class="bg-red-50 p-6 rounded-3xl border-2 border-red-200 text-center shadow-lg">
+                        <div class="text-4xl mb-2">🤕</div>
+                        <h3 class="text-xl font-bold text-red-600 mb-2">¡Ups! Algo salió mal</h3>
+                        <p class="text-red-500 font-medium">${message}</p>
+                        <p class="text-xs text-gray-400 mt-4">Asegúrate de que 'base.csv' y 'metas.csv' están en la carpeta.</p>
+                    </div>`;
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        // Función para generar un avatar aleatorio
+        function getAvatarUrl(userId) {
+            // Usamos el userId para generar un número pseudo-aleatorio consistente
+            // Esto asegura que cada jugador tenga el mismo avatar cada vez que carga la página
+            let hash = 0;
+            for (let i = 0; i < userId.length; i++) {
+                const char = userId.charCodeAt(i);
+                hash = ((hash<<5)-hash)+char;
+                hash |= 0; // Convert to 32bit integer
+            }
+            const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1;
+            return `peoncitos/peoncitos_${avatarIndex}.png`;
+        }
+
+        // --- Lógica del Buscador ---
+        function handleSearchInput(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const suggestionsDiv = document.getElementById('search-suggestions');
+            suggestionsDiv.innerHTML = '';
+
+            // Solo mostrar sugerencias después de 3 letras
+            if (query.length < 3) {
+                suggestionsDiv.classList.add('hidden');
+                return;
+            }
+
+            const matchedUsers = trackingData.filter(user => 
+                user.userId.includes(query) || user.name.toLowerCase().includes(query)
+            ).slice(0, 5); 
+
+            if (matchedUsers.length > 0) {
+                suggestionsDiv.classList.remove('hidden');
+                matchedUsers.forEach(user => {
+                    const suggestion = document.createElement('div');
+                    suggestion.className = 'p-3 hover:bg-indigo-100 cursor-pointer border-b border-indigo-100 last:border-b-0 transition-colors';
+                    suggestion.textContent = `${user.name} (${user.userId})`;
+                    suggestion.dataset.userId = user.userId;
+                    suggestion.onclick = () => {
+                        document.getElementById(SEARCH_INPUT_ID).value = user.name;
+                        suggestionsDiv.classList.add('hidden');
+                        loadUserProfile(user.userId);
+                    };
+                    suggestionsDiv.appendChild(suggestion);
+                });
+            } else {
+                suggestionsDiv.classList.add('hidden');
+            }
+        }
+
+        // Ocultar sugerencias al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            const searchContainer = document.querySelector('.max-w-xl.mx-auto');
+            const suggestionsDiv = document.getElementById('search-suggestions');
+            if (searchContainer && !searchContainer.contains(e.target) && !suggestionsDiv.classList.contains('hidden')) {
+                suggestionsDiv.classList.add('hidden');
+            }
+        });
+
+        // --- Lógica Principal ---
+
+        async function initApp() {
+            try {
+                updateStatus('loading', 'Leyendo tus archivos de club...');
+                
+                const [initialData, goalsData] = await Promise.all([
+                    fetchAndParseCSV(CSV_BASE_FILE),
+                    fetchAndParseCSV(CSV_METAS_FILE)
+                ]);
+
+                const globalGoals = goalsData.length > 0 ? goalsData[0] : {};
+
+                // Fusionar datos
+                const dataMap = {};
+                initialData.forEach(row => {
+                    const userId = row['Lichess']?.toLowerCase();
+                    if(userId) {
+                        dataMap[userId] = {
+                            userId: userId,
+                            name: row['Nombre'] || userId,
+                            initials: row,
+                            goals: globalGoals
+                        };
+                    }
+                });
+
+                trackingData = Object.values(dataMap);
+
+                updateStatus('ready');
+                
+                document.getElementById(SEARCH_INPUT_ID).addEventListener('input', handleSearchInput);
+
+            } catch (err) {
+                console.error(err);
+                updateStatus('error', err.message);
+            }
+        }
+
+        async function loadUserProfile(userId) {
+            const user = trackingData.find(u => u.userId === userId);
+            if (!user) return;
+
+            document.getElementById(DASHBOARD_ID).classList.add('hidden');
+            updateStatus('loading', `Conectando con Lichess para ver a ${user.name}...`);
+
+            try {
+                const response = await fetch(`${LICHESS_API_BASE}${userId}`);
+                if (!response.ok) throw new Error('Usuario no encontrado en Lichess');
+                const liveData = await response.json();
+
+                renderDashboard(user, liveData);
+                updateStatus('ready');
+                document.getElementById(DASHBOARD_ID).classList.remove('hidden');
+
+            } catch (err) {
+                updateStatus('error', `Error al obtener datos de Lichess: ${err.message}`);
+            }
+        }
+
+        function createCardHTML(metric, liveData, user, hasCelebrationRef) {
+            // OBTENER Y CONVERTIR VALORES A NÚMEROS
+            const initialVal = Number(user.initials[metric.csvKey]) || 0;
+            const goalVal = Number(user.goals[metric.csvKey]) || 0;
+            let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
+            
+            let percent = 0;
+            let distDescription = '';
+            
+            if (metric.type === 'rating') {
+                // Lógica de Rating (Progreso Directo)
+                const totalGoalDist = goalVal - initialVal;
+                const currentDist = currentVal - initialVal;
+                
+                if (totalGoalDist > 0) {
+                    percent = (currentDist / totalGoalDist) * 100;
+                } else if (currentVal >= goalVal && goalVal > 0) {
+                    percent = 100; 
+                }
+                
+                distDescription = `Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)`;
+
+            } else if (metric.type === 'count') {
+                // Lógica de Conteo (Trabajo Realizado)
+                const totalWorkNeeded = goalVal - initialVal;
+                const workDone = currentVal - initialVal;
+
+                if (totalWorkNeeded > 0) {
+                    percent = (workDone / totalWorkNeeded) * 100;
+                } else if (workDone >= 0 && goalVal > 0) {
+                     // Si la meta ya se superó en la base, o si no hay meta incremental
+                    percent = 100; 
+                }
+
+                distDescription = `Trabajo Realizado: ${Math.max(0, percent).toFixed(2)}% (${workDone} partidas/intentos completados de ${totalWorkNeeded} necesarios)`;
+            }
+
+            let visualPercent = Math.max(0, Math.min(100, percent));
+            
+            if (percent > 0 && visualPercent > 0 && visualPercent < 5) {
+                visualPercent = 5;
+            }
+            
+            if (percent >= 100) hasCelebrationRef.value = true;
+
+            let barColorClass = 'bg-indigo-400';
+            if (visualPercent >= 100) barColorClass = 'bg-yellow-400';
+            else if (visualPercent >= 50) barColorClass = 'bg-green-400';
+
+            return `
+                <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme}">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-2xl filter drop-shadow-sm">${metric.emoji}</span>
+                        <h4 class="font-bold text-gray-700 text-base flex-grow">${metric.name}</h4>
+                        ${visualPercent >= 100 ? '<span class="animate-bounce text-xl">🏆</span>' : ''}
+                    </div>
+
+                    <div class="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
+                        <span>Inicio: ${initialVal}</span>
+                        <span>Meta: ${goalVal}</span>
+                    </div>
+
+                    <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="${distDescription}">
+                        <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" data-percent="${visualPercent}" id="bar-${metric.id}">
+                            <span class="text-[9px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 text-center">
+                        <span class="text-xl font-bold text-gray-800">${currentVal}</span>
+                        <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Actual</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDashboard(user, liveData) {
+            // Header del Jugador
+            document.getElementById('player-name').textContent = user.name;
+            document.getElementById('player-link').href = `https://lichess.org/@/${user.userId}`;
+            
+            // Avatar
+            const avatarImg = document.getElementById('player-avatar');
+            const customAvatarUrl = getAvatarUrl(user.userId);
+            
+            // Asignar el avatar del "peoncito" y un fallback
+            avatarImg.src = customAvatarUrl;
+            avatarImg.onerror = () => {
+                // Si la imagen del peoncito falla (no está subida), usa el avatar de lichess por defecto
+                avatarImg.src = 'https://lichess1.org/assets/images/missing_avatar.svg';
+            };
+
+
+            const zonesContainer = document.getElementById(ZONES_CONTAINER_ID);
+            zonesContainer.innerHTML = ''; // Limpiar
+            
+            let hasCelebration = { value: false }; // Usamos un objeto para pasar por referencia
+            let fullHtml = `<div class="space-y-10">`;
+
+            // 1. Agrupar métricas por Zonas
+            const groupedMetrics = {
+                'Rendimiento en Vivo': {
+                    'Rayo Veloz': [], 
+                    'Ritmo Reflexivo': []
+                },
+                'Gimnasio Cerebral': {
+                    'Foco Profundo': [], 
+                    'Reacción Extrema': []
+                }
+            };
+            
+            metricDefinitions.forEach(metric => {
+                if (groupedMetrics[metric.mainZone] && groupedMetrics[metric.mainZone][metric.subZone]) {
+                    groupedMetrics[metric.mainZone][metric.subZone].push(metric);
+                }
+            });
+
+            // 2. Renderizar Zonas y Sub-Zonas
+            for (const [mainZoneTitle, subZones] of Object.entries(groupedMetrics)) {
+                // Definir color de borde de la zona principal
+                const mainZoneColor = mainZoneTitle === 'Rendimiento en Vivo' ? 'border-sky-400' : 'border-pink-400';
+
+                // Main Zone Header
+                fullHtml += `
+                    <section class="bg-white p-6 rounded-3xl shadow-xl border-t-8 ${mainZoneColor}">
+                        <h3 class="text-3xl font-extrabold text-center text-purple-700 mb-6 py-2 border-b-2 border-purple-200">${mainZoneTitle}</h3>
+                        <div class="space-y-8">
+                `;
+
+                for (const [subZoneTitle, metrics] of Object.entries(subZones)) {
+                    // Sub-Zone Header
+                    fullHtml += `
+                        <div>
+                            <h4 class="text-xl font-bold text-indigo-600 mb-4 ml-2 flex items-center gap-2 border-b border-indigo-100 pb-1">
+                                <span class="text-3xl">🎯</span> ${subZoneTitle}
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    `;
+                    
+                    // Metric Cards
+                    metrics.forEach(metric => {
+                        fullHtml += createCardHTML(metric, liveData, user, hasCelebration);
+                    });
+
+                    fullHtml += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                fullHtml += `
+                        </div>
+                    </section>
+                `;
+            }
+
+            fullHtml += `</div>`;
+            zonesContainer.innerHTML = fullHtml;
+
+            // 3. Activar Animación de las Barras
+            const allBars = zonesContainer.querySelectorAll('[data-percent]');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    allBars.forEach(bar => {
+                        const percent = bar.getAttribute('data-percent');
+                        bar.style.width = `${percent}%`;
+                    });
+                });
+            });
+
+
+            // 4. Celebración con Confeti
+            if (hasCelebration.value) {
+                if (typeof confetti !== 'undefined') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                } else {
+                    console.warn("La función confetti no está definida. No se mostrará la animación de celebración.");
+                }
+            }
+        }
+
+        // Iniciar App cuando carga
+        document.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>
