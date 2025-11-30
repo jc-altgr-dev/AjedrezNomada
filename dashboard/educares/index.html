@@ -82,7 +82,7 @@
                     <input
                         type="text"
                         id="user-search"
-                        placeholder="Escribe el Nombre del alumno..."
+                        placeholder="Escribe el usuario de Lichess..."
                         class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 appearance-none transition-colors"
                     >
                     <div id="search-suggestions" class="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto hidden">
@@ -113,7 +113,7 @@
                             Ver perfil en Lichess ↗
                         </a>
                         <div class="mt-2 flex gap-2 justify-center sm:justify-start">
-                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Zona de Aprendizaje</span>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Novato</span>
                         </div>
                     </div>
                 </div>
@@ -136,7 +136,9 @@
         const ZONES_CONTAINER_ID = 'zones-container';
         const CSV_BASE_FILE = 'base.csv';
         const CSV_METAS_FILE = 'metas.csv';
-        const TOTAL_AVATARS = 18; 
+        
+        // Configuración de avatares
+        const TOTAL_VARIANTS = 9; // 9 variantes por género
 
         let trackingData = [];
 
@@ -189,7 +191,8 @@
                 const entry = {};
                 headers.forEach((header, index) => {
                     let val = values[index];
-                    if (header !== 'Nombre' && header !== 'Lichess' && !isNaN(val) && val !== '') {
+                    // Convertir a número si es posible, excepto Nombre, Lichess y Género
+                    if (header !== 'Nombre' && header !== 'Lichess' && header !== 'Género' && !isNaN(val) && val !== '') {
                         val = Number(val);
                     }
                     entry[header] = val;
@@ -226,15 +229,25 @@
             }
         }
 
-        function getAvatarUrl(userId) {
+        function getAvatarUrl(userId, gender) {
+            // Generar hash consistente para el usuario
             let hash = 0;
             for (let i = 0; i < userId.length; i++) {
                 const char = userId.charCodeAt(i);
                 hash = ((hash<<5)-hash)+char;
                 hash |= 0; 
             }
-            const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1;
-            return `peoncitos/peoncitos_${avatarIndex}.png`;
+            // Obtenemos un número del 1 al 9
+            const avatarIndex = (Math.abs(hash) % TOTAL_VARIANTS) + 1;
+
+            if (gender === 'f') {
+                return `peoncitas/peoncitas_${avatarIndex}.png`;
+            } else if (gender === 'm') {
+                return `peoncitos/peoncitos_${avatarIndex}.png`;
+            } else {
+                // Default: peoncito 1 de carpeta peoncitos si no hay género
+                return `peoncitos/peoncitos_1.png`;
+            }
         }
 
         // --- Lógica del Buscador ---
@@ -248,8 +261,9 @@
                 return;
             }
 
+            // Filtrar SOLO por ID de Lichess
             const matchedUsers = trackingData.filter(user => 
-                user.userId.includes(query) || user.name.toLowerCase().includes(query)
+                user.userId.includes(query)
             ).slice(0, 5); 
 
             if (matchedUsers.length > 0) {
@@ -258,15 +272,14 @@
                     const suggestion = document.createElement('div');
                     suggestion.className = 'p-3 hover:bg-indigo-100 cursor-pointer border-b border-indigo-100 last:border-b-0 transition-colors flex justify-between';
                     
-                    // Mostrar Nombre destacado
+                    // Mostrar Solo ID de Lichess
                     suggestion.innerHTML = `
-                        <span class="font-bold text-gray-800">${user.name}</span>
-                        <span class="text-xs text-gray-400 self-center">${user.userId}</span>
+                        <span class="font-bold text-gray-800">${user.userId}</span>
                     `;
                     
                     suggestion.onclick = () => {
-                        // Al seleccionar, solo ponemos el NOMBRE en el input
-                        document.getElementById(SEARCH_INPUT_ID).value = user.name;
+                        // Al seleccionar, ponemos el ID en el input
+                        document.getElementById(SEARCH_INPUT_ID).value = user.userId;
                         suggestionsDiv.classList.add('hidden');
                         loadUserProfile(user.userId);
                     };
@@ -300,11 +313,12 @@
 
                 const dataMap = {};
                 initialData.forEach(row => {
-                    const userId = row['Lichess']?.toLowerCase();
+                    const userId = row['Lichess']?.toLowerCase().trim();
                     if(userId) {
                         dataMap[userId] = {
                             userId: userId,
-                            name: row['Nombre'] || userId, // Prioriza la columna Nombre
+                            // Nombre se ignora visualmente, pero guardamos el objeto completo row por si acaso
+                            gender: row['Género'] ? row['Género'].toLowerCase().trim() : null,
                             initials: row,
                             goals: globalGoals
                         };
@@ -327,7 +341,7 @@
             if (!user) return;
 
             document.getElementById(DASHBOARD_ID).classList.add('hidden');
-            updateStatus('loading', `Conectando con Lichess para ver a ${user.name}...`);
+            updateStatus('loading', `Conectando con Lichess para ver a ${user.userId}...`);
 
             try {
                 const response = await fetch(`${LICHESS_API_BASE}${userId}`);
@@ -349,8 +363,6 @@
             let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
 
             // --- REGLA ESPECIAL: RATING 1500 = 0 ---
-            // Si el valor actual es exactamente 1500 y es una métrica de tipo rating, lo convertimos a 0
-            // Lichess usa 1500 como valor provisional por defecto.
             if (metric.type === 'rating' && currentVal === 1500) {
                 currentVal = 0;
             }
@@ -417,15 +429,18 @@
         }
 
         function renderDashboard(user, liveData) {
-            // Mostrar solo Nombre Completo
-            document.getElementById('player-name').textContent = user.name;
+            // Mostrar solo ID de Lichess
+            document.getElementById('player-name').textContent = user.userId;
             document.getElementById('player-link').href = `https://lichess.org/@/${user.userId}`;
             
             const avatarImg = document.getElementById('player-avatar');
-            const customAvatarUrl = getAvatarUrl(user.userId);
+            // Usar lógica de género
+            const customAvatarUrl = getAvatarUrl(user.userId, user.gender);
             avatarImg.src = customAvatarUrl;
+            
+            // Si la imagen falla, mostrar peoncito por defecto (peoncito 1) en lugar del logo de Lichess
             avatarImg.onerror = () => {
-                avatarImg.src = 'https://lichess1.org/assets/images/missing_avatar.svg';
+                avatarImg.src = 'peoncitos/peoncitos_1.png';
             };
 
             const zonesContainer = document.getElementById(ZONES_CONTAINER_ID);
