@@ -13,53 +13,41 @@
 </head>
 <body class="bg-gray-900 text-white font-sans">
 
-<!-- Hero -->
 <section class="min-h-screen flex flex-col items-center justify-center text-center p-6">
   <img src="./roadmap.png" class="w-full max-w-3xl rounded-xl shadow-2xl mb-6" />
   <h1 class="text-4xl md:text-6xl font-bold">La Gran Aventura del Reino Lichess</h1>
-  <p class="mt-4 text-xl max-w-2xl">Un viaje épico donde peoncitos y peoncitas exploran misterios, resuelven retos y desbloquean poderes ajedrecísticos.</p>
+  <p class="mt-4 text-xl max-w-2xl">Un viaje épico donde peoncitos y peoncitas descubren territorios mágicos del entrenamiento ajedrecístico.</p>
 </section>
 
-<!-- SECCIÓN TEMPLATE -->
 <div id="contenido" class="space-y-40 pb-40"></div>
 
 <script>
-// Lista de 18 imágenes alternando peoncitos y peoncitas
-const imagenes = [
-  ...Array.from({length:9}, (_,i)=>`./peoncitos_${i+1}.png`),
-  ...Array.from({length:9}, (_,i)=>`./peoncitas_${i+1}.png`)
-];
+const peoncitos = Array.from({length:9}, (_,i)=>`./peoncitos/peoncitos_${i+1}.png`);
+const peoncitas = Array.from({length:9}, (_,i)=>`./peoncitas/peoncitas_${i+1}.png`);
+const imagenes = [...peoncitos, ...peoncitas];
 let imgIndex = 0;
 
-// Cada sección del viaje
 const secciones = [
-  {
-    titulo: "Ritmos y Partidas: La Llama del Tiempo",
-    texto: "Cada ritmo es un reino distinto. Rápido, Blitz, Clásico... los peoncitos aprenden a decidir con valentía mientras el tiempo se derrite. Jugar partidas en cada ritmo desarrolla templanza, atención y reflejos estratégicos." 
-  },
-  {
-    titulo: "Puzzles: El Bosque de los Enigmas",
-    texto: "Los puzzles son desafíos mágicos que revelan patrones ocultos. Cada intento agudiza la vista táctica: capturas forzadas, mates escondidos y combinaciones brillantes." 
-  },
-  {
-    titulo: "Puzzle Streak: La Torre de la Concentración",
-    texto: "Una escalada sin fallos. Cuanto más alto llegas, más intensa se vuelve la prueba. Aquí se consolidan reflejos tácticos y una disciplina feroz para calcular antes de mover." 
-  },
-  {
-    titulo: "Puzzle Storm: El Torbellino del Rayo",
-    texto: "Una carrera contrarreloj donde cada acierto alimenta la velocidad mental. Ideal para entrenar precisión inmediata y reacción táctica instantánea." 
-  },
-  {
-    titulo: "Puzzle Racer: La Carrera de Combinaciones",
-    texto: "Los peoncitos compiten amistosamente para resolver más enigmas que otros viajeros. Aprenden agilidad, constancia y atención sostenida." 
-  },
-  {
-    titulo: "Ejercicios por Temas: Las Salas del Conocimiento",
-    texto: "Aquí se estudia cada táctica por separado: clavadas, dobles, rayos X, desviaciones y más. Es un entrenamiento profundo para dominar un poder específico antes de combinarlo con otros." 
-  }
+  {titulo:"Entrenamiento: El Sendero del Héroe", texto:"Aquí comienza todo. Peoncitos y peoncitas aprenden que el ajedrez no es sólo un juego: es disciplina, aventura y descubrimiento. Cada paso forja paciencia, valentía y concentración."},
+  {titulo:"Preparación Mental", texto:"La mente se fortalece con cada reto. Visualización, calma y enfoque son los primeros poderes que se despiertan en todo aprendiz."},
+  {titulo:"Desarrollo del Cálculo", texto:"Los pequeños héroes aprenden a ver más allá: proyectar futuros, imaginar jugadas ocultas y anticipar peligros."},
+  {titulo:"Hábitos Constructivos", texto:"Registrar avances, analizar errores y celebrar mejoras pequeñas construye un viajero constante e imparable."},
+
+  {titulo:"Zona de Ritmos: El Valle del Tiempo", texto:"Los ritmos de juego definen la intensidad del viaje. Aquí los peoncitos eligen entre desafíos veloces o aventuras reflexivas."},
+  {titulo:"Ritmos Veloces (Bullet y Blitz)", texto:"En estas tierras el tiempo corre como un rayo. Se entrena reacción inmediata, memoria táctica y rapidez mental."},
+  {titulo:"Ritmos Reflexivos (Rápidas y Clásicas)", texto:"Aquí se piensa con calma. Se forman planes sólidos, se entienden estructuras y se aprende a construir ventajas duraderas."},
+  {titulo:"Sabiduría del Tiempo", texto:"Aprender cuándo acelerar y cuándo reflexionar es una de las habilidades más valiosas para todo viajero del ajedrez."},
+
+  {titulo:"Zona de Puzzles: El Bosque de Enigmas", texto:"Un territorio lleno de desafíos misteriosos. Cada puzzle resuelto ilumina un nuevo patrón táctico."},
+  {titulo:"Puzzles Generales", texto:"La práctica continua despierta la visión táctica: ataques dobles, mates inesperados y combinaciones ocultas."},
+  {titulo:"Puzzle Streak (Reflexivo)", texto:"Una escalada tensa donde el héroe no puede fallar. La concentración se convierte en el arma principal."},
+  {titulo:"Puzzle Racer (Veloz)", texto:"Carreras amistosas donde la agilidad táctica decide al ganador. Velocidad y precisión se fusionan."},
+  {titulo:"Puzzle Storm (Veloz)", texto:"Una tormenta de problemas que exige reflejos temibles. Ideal para afilar la rapidez mental."},
+  {titulo:"Entrenamiento Temático", texto:"Clavadas, desviaciones, rayos X y más. Cada tema es una habilidad especial que se entrena a profundidad."},
+  {titulo:"Uso Estratégico de Temas", texto:"Aprender un poder a la vez permite dominarlo sin confusión. Luego se combinan para crear tácticas avanzadas."},
+  {titulo:"Maestría del Bosque", texto:"Al completar esta zona, los peoncitos se transforman en exploradores tácticos listos para cualquier batalla."}
 ];
 
-// Generar secciones en la página
 const cont = document.getElementById("contenido");
 secciones.forEach(sec => {
   const img = imagenes[imgIndex % imagenes.length];
@@ -76,15 +64,11 @@ secciones.forEach(sec => {
       <img src="${img}" class="w-64 h-64 object-contain drop-shadow-xl" />
     </div>
   `;
-
   cont.appendChild(div);
 });
 
-// Animaciones de aparición
 const observador = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) e.target.classList.add('visible');
-  });
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 },{threshold:0.2});
 
 document.querySelectorAll('.fade-in').forEach(el=>observador.observe(el));
@@ -92,3 +76,4 @@ document.querySelectorAll('.fade-in').forEach(el=>observador.observe(el));
 
 </body>
 </html>
+
