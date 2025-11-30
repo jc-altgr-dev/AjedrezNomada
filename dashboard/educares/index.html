@@ -82,7 +82,7 @@
                     <input
                         type="text"
                         id="user-search"
-                        placeholder="Escribe el Nickname de Lichess o el Nombre..."
+                        placeholder="Escribe el Nombre del alumno..."
                         class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 appearance-none transition-colors"
                     >
                     <div id="search-suggestions" class="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto hidden">
@@ -108,10 +108,12 @@
                     </div>
                     <div class="text-center sm:text-left">
                         <h2 id="player-name" class="text-3xl font-bold text-purple-700">Jugador Seleccionado</h2>
-                        <a id="player-link" href="#" target="_blank" class="text-purple-400 font-semibold hover:text-purple-600 transition-colors">Ver en Lichess ↗</a>
+                        <!-- Enlace discreto a Lichess -->
+                        <a id="player-link" href="#" target="_blank" class="text-sm text-purple-400 font-medium hover:text-purple-600 transition-colors bg-purple-50 px-3 py-1 rounded-full mt-2 inline-block">
+                            Ver perfil en Lichess ↗
+                        </a>
                         <div class="mt-2 flex gap-2 justify-center sm:justify-start">
-                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Novato</span>
-                            <!-- Aquí se podrían agregar más insignias dinámicas -->
+                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Zona de Aprendizaje</span>
                         </div>
                     </div>
                 </div>
@@ -134,46 +136,40 @@
         const ZONES_CONTAINER_ID = 'zones-container';
         const CSV_BASE_FILE = 'base.csv';
         const CSV_METAS_FILE = 'metas.csv';
-        const TOTAL_AVATARS = 18; // Número total de imágenes peoncitos_X.png
+        const TOTAL_AVATARS = 18; 
 
         let trackingData = [];
 
-        // Definición de métricas agrupadas por el nuevo sistema
+        // Definición de métricas 
         const metricDefinitions = [
-            // type: 'rating' usa la lógica de progreso directo (Current vs Goal)
-            // type: 'count' usa la lógica de trabajo realizado (Work Done vs Total Work)
-            
-            // --- ZONA 1: Rendimiento en Vivo (Partidas y Rating) ---
-            // SUB-ZONA 1.1: Rayo Veloz (Bullet y Blitz)
+            // ZONA 1: Rendimiento en Vivo
             { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
             { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
             { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
             { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
             
-            // SUB-ZONA 1.2: Ritmo Reflexivo (Rapid y Classical)
+            // Ritmo Reflexivo
             { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
             { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
             { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
             { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
 
-            // --- ZONA 2: Gimnasio Cerebral (Táctica y Agudeza Mental) ---
-            // SUB-ZONA 2.1: Foco Profundo (Puzzle y Streak)
+            // ZONA 2: Gimnasio Cerebral
             { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' },
             { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
-            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' },
             { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
             
-            // SUB-ZONA 2.2: Reacción Extrema (Racer y Storm)
-            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' }, // Score puede verse como rating/progreso directo
+            // Reacción Extrema
+            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' },
             { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
-            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' }, // Score puede verse como rating/progreso directo
+            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' },
             { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
         ];
 
         // --- Funciones de Utilidad ---
 
         async function fetchAndParseCSV(url) {
-            // Implementación de carga de CSV (sin cambios, ya que funciona)
             const response = await fetch(url);
             if (!response.ok) throw new Error(`No se pudo encontrar el archivo: ${url}`);
             const text = await response.text();
@@ -230,15 +226,12 @@
             }
         }
 
-        // Función para generar un avatar aleatorio
         function getAvatarUrl(userId) {
-            // Usamos el userId para generar un número pseudo-aleatorio consistente
-            // Esto asegura que cada jugador tenga el mismo avatar cada vez que carga la página
             let hash = 0;
             for (let i = 0; i < userId.length; i++) {
                 const char = userId.charCodeAt(i);
                 hash = ((hash<<5)-hash)+char;
-                hash |= 0; // Convert to 32bit integer
+                hash |= 0; 
             }
             const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1;
             return `peoncitos/peoncitos_${avatarIndex}.png`;
@@ -250,7 +243,6 @@
             const suggestionsDiv = document.getElementById('search-suggestions');
             suggestionsDiv.innerHTML = '';
 
-            // Solo mostrar sugerencias después de 3 letras
             if (query.length < 3) {
                 suggestionsDiv.classList.add('hidden');
                 return;
@@ -264,10 +256,16 @@
                 suggestionsDiv.classList.remove('hidden');
                 matchedUsers.forEach(user => {
                     const suggestion = document.createElement('div');
-                    suggestion.className = 'p-3 hover:bg-indigo-100 cursor-pointer border-b border-indigo-100 last:border-b-0 transition-colors';
-                    suggestion.textContent = `${user.name} (${user.userId})`;
-                    suggestion.dataset.userId = user.userId;
+                    suggestion.className = 'p-3 hover:bg-indigo-100 cursor-pointer border-b border-indigo-100 last:border-b-0 transition-colors flex justify-between';
+                    
+                    // Mostrar Nombre destacado
+                    suggestion.innerHTML = `
+                        <span class="font-bold text-gray-800">${user.name}</span>
+                        <span class="text-xs text-gray-400 self-center">${user.userId}</span>
+                    `;
+                    
                     suggestion.onclick = () => {
+                        // Al seleccionar, solo ponemos el NOMBRE en el input
                         document.getElementById(SEARCH_INPUT_ID).value = user.name;
                         suggestionsDiv.classList.add('hidden');
                         loadUserProfile(user.userId);
@@ -279,7 +277,6 @@
             }
         }
 
-        // Ocultar sugerencias al hacer clic fuera
         document.addEventListener('click', (e) => {
             const searchContainer = document.querySelector('.max-w-xl.mx-auto');
             const suggestionsDiv = document.getElementById('search-suggestions');
@@ -301,14 +298,13 @@
 
                 const globalGoals = goalsData.length > 0 ? goalsData[0] : {};
 
-                // Fusionar datos
                 const dataMap = {};
                 initialData.forEach(row => {
                     const userId = row['Lichess']?.toLowerCase();
                     if(userId) {
                         dataMap[userId] = {
                             userId: userId,
-                            name: row['Nombre'] || userId,
+                            name: row['Nombre'] || userId, // Prioriza la columna Nombre
                             initials: row,
                             goals: globalGoals
                         };
@@ -318,7 +314,6 @@
                 trackingData = Object.values(dataMap);
 
                 updateStatus('ready');
-                
                 document.getElementById(SEARCH_INPUT_ID).addEventListener('input', handleSearchInput);
 
             } catch (err) {
@@ -349,16 +344,21 @@
         }
 
         function createCardHTML(metric, liveData, user, hasCelebrationRef) {
-            // OBTENER Y CONVERTIR VALORES A NÚMEROS
             const initialVal = Number(user.initials[metric.csvKey]) || 0;
             const goalVal = Number(user.goals[metric.csvKey]) || 0;
             let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
+
+            // --- REGLA ESPECIAL: RATING 1500 = 0 ---
+            // Si el valor actual es exactamente 1500 y es una métrica de tipo rating, lo convertimos a 0
+            // Lichess usa 1500 como valor provisional por defecto.
+            if (metric.type === 'rating' && currentVal === 1500) {
+                currentVal = 0;
+            }
             
             let percent = 0;
             let distDescription = '';
             
             if (metric.type === 'rating') {
-                // Lógica de Rating (Progreso Directo)
                 const totalGoalDist = goalVal - initialVal;
                 const currentDist = currentVal - initialVal;
                 
@@ -367,30 +367,22 @@
                 } else if (currentVal >= goalVal && goalVal > 0) {
                     percent = 100; 
                 }
-                
                 distDescription = `Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)`;
 
             } else if (metric.type === 'count') {
-                // Lógica de Conteo (Trabajo Realizado)
                 const totalWorkNeeded = goalVal - initialVal;
                 const workDone = currentVal - initialVal;
 
                 if (totalWorkNeeded > 0) {
                     percent = (workDone / totalWorkNeeded) * 100;
                 } else if (workDone >= 0 && goalVal > 0) {
-                     // Si la meta ya se superó en la base, o si no hay meta incremental
                     percent = 100; 
                 }
-
-                distDescription = `Trabajo Realizado: ${Math.max(0, percent).toFixed(2)}% (${workDone} partidas/intentos completados de ${totalWorkNeeded} necesarios)`;
+                distDescription = `Trabajo Realizado: ${Math.max(0, percent).toFixed(2)}% (${workDone} completados de ${totalWorkNeeded})`;
             }
 
             let visualPercent = Math.max(0, Math.min(100, percent));
-            
-            if (percent > 0 && visualPercent > 0 && visualPercent < 5) {
-                visualPercent = 5;
-            }
-            
+            if (percent > 0 && visualPercent > 0 && visualPercent < 5) visualPercent = 5;
             if (percent >= 100) hasCelebrationRef.value = true;
 
             let barColorClass = 'bg-indigo-400';
@@ -425,38 +417,26 @@
         }
 
         function renderDashboard(user, liveData) {
-            // Header del Jugador
+            // Mostrar solo Nombre Completo
             document.getElementById('player-name').textContent = user.name;
             document.getElementById('player-link').href = `https://lichess.org/@/${user.userId}`;
             
-            // Avatar
             const avatarImg = document.getElementById('player-avatar');
             const customAvatarUrl = getAvatarUrl(user.userId);
-            
-            // Asignar el avatar del "peoncito" y un fallback
             avatarImg.src = customAvatarUrl;
             avatarImg.onerror = () => {
-                // Si la imagen del peoncito falla (no está subida), usa el avatar de lichess por defecto
                 avatarImg.src = 'https://lichess1.org/assets/images/missing_avatar.svg';
             };
 
-
             const zonesContainer = document.getElementById(ZONES_CONTAINER_ID);
-            zonesContainer.innerHTML = ''; // Limpiar
+            zonesContainer.innerHTML = ''; 
             
-            let hasCelebration = { value: false }; // Usamos un objeto para pasar por referencia
+            let hasCelebration = { value: false }; 
             let fullHtml = `<div class="space-y-10">`;
 
-            // 1. Agrupar métricas por Zonas
             const groupedMetrics = {
-                'Rendimiento en Vivo': {
-                    'Rayo Veloz': [], 
-                    'Ritmo Reflexivo': []
-                },
-                'Gimnasio Cerebral': {
-                    'Foco Profundo': [], 
-                    'Reacción Extrema': []
-                }
+                'Rendimiento en Vivo': { 'Rayo Veloz': [], 'Ritmo Reflexivo': [] },
+                'Gimnasio Cerebral': { 'Foco Profundo': [], 'Reacción Extrema': [] }
             };
             
             metricDefinitions.forEach(metric => {
@@ -465,20 +445,14 @@
                 }
             });
 
-            // 2. Renderizar Zonas y Sub-Zonas
             for (const [mainZoneTitle, subZones] of Object.entries(groupedMetrics)) {
-                // Definir color de borde de la zona principal
                 const mainZoneColor = mainZoneTitle === 'Rendimiento en Vivo' ? 'border-sky-400' : 'border-pink-400';
-
-                // Main Zone Header
                 fullHtml += `
                     <section class="bg-white p-6 rounded-3xl shadow-xl border-t-8 ${mainZoneColor}">
                         <h3 class="text-3xl font-extrabold text-center text-purple-700 mb-6 py-2 border-b-2 border-purple-200">${mainZoneTitle}</h3>
                         <div class="space-y-8">
                 `;
-
                 for (const [subZoneTitle, metrics] of Object.entries(subZones)) {
-                    // Sub-Zone Header
                     fullHtml += `
                         <div>
                             <h4 class="text-xl font-bold text-indigo-600 mb-4 ml-2 flex items-center gap-2 border-b border-indigo-100 pb-1">
@@ -486,54 +460,31 @@
                             </h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     `;
-                    
-                    // Metric Cards
                     metrics.forEach(metric => {
                         fullHtml += createCardHTML(metric, liveData, user, hasCelebration);
                     });
-
-                    fullHtml += `
-                            </div>
-                        </div>
-                    `;
+                    fullHtml += `</div></div>`;
                 }
-                
-                fullHtml += `
-                        </div>
-                    </section>
-                `;
+                fullHtml += `</div></section>`;
             }
 
             fullHtml += `</div>`;
             zonesContainer.innerHTML = fullHtml;
 
-            // 3. Activar Animación de las Barras
             const allBars = zonesContainer.querySelectorAll('[data-percent]');
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     allBars.forEach(bar => {
-                        const percent = bar.getAttribute('data-percent');
-                        bar.style.width = `${percent}%`;
+                        bar.style.width = `${bar.getAttribute('data-percent')}%`;
                     });
                 });
             });
 
-
-            // 4. Celebración con Confeti
-            if (hasCelebration.value) {
-                if (typeof confetti !== 'undefined') {
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
-                } else {
-                    console.warn("La función confetti no está definida. No se mostrará la animación de celebración.");
-                }
+            if (hasCelebration.value && typeof confetti !== 'undefined') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             }
         }
 
-        // Iniciar App cuando carga
         document.addEventListener('DOMContentLoaded', initApp);
 
     </script>
