@@ -1,132 +1,413 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <!-- Codificación de caracteres -->
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escuela Nacional de Ajedrez Emanuel Lasker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- VARIABLES Y RESET --- */
+        :root {
+            --bg-color: #fdfbf7;
+            --primary: #8e9aaf;
+            --accent: #cbc0d3;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-mobile: rgba(255, 255, 255, 0.95); /* Más opaco para el menú móvil */
+            --text-dark: #2b2d42;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
 
-  <!-- Adaptación a móviles y tablets -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <!-- Idioma del contenido -->
-  <meta http-equiv="Content-Language" content="es">
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
 
-  <!-- Control de indexación (SEO) -->
-  <meta name="robots" content="index, follow">
+        /* --- UTILIDADES GLASS --- */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
 
-  <!-- Autor -->
-  <meta name="author" content="José Carlos Alvarado Garzón - Club ENAEL">
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
 
-  <!-- Canonical: versión oficial del sitio -->
-  <link rel="canonical" href="https://enael.com.mx">
+        /* --- NAV MODERNO & RESPONSIVE --- */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
 
-  <!-- Título principal (SEO y navegadores) -->
-  <title>Academia de Ajedrez Online | Aprende con la Escuela Nacional de Ajedrez Emanuel Lasker</title>
+        .logo {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 1001; /* Encima del menú móvil */
+        }
 
-  <!-- Descripción (máx. ~160 caracteres) -->
-  <meta name="description" content="Aprende ajedrez online con clases en vivo, torneos virtuales y recursos exclusivos para todas las edades y niveles.">
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
 
-  <!-- Palabras clave (menos importantes hoy, pero útiles para buscadores menores) -->
-  <meta name="keywords" content="enael, ajedrez, Lasker, tehuacan, ajedrez tehuacan,aprender ajedrez, ajedrez online, clases de ajedrez, academia de ajedrez, torneos de ajedrez, estrategia, táctica, Escuela Nacional de Ajedrez Emanuel Lasker">
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s;
+        }
 
-  <!-- Open Graph (para compartir en redes sociales como Facebook, WhatsApp) -->
-  <meta property="og:title" content="Academia de Ajedrez Online | Escuela Nacional de Ajedrez Emanuel Lasker">
-  <meta property="og:description" content="Clases online con entrenadores expertos, torneos virtuales y recursos exclusivos para todos los niveles.">
-  <meta property="og:image" content="https://enael.com.mx/img/og-image-blue.jpg">
-  <meta property="og:url" content="https://enael.com.mx">
-  <meta property="og:type" content="website">
-  <meta property="fb:app_id" content="">
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--text-dark);
+            transition: width 0.3s ease;
+        }
 
-  <!-- Twitter Card (para que se vea atractivo al compartir en X/Twitter) -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Academia de Ajedrez Online | Escuela Nacional de Ajedrez Emanuel Lasker">
-  <meta name="twitter:description" content="Clases online con entrenadores expertos, torneos virtuales y recursos exclusivos para todos los niveles.">
-  <meta name="twitter:image" content="https://enael.com.mx/img/og-image-blue.jpg">
+        .nav-links a:hover::after { width: 100%; }
 
-  <!-- Hoja de estilos principal -->
-  <link rel="stylesheet" href="css/styles.css">
+        /* --- HAMBURGER MENU (SANDWICH) --- */
+        .hamburger {
+            display: none; /* Oculto en escritorio */
+            cursor: pointer;
+            z-index: 1001; /* Encima del menú desplegable */
+        }
 
-  <!-- Favicon -->
-  <link rel="icon" href="img/favicon.png" type="image/png">
+        .bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            margin: 5px auto;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            background-color: var(--text-dark);
+            border-radius: 3px;
+        }
+
+        /* --- HERO SECTION --- */
+        #inicio {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            padding-top: 80px; /* Compensar nav fijo */
+        }
+
+        .hero-content { max-width: 800px; padding: 3rem; }
+
+        .hero-title {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            background: -webkit-linear-gradient(#2b2d42, #8e9aaf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.8; }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid white;
+            color: var(--text-dark);
+            font-weight: 800;
+            text-decoration: none;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+        }
+
+        .cta-button:hover {
+            background: white;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.6);
+        }
+
+        /* --- NOTICIAS --- */
+        #academia { padding: 4rem 10%; }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--text-dark); }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .news-card { padding: 2rem; transition: transform 0.3s; }
+        .news-card:hover { transform: translateY(-10px); }
+        .news-date { font-size: 0.8rem; color: #666; margin-bottom: 0.5rem; display: block; }
+
+        /* --- GALERÍA (Nosotros) --- */
+        #nosotros {
+            padding: 6rem 0;
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gallery-stack {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            margin-top: 2rem;
+            cursor: pointer;
+        }
+
+        .stack-photo {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 4px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: all 0.5s ease;
+        }
+
+        .stack-photo:nth-child(1) { transform: rotate(-10deg) translateX(-40px); z-index: 1; }
+        .stack-photo:nth-child(2) { transform: rotate(0deg); z-index: 2; }
+        .stack-photo:nth-child(3) { transform: rotate(10deg) translateX(40px); z-index: 3; }
+
+        .gallery-stack:hover .stack-photo:nth-child(1) { transform: rotate(-15deg) translateX(-60px); }
+        .gallery-stack:hover .stack-photo:nth-child(3) { transform: rotate(15deg) translateX(60px); }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center; align-items: center;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 90%; max-height: 80vh; border-radius: 4px; }
+        .close-lightbox { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer; }
+
+        /* --- CONTACTO & PEONCITOS --- */
+        #contacto {
+            padding: 4rem 10%;
+            text-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            margin-top: 4rem;
+        }
+        .contact-content { max-width: 600px; margin: 0 auto 3rem auto; }
+        .social-links { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .social-btn {
+            padding: 10px 20px; background: white; border-radius: 8px;
+            text-decoration: none; color: var(--text-dark); font-weight: bold; transition: 0.3s;
+        }
+        .social-btn:hover { background: var(--primary); color: white; }
+        .chess-decoration { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 2rem; padding-bottom: 2rem; opacity: 0.8; }
+        .chess-piece { height: 60px; width: auto; transition: transform 0.3s ease; }
+        .chess-piece:hover { transform: translateY(-10px) rotate(10deg); }
+
+        /* --- ESTILOS RESPONSIVE & MENU MÓVIL --- */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            
+            /* Botón Sandwich visible */
+            .hamburger { display: block; }
+
+            /* Animación del Sandwich a X */
+            .hamburger.active .bar:nth-child(2) { opacity: 0; }
+            .hamburger.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+            .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+            /* Menú desplegable móvil */
+            .nav-links {
+                position: fixed;
+                left: -100%; /* Oculto a la izquierda */
+                top: 0;
+                flex-direction: column;
+                background: var(--glass-mobile); /* Fondo casi opaco */
+                backdrop-filter: blur(20px); /* Desenfoque fuerte */
+                width: 100%;
+                height: 100vh;
+                text-align: center;
+                transition: 0.4s;
+                justify-content: center;
+                gap: 3rem;
+                padding-top: 60px;
+                box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+            }
+
+            .nav-links.active {
+                left: 0; /* Se desliza a la vista */
+            }
+
+            .nav-links li a {
+                font-size: 1.5rem;
+                font-weight: 700;
+            }
+
+            /* Ajuste de galería en móvil */
+            .stack-photo:nth-child(1) { transform: rotate(-5deg) translateX(-20px); }
+            .stack-photo:nth-child(3) { transform: rotate(5deg) translateX(20px); }
+        }
+    </style>
 </head>
-
-
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <img src="img/logo.png" alt="Logo del Club de Ajedrez">
-            </div>
-            <ul>
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#nosotros">Nosotros</a></li>
-                <li><a href="./academia/index.html">Academia</a></li>
-                <li><a href="./tournament/">Torneos</a></li>
 
-
-              </ul>
-        </nav>
-    </header>
-
-    <main>
-        <section id="inicio" class="hero">
-            <div class="hero-content">
-                <h1>¡Torneo Oficial de Ajedrez Rápido!</h1>
-                <h1>Emanuel Lasker F3</h1>
-                <p>¡Participa y gana!</p>
-                <a href="https://forms.gle/z2CjZLUGcZbVwfsv6" class="cta-button">¡Inscríbete Ya!</a>
-            </div>
-        </section>
-
-        <section id="nosotros" class="about">
-  <div class="section-content">
-    <h2>Quiénes Somos</h2>
-    <p>Somos una comunidad apasionada por el ajedrez, dedicada a enseñar, aprender y disfrutar de este milenario juego de estrategia.</p>
-    <br>
-
-    <!-- Carrusel -->
-    <div class="carousel">
-      <button class="prev">&#10094;</button>
-      
-      <div class="carousel-images">
-        <img src="img/grupo1.jpg" alt="Miembros del Club 1">
-        <img src="img/grupo2.jpg" alt="Miembros del Club 2">
-        <img src="img/grupo3.jpg" alt="Miembros del Club 3">
-        <img src="img/grupo4.jpg" alt="Miembros del Club 4">
-        <img src="img/grupo5.jpg" alt="Miembros del Club 5">
-        <img src="img/grupo6.jpg" alt="Miembros del Club 6">
-      </div>
-      
-      <button class="next">&#10095;</button>
-      
-      <!-- Puntos indicadores -->
-      <div class="dots"></div>
-    </div>
-  </div>
-</section>
-
-        <section id="contacto" class="contact">
-                            <h2>Contacto</h2>
-            <div class="section-content">
-            <a href="https://wa.me/522382184781?text=Hola%20quiero%20más%20información" target="_blank">
-              <button style="background:#25D366;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;">
-                💬 Enviar WhatsApp
-              </button>
-            </a>
-            </div>
-        </section>
-
-    </main>
-
-    <footer>
-          <p>Síguenos en redes sociales:</p>
-        <div class="social-links">
-            <a href="https://www.facebook.com/AjedrezEmanuelLasker">Facebook</a>
-            <a href="https://www.instagram.com/clublasker/">Instagram</a>
-            <a href="https://www.facebook.com/AjedrezEmanuelLasker/photos">Galeria en fb</a>
+    <nav class="glass">
+        <div class="logo">Emanuel Lasker</div>
+        
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
         </div>
-        <p>&copy; 2025 Escuela Nacional de Ajedrez Emanuel Lasker. Todos los derechos reservados.</p>
-    </footer>
-<script src="js/carrusel.js"></script>
+
+        <ul class="nav-links">
+            <li><a href="#inicio" class="nav-item">Inicio</a></li>
+            <li><a href="#nosotros" class="nav-item">Nosotros</a></li>
+            <li><a href="#academia" class="nav-item">Academia</a></li>
+            <li><a href="#torneos" class="nav-item">Torneos</a></li>
+        </ul>
+    </nav>
+
+    <section id="inicio">
+        <div class="hero-content glass">
+            <h1 class="hero-title">Domina el Tablero</h1>
+            <p class="hero-subtitle">Escuela Nacional de Ajedrez Emanuel Lasker. Estrategia y excelencia.</p>
+            <a href="#academia" class="cta-button">Inscríbete Ahora</a>
+        </div>
+    </section>
+
+    <section id="academia">
+        <h2 class="section-title">Actualidad Lasker</h2>
+        <div class="news-grid">
+            <article class="news-card glass">
+                <span class="news-date">01 Dic, 2023</span>
+                <h3>Inscripciones Abiertas</h3>
+                <p>Nuevo ciclo escolar para todos los niveles.</p>
+            </article>
+            <article class="news-card glass">
+                <span class="news-date">28 Nov, 2023</span>
+                <h3>Resultados Torneo</h3>
+                <p>Consulta la lista de ganadores del torneo mensual.</p>
+            </article>
+        </div>
+    </section>
+
+    <section id="nosotros">
+        <h2 class="section-title">Nuestra Pasión</h2>
+        <p style="text-align: center; margin-bottom: 2rem;">Haz clic para explorar</p>
+        <div class="gallery-stack" id="galleryTrigger">
+            <img src="./img/landing_1.jpg" alt="Club 1" class="stack-photo" onerror="this.src='https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=600'">
+            <img src="./img/landing_2.jpg" alt="Club 2" class="stack-photo" onerror="this.src='https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=600'">
+            <img src="./img/landing_3.jpg" alt="Club 3" class="stack-photo" onerror="this.src='https://images.unsplash.com/photo-1528819622765-d6bcf132f793?w=600'">
+        </div>
+    </section>
+
+    <section id="contacto">
+        <div class="contact-content">
+            <h2>Contáctanos</h2>
+            <div class="social-links">
+                <a href="#" class="social-btn">Facebook</a>
+                <a href="#" class="social-btn">Instagram</a>
+                <a href="#" class="social-btn">WhatsApp</a>
+            </div>
+        </div>
+        <div class="chess-decoration" id="peonesContainer"></div>
+        <p style="font-size: 0.8rem; margin-top: 2rem;">© 2023 Escuela Nacional de Ajedrez Emanuel Lasker</p>
+    </section>
+
+    <div class="lightbox" id="mainLightbox">
+        <span class="close-lightbox">&times;</span>
+        <img src="" alt="Full" id="lightboxImg">
+    </div>
+
+    <script>
+        // 1. MENU HAMBURGUESA LOGIC
+        const hamburger = document.querySelector(".hamburger");
+        const navMenu = document.querySelector(".nav-links");
+        const navLinks = document.querySelectorAll(".nav-item");
+
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            navMenu.classList.toggle("active");
+        });
+
+        // Cerrar menú al hacer clic en un enlace
+        navLinks.forEach(n => n.addEventListener("click", () => {
+            hamburger.classList.remove("active");
+            navMenu.classList.remove("active");
+        }));
+
+        // 2. GALERÍA & LIGHTBOX
+        const galleryTrigger = document.getElementById('galleryTrigger');
+        const lightbox = document.getElementById('mainLightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const closeBtn = document.querySelector('.close-lightbox');
+
+        galleryTrigger.addEventListener('click', () => {
+            const firstImageSrc = galleryTrigger.querySelector('img:nth-child(2)').src; 
+            lightboxImg.src = firstImageSrc;
+            lightbox.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => lightbox.classList.remove('active'));
+        lightbox.addEventListener('click', (e) => { if(e.target === lightbox) lightbox.classList.remove('active'); });
+
+        // 3. GENERADOR PEONES
+        const peonesContainer = document.getElementById('peonesContainer');
+        function addPiece(folder, prefix, index) {
+            const img = document.createElement('img');
+            img.src = `./img/${folder}/${prefix}_${index}.png`;
+            img.className = 'chess-piece';
+            img.onerror = function() { this.style.display = 'none'; };
+            peonesContainer.appendChild(img);
+        }
+        for (let i = 1; i <= 5; i++) {
+            addPiece('peoncitos', 'peoncitos', i);
+            addPiece('peoncitas', 'peoncitas', i);
+        }
+
+        // 4. NAV SCROLL EFFECT
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.padding = '0.5rem 2rem';
+                nav.style.background = 'rgba(255,255,255, 0.7)';
+            } else {
+                nav.style.padding = '1rem 2rem';
+                nav.style.background = 'rgba(255,255,255, 0.25)';
+            }
+        });
+    </script>
 </body>
 </html>
