@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Estadísticas Lichess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-blue-700 mb-2"><i class="fa-solid fa-chess-knight"></i> Analizador Lichess</h1>
+            <p class="text-gray-600">Sube tus archivos CSV para obtener estadísticas masivas de participación.</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Input Torneos -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition">
+                    <label class="block font-bold text-lg mb-2 text-gray-700">1. CSV de Torneos</label>
+                    <p class="text-xs text-gray-500 mb-4">Formato: ID Torneo, Nombre (Sin cabecera)</p>
+                    <input type="file" id="tournamentsInfo" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                </div>
+
+                <!-- Input Usuarios -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition">
+                    <label class="block font-bold text-lg mb-2 text-gray-700">2. CSV de Usuarios</label>
+                    <p class="text-xs text-gray-500 mb-4">Formato: nombre, lichess (Con cabecera)</p>
+                    <input type="file" id="usersInfo" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center">
+                <button onclick="processData()" id="processBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span id="btnText">Procesar Datos</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Log / Progress Area -->
+        <div id="statusArea" class="hidden bg-white rounded-lg shadow p-4 mb-6">
+            <h3 class="font-bold text-lg mb-2">Estado del Proceso:</h3>
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-4 dark:bg-gray-200">
+                <div id="progressBar" class="bg-blue-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div id="logbox" class="h-32 overflow-y-auto bg-gray-900 text-green-400 font-mono text-sm p-3 rounded border border-gray-700">
+                > Esperando inicio...
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsArea" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Resultados Generados</h2>
+                <button onclick="downloadCSV()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i> Descargar CSV
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario Lichess</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Torneos</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Puntos Totales</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Partidas</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Perf. Promedio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Rows added via JS -->
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">* La tabla muestra una vista previa. Descarga el CSV para ver el detalle torneo por torneo.</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Global storage for processed data
+        let finalData = [];
+        let tournamentMap = {}; // ID -> Name
+
+        // Utility: Log message
+        function log(msg) {
+            const box = document.getElementById('logbox');
+            const p = document.createElement('div');
+            p.textContent = `> ${msg}`;
+            box.appendChild(p);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Utility: Read CSV file
+        function readCSV(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsText(file);
+            });
+        }
+
+        // Utility: Sleep to respect rate limits
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Main Process Function
+        async function processData() {
+            const tourneyInput = document.getElementById('tournamentsInfo').files[0];
+            const usersInput = document.getElementById('usersInfo').files[0];
+            
+            if (!tourneyInput || !usersInput) {
+                alert("Por favor carga ambos archivos CSV.");
+                return;
+            }
+
+            // UI Reset
+            document.getElementById('statusArea').classList.remove('hidden');
+            document.getElementById('resultsArea').classList.add('hidden');
+            document.getElementById('processBtn').disabled = true;
+            document.getElementById('btnText').innerHTML = '<span class="loader border-t-white border-2 w-4 h-4 mr-2"></span> Procesando...';
+            document.getElementById('logbox').innerHTML = '';
+            document.getElementById('progressBar').style.width = '0%';
+
+            try {
+                // 1. Parse Users
+                log("Leyendo archivo de usuarios...");
+                const usersText = await readCSV(usersInput);
+                const usersRows = usersText.split(/\r?\n/);
+                
+                // Map: lowercase_lichess_username -> { name: string, real_username: string, stats... }
+                let usersMap = {};
+                
+                // Skip header (i=1), assuming header exists as requested
+                for (let i = 1; i < usersRows.length; i++) {
+                    const row = usersRows[i].trim();
+                    if (!row) continue;
+                    
+                    // Simple split by comma (doesn't handle commas inside quotes, simple CSV assumed)
+                    const cols = row.split(',');
+                    if (cols.length < 2) continue;
+
+                    const name = cols[0].trim();
+                    const lichessUser = cols[1].trim();
+
+                    if (lichessUser) {
+                        usersMap[lichessUser.toLowerCase()] = {
+                            realName: name,
+                            lichessHandle: lichessUser,
+                            totalPoints: 0,
+                            totalGames: 0,
+                            tournamentsPlayed: 0,
+                            performances: [], // To calculate average
+                            tournamentDetails: [] // String details
+                        };
+                    }
+                }
+                log(`Usuarios cargados: ${Object.keys(usersMap).length}`);
+
+                // 2. Parse Tournaments
+                log("Leyendo archivo de torneos...");
+                const tourneyText = await readCSV(tourneyInput);
+                const tourneyRows = tourneyText.split(/\r?\n/);
+                let tournaments = [];
+
+                // No header in tournaments file as requested
+                for (let row of tourneyRows) {
+                    row = row.trim();
+                    if (!row) continue;
+                    const cols = row.split(',');
+                    // Assuming Col 0 is ID, Col 1 is Name
+                    if (cols.length >= 1) {
+                        const id = cols[0].trim();
+                        // If there is a name, use it, otherwise use ID
+                        const name = cols.length > 1 ? cols.slice(1).join(',').trim() : id; 
+                        tournaments.push({ id, name });
+                        tournamentMap[id] = name;
+                    }
+                }
+                log(`Torneos encontrados: ${tournaments.length}`);
+
+                // 3. Process each tournament via Lichess API
+                let processedCount = 0;
+                
+                for (let t of tournaments) {
+                    log(`Consultando torneo: ${t.name} (${t.id})...`);
+                    
+                    try {
+                        // Using fetch with NDJSON support manually
+                        // Lichess API: /api/tournament/{id}/results
+                        // This returns Newline Delimited JSON
+                        const response = await fetch(`https://lichess.org/api/tournament/${t.id}/results`);
+                        
+                        if (!response.ok) {
+                            if (response.status === 404) log(`! Torneo no encontrado: ${t.id}`);
+                            else log(`! Error API ${response.status} en ${t.id}`);
+                            continue;
+                        }
+
+                        const textData = await response.text();
+                        // Split NDJSON by newline
+                        const lines = textData.split('\n');
+
+                        for (let line of lines) {
+                            if (!line.trim()) continue;
+                            try {
+                                const playerResult = JSON.parse(line);
+                                const username = playerResult.username.toLowerCase();
+
+                                // Check if this player is in our tracking list
+                                if (usersMap[username]) {
+                                    const user = usersMap[username];
+                                    
+                                    // Extract Stats
+                                    const points = playerResult.score || 0;
+                                    const rank = playerResult.rank || 0;
+                                    const perf = playerResult.performance || 0;
+                                    
+                                    // Games count logic: 'sheet' usually contains the game string, or we can infer it
+                                    // Note: Lichess API result object: { rank, score, rating, username, performance, title }
+                                    // Usually doesn't explicit game count in simple view, 
+                                    // but if 'sheet' exists (arena), calculate length. If swiss, different format.
+                                    // Let's look for known fields. For reliability, we might just track points/rank 
+                                    // unless we want to parse the 'sheet' string (e.g. "1010").
+                                    // Assuming Arena for 'sheet'.
+                                    let games = 0;
+                                    if (playerResult.sheet) {
+                                        // Sheet format is like "1002" (win, loss, loss, draw? not exact mapping but length is games)
+                                        // Actually: 2 = win, 1 = draw, 0 = loss.
+                                        games = playerResult.sheet.length; // Approximate games played
+                                    }
+
+                                    // Update User Stats
+                                    user.totalPoints += points;
+                                    user.tournamentsPlayed += 1;
+                                    user.totalGames += games;
+                                    if (perf > 0) user.performances.push(perf);
+
+                                    // Store detail
+                                    user.tournamentDetails.push(`[${t.name}: #${rank} (${points}pts)]`);
+                                }
+                            } catch (e) {
+                                // Ignore json parse errors for empty lines
+                            }
+                        }
+
+                    } catch (err) {
+                        log(`Error de red con torneo ${t.id}: ${err.message}`);
+                    }
+
+                    processedCount++;
+                    const percent = Math.round((processedCount / tournaments.length) * 100);
+                    document.getElementById('progressBar').style.width = `${percent}%`;
+                    
+                    // Respect API Rate limits (wait 1 second between calls)
+                    await sleep(1000);
+                }
+
+                // 4. Finalize Data
+                log("Calculando promedios finales...");
+                finalData = Object.values(usersMap).map(u => {
+                    const avgPerf = u.performances.length > 0 
+                        ? Math.round(u.performances.reduce((a, b) => a + b, 0) / u.performances.length) 
+                        : 0;
+                    
+                    return {
+                        realName: u.realName,
+                        lichessHandle: u.lichessHandle,
+                        tournaments: u.tournamentsPlayed,
+                        points: u.totalPoints,
+                        games: u.totalGames,
+                        avgPerf: avgPerf,
+                        details: u.tournamentDetails.join('; ')
+                    };
+                });
+
+                // Sort by total points (descending)
+                finalData.sort((a, b) => b.points - a.points);
+
+                renderTable();
+                document.getElementById('resultsArea').classList.remove('hidden');
+                log("¡Proceso completado!");
+
+            } catch (error) {
+                console.error(error);
+                log(`ERROR FATAL: ${error.message}`);
+                alert("Ocurrió un error. Revisa el log para más detalles.");
+            } finally {
+                document.getElementById('processBtn').disabled = false;
+                document.getElementById('btnText').textContent = 'Procesar Datos';
+            }
+        }
+
+        // Render HTML Table (Top 50 preview)
+        function renderTable() {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+
+            finalData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row.realName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
+                        <a href="https://lichess.org/@/${row.lichessHandle}" target="_blank">${row.lichessHandle}</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">${row.tournaments}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center font-bold text-green-600">${row.points}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">${row.games}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">${row.avgPerf || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Generate and Download CSV
+        function downloadCSV() {
+            if (finalData.length === 0) return;
+
+            // Header
+            let csvContent = "Nombre Real,Usuario Lichess,Torneos Jugados,Puntos Totales,Partidas Totales,Performance Promedio,Detalle Torneos\n";
+
+            // Rows
+            finalData.forEach(row => {
+                // Escape quotes in details if necessary
+                const detailsSafe = `"${row.details.replace(/"/g, '""')}"`;
+                const line = `${row.realName},${row.lichessHandle},${row.tournaments},${row.points},${row.games},${row.avgPerf},${detailsSafe}`;
+                csvContent += line + "\n";
+            });
+
+            // Blob creation
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "estadisticas_torneos_lichess.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
