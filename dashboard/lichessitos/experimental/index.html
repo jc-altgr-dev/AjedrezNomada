@@ -264,11 +264,12 @@
         window.toggleZone = function(zoneId) {
             const content = document.getElementById(`content-${zoneId}`);
             const icon = document.getElementById(`icon-${zoneId}`);
+            const header = document.getElementById(`header-${zoneId}`);
             
             // Toggle visibility
             content.classList.toggle('hidden');
             
-            // Rotar icono
+            // Rotar icono y Scroll
             if (content.classList.contains('hidden')) {
                 icon.classList.remove('rotate-180');
             } else {
@@ -283,6 +284,11 @@
                         });
                     });
                 });
+
+                // SCROLL SUAVE AL TÍTULO
+                setTimeout(() => {
+                    header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
             }
         };
 
@@ -498,7 +504,7 @@
                     <section class="bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 ${mainZoneColor}">
                         
                         <!-- Header del Acordeón -->
-                        <div onclick="toggleZone('${safeZoneId}')" class="zone-header p-6 flex justify-between items-center bg-white border-b-2 border-gray-100 hover:bg-gray-50">
+                        <div id="header-${safeZoneId}" onclick="toggleZone('${safeZoneId}')" class="zone-header p-6 flex justify-between items-center bg-white border-b-2 border-gray-100 hover:bg-gray-50">
                             <h3 class="text-2xl sm:text-3xl font-extrabold text-purple-700 flex items-center gap-3">
                                 <span>${mainZoneTitle === 'Rendimiento en Vivo' ? '⚡' : '🧠'}</span>
                                 ${mainZoneTitle}
