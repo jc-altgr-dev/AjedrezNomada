@@ -20,7 +20,7 @@
             background-position: 0 0, 30px 30px;
         }
 
-    .logo-container {
+   .logo-container {
     width: 200px;          /* tamaño deseado, no el real del archivo */
     margin: 0 auto;        /* centrado horizontal */
   }
@@ -104,29 +104,32 @@
                 </h1>
                 <p class="text-lg text-indigo-400 mt-2 font-medium">¡Sube de nivel completando tus metas!
 <div class="logo-container">
-  <img src="logo.png" alt="Logo">
-</div></p>
+  <img src="logo.webp" alt="Logo">
+</div>
+</p>
             </div>
         </header>
 
-        <main class="space-y-8">
-            <!-- Buscador de Usuario (Autocomplete) -->
-            <div class="max-w-xl mx-auto bg-white p-6 rounded-3xl shadow-lg border-b-8 border-indigo-200">
-                <label for="user-search" class="block text-xl font-bold text-center text-indigo-800 mb-4">
-                    🔍 Encuentra a tu Jugador (Mínimo 3 letras)
-                </label>
-                <div class="relative">
-                    <input
-                        type="text"
-                        id="user-search"
-                        placeholder="Escribe el usuario de Lichess..."
-                        class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 appearance-none transition-colors"
-                    >
-                    <div id="search-suggestions" class="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto hidden">
-                        <!-- Suggestions go here -->
-                    </div>
+        <!-- Buscador de Usuario (Autocomplete) -->
+        <div class="max-w-xl mx-auto bg-white p-6 rounded-3xl shadow-lg border-b-8 border-indigo-200">
+            <label for="user-search" class="block text-xl font-bold text-center text-indigo-800 mb-4">
+                🔍 Encuentra a tu Jugador (Mínimo 3 letras)
+            </label>
+            <div class="relative">
+                <input
+                    type="text"
+                    id="user-search"
+                    placeholder="Escribe el usuario de Lichess..."
+                    class="block w-full pl-4 pr-10 py-3 text-lg font-semibold text-gray-700 bg-indigo-50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 appearance-none transition-colors"
+                >
+                <div id="search-suggestions" class="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto hidden">
+                    <!-- Suggestions go here -->
                 </div>
             </div>
+        </div>
+
+        <main class="space-y-8">
+            
 
             <!-- Panel de Estado -->
             <div id="status-container" class="hidden max-w-2xl mx-auto"></div>
@@ -281,7 +284,8 @@
                 hash = ((hash<<5)-hash)+char;
                 hash |= 0; 
             }
-            const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1;
+            // Usar TOTAL_AVATARS para el cálculo
+            const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1; 
             // Estructura de carpetas según género
             const folder = (gender === 'f') ? 'peoncitas' : 'peoncitos';
             const prefix = (gender === 'f') ? 'peoncitas' : 'peoncitos';
@@ -463,25 +467,28 @@
         }
 
         function createCardHTML(metric, liveData, user, hasCelebrationRef) {
+            // Valores del CSV (para display contextual)
             const initialVal = Number(user.initials[metric.csvKey]) || 0;
-            // Para Rating: Goal es absoluto. Para Counts: Goal es Incremento.
             const goalValFromCSV = Number(user.goals[metric.csvKey]) || 0;
             
+            // Valor actual de Lichess
             let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
-            // Regla Rating 1500 -> 0
+            // Regla Rating 1500 -> 0 (Provisional)
             if (metric.type === 'rating' && currentVal === 1500) currentVal = 0;
 
             let percent = 0;
             let displayHTML = '';
             let isFrozen = false;
             let barTitle = '';
+            
+            // Valor de meta para el cálculo (si no hay meta, se usa la base para evitar división por cero)
+            const effectiveGoalForCalc = Math.max(goalValFromCSV, 1); 
 
-            // --- Lógica Rating ---
+            // --- Lógica Rating (Rating o Score de Puzzle/Storm/Racer) ---
             if (metric.type === 'rating') {
-                // Verificar actividad mínima
+                // Verificar actividad mínima para descongelar
                 let activityCount = 0;
                 if (metric.relatedCountKey) {
-                    // Buscamos la definición de la métrica relacionada
                     const countMetricDef = metricDefinitions.find(m => m.id === metric.relatedCountKey);
                     if (countMetricDef) {
                         const currentActivityTotal = Number(getNestedValue(liveData, countMetricDef.apiPath)) || 0;
@@ -494,12 +501,16 @@
                     isFrozen = true;
                 }
 
-                // Cálculo Porcentual: (Actual / Meta Absoluta)
-                if (goalValFromCSV > 0) {
-                    percent = (currentVal / goalValFromCSV) * 100;
+                // *** CAMBIO CLAVE AQUÍ: El progreso se calcula de 0 a la meta final ***
+                // Progreso = (Valor Actual / Meta Final) * 100
+                if (effectiveGoalForCalc > 0) {
+                    percent = (currentVal / effectiveGoalForCalc) * 100;
+                } else {
+                    // Si no hay meta (effectiveGoalForCalc = 1), y currentVal > 0, se considera 100%
+                    percent = currentVal > 0 ? 100 : 0; 
                 }
                 
-                // Display Diferencia
+                // Display Diferencia (vs. la base inicial, NO 0)
                 const diff = currentVal - initialVal;
                 const diffColor = diff >= 0 ? 'text-green-500' : 'text-red-500';
                 const diffSign = diff >= 0 ? '+' : '';
@@ -510,11 +521,11 @@
                 `;
                 
                 barTitle = isFrozen 
-                    ? `Progreso congelado: Necesitas jugar ${MIN_ACTIVITY_TO_UNFREEZE - activityCount} partidas más.` 
-                    : `Rating Actual: ${currentVal} / Meta: ${goalValFromCSV}`;
+                    ? `Progreso congelado: Necesitas jugar ${Math.max(0, MIN_ACTIVITY_TO_UNFREEZE - activityCount)} partidas/intentos más.` 
+                    : `Rating Actual: ${currentVal} (Meta: ${goalValFromCSV})`;
 
             } 
-            // --- Lógica Counts/Attempts ---
+            // --- Lógica Counts/Attempts (Partidas o Intentos) (Sin Cambios) ---
             else if (metric.type === 'count') {
                 // Calculation: (Work Done / Target Increment)
                 const workDone = Math.max(0, currentVal - initialVal);
@@ -528,19 +539,20 @@
 
                 // Display Diff con colores semáforo
                 let diffColor = 'text-red-500';
-                if (workDone >= 50) diffColor = 'text-green-600';
+                if (workDone >= targetIncrement) diffColor = 'text-green-600';
                 else if (workDone > 0) diffColor = 'text-orange-500';
                 
                 displayHTML = `
                     <span class="text-2xl font-bold text-gray-800">${currentVal}</span>
-                    <span class="text-xs font-bold ${diffColor} ml-1">(+${workDone})</span>
+                    <span class="text-xs font-bold ${diffColor} ml-1">(${workDone > 0 ? '+' : ''}${workDone})</span>
                 `;
                 
                 barTitle = `Trabajo realizado: ${workDone} de ${targetIncrement} requeridos.`;
             }
 
             let visualPercent = Math.max(0, Math.min(100, percent));
-            if (!isFrozen && percent > 0 && visualPercent < 5) visualPercent = 5;
+            // Asegura que una barra con progreso > 0 se muestre
+            if (!isFrozen && percent > 0 && visualPercent < 5) visualPercent = 5; 
             if (!isFrozen && percent >= 100) hasCelebrationRef.value = true;
 
             let barColorClass = 'bg-indigo-400';
@@ -550,22 +562,30 @@
             // Si está congelado, visualmente lleno pero con estilo frozen
             if (isFrozen) {
                 barColorClass = 'xp-bar-frozen';
-                visualPercent = 100; // Llenamos la barra para que se note el efecto hielo
+                visualPercent = 100; 
             }
 
+            // --- HTML Modificado para incluir Inicio y Meta ---
             return `
                 <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme} relative overflow-hidden">
                     <div class="flex items-center gap-3 mb-2">
                         <span class="text-2xl filter drop-shadow-sm">${metric.emoji}</span>
                         <h4 class="font-bold text-gray-700 text-base flex-grow">${metric.name}</h4>
                         ${(!isFrozen && percent >= 100) ? '<span class="animate-bounce text-xl">🏆</span>' : ''}
-                        ${isFrozen ? '<span class="text-xl" title="Necesitas más actividad">❄️</span>' : ''}
+                        ${isFrozen ? '<span class="text-xl" title="Necesitas más actividad para ver tu progreso.">❄️</span>' : ''}
                     </div>
 
+                    <!-- NUEVOS VALORES DE CONTEXTO (BASE Y META) -->
                     <div class="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
-                        <!-- Etiquetas de rango visual -->
-                        <span>0</span>
-                        <span>${metric.type === 'count' ? '+' + goalValFromCSV : goalValFromCSV}</span>
+                        <span class="text-indigo-500">
+                            Inicio: <span class="text-gray-600">${initialVal}</span>
+                        </span>
+                        ${goalValFromCSV > 0 ? 
+                            `<span class="text-indigo-500">
+                                Meta: <span class="text-gray-600">${metric.type === 'count' ? '+' : ''}${goalValFromCSV}</span>
+                            </span>`
+                            : `<span></span>` 
+                        }
                     </div>
 
                     <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="${barTitle}">
@@ -654,6 +674,9 @@
             if (hasCelebration.value && typeof confetti !== 'undefined') {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             }
+
+            // Abre la primera zona por defecto después de cargar el dashboard
+            toggleZone(Object.keys(groupedMetrics)[0].replace(/\s+/g, '-').toLowerCase());
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
