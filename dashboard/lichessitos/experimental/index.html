@@ -37,6 +37,13 @@
             background-size: 1rem 1rem;
         }
 
+        /* Estilo para barra congelada */
+        .xp-bar-frozen {
+            background-color: #bae6fd; /* Azul hielo */
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2V22M2 12H22M4.92893 4.92893L19.0711 19.0711M19.0711 4.92893L4.92893 19.0711' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            opacity: 0.8;
+        }
+
         .text-shadow-sm {
             text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
         }
@@ -113,23 +120,33 @@
             <div id="progress-dashboard" class="hidden animate-fade-in-up">
                 
                 <!-- Perfil del Jugador -->
-                <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6 max-w-4xl mx-auto">
-                    <div class="relative">
-                        <!-- La imagen de peoncito se cargará aquí -->
-                        <img id="player-avatar" src="https://lichess1.org/assets/images/missing_avatar.svg" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md object-cover">
-                        <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full shadow border-2 border-white">
+                <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6 max-w-4xl mx-auto relative overflow-hidden">
+                    <!-- Fondo decorativo sutil -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+                    <div class="absolute -bottom-8 -left-8 w-32 h-32 bg-yellow-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+
+                    <div class="relative z-10">
+                        <img id="player-avatar" src="https://lichess1.org/assets/images/missing_avatar.svg" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md object-cover bg-white">
+                        <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full shadow border-2 border-white transform hover:scale-110 transition-transform cursor-help" title="¡Tu avatar de Club!">
                             ⭐
                         </div>
                     </div>
-                    <div class="text-center sm:text-left">
-                        <h2 id="player-name" class="text-3xl font-bold text-purple-700">Jugador Seleccionado</h2>
-                        <!-- Enlace discreto a Lichess -->
-                        <a id="player-link" href="#" target="_blank" class="text-sm text-purple-400 font-medium hover:text-purple-600 transition-colors bg-purple-50 px-3 py-1 rounded-full mt-2 inline-block">
+                    <div class="text-center sm:text-left flex-1 relative z-10">
+                        <h2 id="player-name" class="text-3xl font-bold text-purple-700 mb-1">Jugador Seleccionado</h2>
+                        
+                        <!-- Categoría Dinámica -->
+                        <div id="player-category-container" class="mb-3">
+                            <span id="player-category-badge" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-bold border border-purple-200 inline-block mb-1">
+                                Calculando nivel...
+                            </span>
+                            <p id="player-category-desc" class="text-xs text-gray-500 italic max-w-lg">
+                                <!-- Descripción aquí -->
+                            </p>
+                        </div>
+
+                        <a id="player-link" href="#" target="_blank" class="text-xs text-purple-400 font-medium hover:text-purple-600 transition-colors border border-purple-100 px-3 py-1 rounded-full inline-block">
                             Ver perfil en Lichess ↗
                         </a>
-                        <div class="mt-2 flex gap-2 justify-center sm:justify-start">
-                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-bold border border-purple-200">Novato</span>
-                        </div>
                     </div>
                 </div>
 
@@ -151,40 +168,40 @@
         const ZONES_CONTAINER_ID = 'zones-container';
         const CSV_BASE_FILE = 'base.csv';
         const CSV_METAS_FILE = 'metas.csv';
-        
-        const TOTAL_VARIANTS = 9; 
+        const TOTAL_AVATARS = 9; 
+        const MIN_ACTIVITY_TO_UNFREEZE = 20; // Partidas mínimas para mostrar rating
 
         let trackingData = [];
 
         // Definición de métricas 
+        // Agregamos 'relatedCountKey' para saber qué métrica controla el "congelamiento" del rating
         const metricDefinitions = [
             // ZONA 1: Rendimiento en Vivo
-            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
+            { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating', relatedCountKey: 'bullet_games' },
             { id: 'bullet_games', name: 'Partidas Bullet', emoji: '🎮', csvKey: 'Bullet_Games', apiPath: 'perfs.bullet.games', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
-            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating' },
+            { id: 'blitz_rating', name: 'Blitz Rating', emoji: '⚡', csvKey: 'Blitz', apiPath: 'perfs.blitz.rating', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating', relatedCountKey: 'blitz_games' },
             { id: 'blitz_games', name: 'Partidas Blitz', emoji: '🎮', csvKey: 'Blitz_Games', apiPath: 'perfs.blitz.games', theme: 'theme-blitz', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'count' },
             
             // Ritmo Reflexivo
-            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
+            { id: 'rapid_rating', name: 'Rapid Rating', emoji: '🐢', csvKey: 'Rapid', apiPath: 'perfs.rapid.rating', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating', relatedCountKey: 'rapid_games' },
             { id: 'rapid_games', name: 'Partidas Rapid', emoji: '🎮', csvKey: 'Rapid_Games', apiPath: 'perfs.rapid.games', theme: 'theme-rapid', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
-            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating' },
+            { id: 'classical_rating', name: 'Classical Rating', emoji: '🕰️', csvKey: 'Classical', apiPath: 'perfs.classical.rating', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'rating', relatedCountKey: 'classical_games' },
             { id: 'classical_games', name: 'Partidas Classical', emoji: '🎮', csvKey: 'Classical_Games', apiPath: 'perfs.classical.games', theme: 'theme-classical', mainZone: 'Rendimiento en Vivo', subZone: 'Ritmo Reflexivo', type: 'count' },
 
             // ZONA 2: Gimnasio Cerebral
-            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' },
+            { id: 'puzzle_rating', name: 'Puzzle Rating', emoji: '🧩', csvKey: 'Puzzle_Rating', apiPath: 'perfs.puzzle.rating', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating', relatedCountKey: 'puzzles_played' },
             { id: 'puzzles_played', name: 'Puzzles Resueltos', emoji: '✅', csvKey: 'Puzzles_Played', apiPath: 'perfs.puzzle.games', theme: 'theme-puzzle', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
-            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating' },
+            { id: 'streak_score', name: 'Racha Máxima (Streak)', emoji: '🔥', csvKey: 'Streak', apiPath: 'perfs.streak.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'rating', relatedCountKey: 'streak_attempts' },
             { id: 'streak_attempts', name: 'Intentos Racha', emoji: '🔄', csvKey: 'Streak_Attempts', apiPath: 'perfs.streak.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Foco Profundo', type: 'count' },
             
             // Reacción Extrema
-            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' },
+            { id: 'racer_score', name: 'Racer Record', emoji: '🏎️', csvKey: 'Racer', apiPath: 'perfs.racer.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating', relatedCountKey: 'racer_attempts' },
             { id: 'racer_attempts', name: 'Carreras Jugadas', emoji: '🏁', csvKey: 'Racer_Attempts', apiPath: 'perfs.racer.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
-            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating' },
+            { id: 'storm_score', name: 'Storm Record', emoji: '🌪️', csvKey: 'Storm', apiPath: 'perfs.storm.score', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'rating', relatedCountKey: 'storm_attempts' },
             { id: 'storm_attempts', name: 'Intentos Storm', emoji: '🔄', csvKey: 'Storm_Attempts', apiPath: 'perfs.storm.runs', theme: 'theme-fun', mainZone: 'Gimnasio Cerebral', subZone: 'Reacción Extrema', type: 'count' },
         ];
 
         // --- Funciones de Utilidad ---
-
         async function fetchAndParseCSV(url) {
             const response = await fetch(url);
             if (!response.ok) throw new Error(`No se pudo encontrar el archivo: ${url}`);
@@ -250,48 +267,44 @@
                 hash |= 0; 
             }
             const avatarIndex = (Math.abs(hash) % TOTAL_VARIANTS) + 1;
-
-            if (gender === 'f') {
-                return `peoncitas/peoncitas_${avatarIndex}.png`;
-            } else if (gender === 'm') {
-                return `peoncitos/peoncitos_${avatarIndex}.png`;
-            } else {
-                return `peoncitos/peoncitos_1.png`;
-            }
+            // Estructura de carpetas según género
+            const folder = (gender === 'f') ? 'peoncitas' : 'peoncitos';
+            const prefix = (gender === 'f') ? 'peoncitas' : 'peoncitos';
+            return `${folder}/${prefix}_${avatarIndex}.png`;
         }
 
-        // --- Funcionalidad del Acordeón ---
-        window.toggleZone = function(zoneId) {
+        function toggleZone(zoneId) {
             const content = document.getElementById(`content-${zoneId}`);
             const icon = document.getElementById(`icon-${zoneId}`);
             const header = document.getElementById(`header-${zoneId}`);
             
-            // Toggle visibility
             content.classList.toggle('hidden');
             
-            // Rotar icono y Scroll
             if (content.classList.contains('hidden')) {
                 icon.classList.remove('rotate-180');
             } else {
                 icon.classList.add('rotate-180');
                 
-                // IMPORTANTE: Disparar animación de barras solo cuando se abre
                 const bars = content.querySelectorAll('[data-percent]');
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
                         bars.forEach(bar => {
-                            bar.style.width = `${bar.getAttribute('data-percent')}%`;
+                            // Si está congelada, el width se maneja diferente (o se mantiene bajo)
+                            if (!bar.classList.contains('xp-bar-frozen')) {
+                                bar.style.width = `${bar.getAttribute('data-percent')}%`;
+                            } else {
+                                // Barra congelada: ancho fijo pequeño o lleno pero con estilo diferente
+                                bar.style.width = '100%'; 
+                            }
                         });
                     });
                 });
 
-                // SCROLL SUAVE AL TÍTULO
                 setTimeout(() => {
                     header.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
-        };
-
+        }
 
         // --- Lógica del Buscador ---
         function handleSearchInput(e) {
@@ -313,9 +326,7 @@
                 matchedUsers.forEach(user => {
                     const suggestion = document.createElement('div');
                     suggestion.className = 'p-3 hover:bg-indigo-100 cursor-pointer border-b border-indigo-100 last:border-b-0 transition-colors flex justify-between';
-                    
                     suggestion.innerHTML = `<span class="font-bold text-gray-800">${user.userId}</span>`;
-                    
                     suggestion.onclick = () => {
                         document.getElementById(SEARCH_INPUT_ID).value = user.userId;
                         suggestionsDiv.classList.add('hidden');
@@ -337,7 +348,6 @@
         });
 
         // --- Lógica Principal ---
-
         async function initApp() {
             try {
                 updateStatus('loading', 'Leyendo tus archivos de club...');
@@ -363,7 +373,6 @@
                 });
 
                 trackingData = Object.values(dataMap);
-
                 updateStatus('ready');
                 document.getElementById(SEARCH_INPUT_ID).addEventListener('input', handleSearchInput);
 
@@ -394,72 +403,167 @@
             }
         }
 
+        function calculateCategory(liveData) {
+            // Obtener ratings actuales (usando 0 si es 1500 provisional)
+            const rhythms = ['bullet', 'blitz', 'rapid', 'classical'];
+            let sum = 0;
+            let count = 0;
+
+            rhythms.forEach(r => {
+                let rating = Number(getNestedValue(liveData, `perfs.${r}.rating`)) || 0;
+                if (rating === 1500) rating = 0;
+                sum += rating;
+                count++;
+            });
+
+            const avg = count > 0 ? sum / count : 0;
+            
+            let badge = '';
+            let desc = '';
+
+            if (avg === 0) {
+                 badge = 'Sin Clasificar';
+                 desc = '¡Juega tus primeras partidas para obtener un rango!';
+            } else if (avg <= 400) {
+                badge = 'Nivel A1: Sissa';
+                desc = 'Representa el inicio del camino, la curiosidad y el primer contacto con el juego.';
+            } else if (avg <= 800) {
+                badge = 'Nivel A2: Al-Adli';
+                desc = 'Primer gran teórico. Simboliza el descubrimiento de estrategias básicas.';
+            } else if (avg <= 1200) {
+                badge = 'Nivel B1: Ruy López';
+                desc = 'Precursor del ajedrez moderno. Representa la transición a un juego más estructurado.';
+            } else if (avg <= 1600) {
+                badge = 'Nivel B2: Morphy';
+                desc = 'Genio romántico. Ideal para jugadores que empiezan a explotar táctica y visión dinámica.';
+            } else if (avg <= 2000) {
+                badge = 'Nivel C1: Capablanca';
+                desc = 'Claridad y maestría en los finales. Representa la elegancia estratégica.';
+            } else {
+                badge = 'Nivel C2: Kasparov';
+                desc = 'Maestría total y competitiva. Ícono de la era contemporánea.';
+            }
+
+            return { badge, desc };
+        }
+
         function createCardHTML(metric, liveData, user, hasCelebrationRef) {
             const initialVal = Number(user.initials[metric.csvKey]) || 0;
-            const goalVal = Number(user.goals[metric.csvKey]) || 0;
+            // Para Rating: Goal es absoluto. Para Counts: Goal es Incremento.
+            const goalValFromCSV = Number(user.goals[metric.csvKey]) || 0;
+            
             let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
+            // Regla Rating 1500 -> 0
+            if (metric.type === 'rating' && currentVal === 1500) currentVal = 0;
 
-            if (metric.type === 'rating' && currentVal === 1500) {
-                currentVal = 0;
-            }
-            
             let percent = 0;
-            let distDescription = '';
-            
+            let displayHTML = '';
+            let isFrozen = false;
+            let barTitle = '';
+
+            // --- Lógica Rating ---
             if (metric.type === 'rating') {
-                const totalGoalDist = goalVal - initialVal;
-                const currentDist = currentVal - initialVal;
+                // Verificar actividad mínima
+                let activityCount = 0;
+                if (metric.relatedCountKey) {
+                    // Buscamos la definición de la métrica relacionada
+                    const countMetricDef = metricDefinitions.find(m => m.id === metric.relatedCountKey);
+                    if (countMetricDef) {
+                        const currentActivityTotal = Number(getNestedValue(liveData, countMetricDef.apiPath)) || 0;
+                        const initialActivity = Number(user.initials[countMetricDef.csvKey]) || 0;
+                        activityCount = currentActivityTotal - initialActivity; // Actividad realizada en el periodo
+                    }
+                }
+
+                if (activityCount < MIN_ACTIVITY_TO_UNFREEZE) {
+                    isFrozen = true;
+                }
+
+                // Cálculo Porcentual: (Actual / Meta Absoluta)
+                if (goalValFromCSV > 0) {
+                    percent = (currentVal / goalValFromCSV) * 100;
+                }
                 
-                if (totalGoalDist > 0) {
-                    percent = (currentDist / totalGoalDist) * 100;
-                } else if (currentVal >= goalVal && goalVal > 0) {
-                    percent = 100; 
-                }
-                distDescription = `Progreso real: ${Math.max(0, percent).toFixed(2)}% (${currentDist} de ${totalGoalDist} necesarios)`;
+                // Display Diferencia
+                const diff = currentVal - initialVal;
+                const diffColor = diff >= 0 ? 'text-green-500' : 'text-red-500';
+                const diffSign = diff >= 0 ? '+' : '';
+                
+                displayHTML = `
+                    <span class="text-2xl font-bold text-gray-800">${currentVal}</span>
+                    <span class="text-xs font-bold ${diffColor} ml-1">(${diffSign}${diff})</span>
+                `;
+                
+                barTitle = isFrozen 
+                    ? `Progreso congelado: Necesitas jugar ${MIN_ACTIVITY_TO_UNFREEZE - activityCount} partidas más.` 
+                    : `Rating Actual: ${currentVal} / Meta: ${goalValFromCSV}`;
 
-            } else if (metric.type === 'count') {
-                const totalWorkNeeded = goalVal - initialVal;
-                const workDone = currentVal - initialVal;
+            } 
+            // --- Lógica Counts/Attempts ---
+            else if (metric.type === 'count') {
+                // Calculation: (Work Done / Target Increment)
+                const workDone = Math.max(0, currentVal - initialVal);
+                const targetIncrement = goalValFromCSV; // Interpretamos meta del CSV como incremento
 
-                if (totalWorkNeeded > 0) {
-                    percent = (workDone / totalWorkNeeded) * 100;
-                } else if (workDone >= 0 && goalVal > 0) {
-                    percent = 100; 
+                if (targetIncrement > 0) {
+                    percent = (workDone / targetIncrement) * 100;
+                } else if (workDone > 0) {
+                    percent = 100; // Si no hay meta incremento pero hizo algo
                 }
-                distDescription = `Trabajo Realizado: ${Math.max(0, percent).toFixed(2)}% (${workDone} completados de ${totalWorkNeeded})`;
+
+                // Display Diff con colores semáforo
+                let diffColor = 'text-red-500';
+                if (workDone >= 50) diffColor = 'text-green-600';
+                else if (workDone > 0) diffColor = 'text-orange-500';
+                
+                displayHTML = `
+                    <span class="text-2xl font-bold text-gray-800">${currentVal}</span>
+                    <span class="text-xs font-bold ${diffColor} ml-1">(+${workDone})</span>
+                `;
+                
+                barTitle = `Trabajo realizado: ${workDone} de ${targetIncrement} requeridos.`;
             }
 
             let visualPercent = Math.max(0, Math.min(100, percent));
-            if (percent > 0 && visualPercent > 0 && visualPercent < 5) visualPercent = 5;
-            if (percent >= 100) hasCelebrationRef.value = true;
+            if (!isFrozen && percent > 0 && visualPercent < 5) visualPercent = 5;
+            if (!isFrozen && percent >= 100) hasCelebrationRef.value = true;
 
             let barColorClass = 'bg-indigo-400';
             if (visualPercent >= 100) barColorClass = 'bg-yellow-400';
             else if (visualPercent >= 50) barColorClass = 'bg-green-400';
 
-            // Nota: Inicializamos width en 0% siempre. Se animará al abrir el acordeón.
+            // Si está congelado, visualmente lleno pero con estilo frozen
+            if (isFrozen) {
+                barColorClass = 'xp-bar-frozen';
+                visualPercent = 100; // Llenamos la barra para que se note el efecto hielo
+            }
+
             return `
-                <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme}">
+                <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme} relative overflow-hidden">
                     <div class="flex items-center gap-3 mb-2">
                         <span class="text-2xl filter drop-shadow-sm">${metric.emoji}</span>
                         <h4 class="font-bold text-gray-700 text-base flex-grow">${metric.name}</h4>
-                        ${visualPercent >= 100 ? '<span class="animate-bounce text-xl">🏆</span>' : ''}
+                        ${(!isFrozen && percent >= 100) ? '<span class="animate-bounce text-xl">🏆</span>' : ''}
+                        ${isFrozen ? '<span class="text-xl" title="Necesitas más actividad">❄️</span>' : ''}
                     </div>
 
                     <div class="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
-                        <span>Inicio: ${initialVal}</span>
-                        <span>Meta: ${goalVal}</span>
+                        <!-- Etiquetas de rango visual -->
+                        <span>0</span>
+                        <span>${metric.type === 'count' ? '+' + goalValFromCSV : goalValFromCSV}</span>
                     </div>
 
-                    <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="${distDescription}">
+                    <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="${barTitle}">
                         <div class="absolute top-0 left-0 h-full ${barColorClass} xp-bar-fill flex items-center justify-end pr-2" style="width: 0%" data-percent="${visualPercent}" id="bar-${metric.id}">
-                            <span class="text-[9px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>
+                            ${!isFrozen ? `<span class="text-[9px] text-white font-bold text-shadow-sm">${Math.max(0, percent).toFixed(0)}%</span>` : ''}
                         </div>
                     </div>
 
                     <div class="mt-2 text-center">
-                        <span class="text-xl font-bold text-gray-800">${currentVal}</span>
-                        <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Actual</span>
+                        ${displayHTML}
+                        <div class="text-xs text-gray-500 uppercase font-bold tracking-wider">
+                            ${isFrozen ? 'Falta Actividad' : 'Actual'}
+                        </div>
                     </div>
                 </div>
             `;
@@ -472,10 +576,12 @@
             const avatarImg = document.getElementById('player-avatar');
             const customAvatarUrl = getAvatarUrl(user.userId, user.gender);
             avatarImg.src = customAvatarUrl;
-            
-            avatarImg.onerror = () => {
-                avatarImg.src = 'peoncitos/peoncitos_1.png';
-            };
+            avatarImg.onerror = () => { avatarImg.src = 'peoncitos/peoncitos_1.png'; };
+
+            // Calcular y renderizar categoría
+            const cat = calculateCategory(liveData);
+            document.getElementById('player-category-badge').textContent = cat.badge;
+            document.getElementById('player-category-desc').textContent = cat.desc;
 
             const zonesContainer = document.getElementById(ZONES_CONTAINER_ID);
             zonesContainer.innerHTML = ''; 
@@ -494,16 +600,13 @@
                 }
             });
 
-            // Generar HTML de Acordeones
+            // Generar HTML
             for (const [mainZoneTitle, subZones] of Object.entries(groupedMetrics)) {
                 const mainZoneColor = mainZoneTitle === 'Rendimiento en Vivo' ? 'border-sky-400' : 'border-pink-400';
-                // Generamos un ID seguro para el acordeón (sin espacios)
                 const safeZoneId = mainZoneTitle.replace(/\s+/g, '-').toLowerCase();
 
                 fullHtml += `
                     <section class="bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 ${mainZoneColor}">
-                        
-                        <!-- Header del Acordeón -->
                         <div id="header-${safeZoneId}" onclick="toggleZone('${safeZoneId}')" class="zone-header p-6 flex justify-between items-center bg-white border-b-2 border-gray-100 hover:bg-gray-50">
                             <h3 class="text-2xl sm:text-3xl font-extrabold text-purple-700 flex items-center gap-3">
                                 <span>${mainZoneTitle === 'Rendimiento en Vivo' ? '⚡' : '🧠'}</span>
@@ -511,8 +614,6 @@
                             </h3>
                             <span id="icon-${safeZoneId}" class="chevron-icon text-3xl text-purple-400">👇</span>
                         </div>
-
-                        <!-- Contenido Oculto -->
                         <div id="content-${safeZoneId}" class="hidden p-6 bg-gray-50 space-y-8">
                 `;
                 
@@ -534,8 +635,6 @@
 
             fullHtml += `</div>`;
             zonesContainer.innerHTML = fullHtml;
-
-            // No animamos las barras aquí. Se animan en toggleZone() al abrir.
 
             if (hasCelebration.value && typeof confetti !== 'undefined') {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
