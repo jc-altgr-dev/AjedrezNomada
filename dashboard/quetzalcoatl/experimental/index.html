@@ -268,7 +268,7 @@
                 hash = ((hash<<5)-hash)+char;
                 hash |= 0; 
             }
-            // FIX: Usar TOTAL_AVATARS en lugar de TOTAL_VARIANTS
+            // Usar TOTAL_AVATARS para el cálculo
             const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1; 
             // Estructura de carpetas según género
             const folder = (gender === 'f') ? 'peoncitas' : 'peoncitos';
@@ -451,12 +451,13 @@
         }
 
         function createCardHTML(metric, liveData, user, hasCelebrationRef) {
+            // Valores del CSV
             const initialVal = Number(user.initials[metric.csvKey]) || 0;
-            // Para Rating: Goal es absoluto. Para Counts: Goal es Incremento.
             const goalValFromCSV = Number(user.goals[metric.csvKey]) || 0;
             
+            // Valor actual de Lichess
             let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
-            // Regla Rating 1500 -> 0
+            // Regla Rating 1500 -> 0 (Provisional)
             if (metric.type === 'rating' && currentVal === 1500) currentVal = 0;
 
             let percent = 0;
@@ -464,12 +465,11 @@
             let isFrozen = false;
             let barTitle = '';
 
-            // --- Lógica Rating ---
+            // --- Lógica Rating (Rating o Score de Puzzle/Storm/Racer) ---
             if (metric.type === 'rating') {
-                // Verificar actividad mínima
+                // Verificar actividad mínima para descongelar
                 let activityCount = 0;
                 if (metric.relatedCountKey) {
-                    // Buscamos la definición de la métrica relacionada
                     const countMetricDef = metricDefinitions.find(m => m.id === metric.relatedCountKey);
                     if (countMetricDef) {
                         const currentActivityTotal = Number(getNestedValue(liveData, countMetricDef.apiPath)) || 0;
@@ -482,12 +482,19 @@
                     isFrozen = true;
                 }
 
-                // Cálculo Porcentual: (Actual / Meta Absoluta)
-                if (goalValFromCSV > 0) {
-                    percent = (currentVal / goalValFromCSV) * 100;
+                // Cálculo Porcentual: (Progreso Real / Progreso Necesario)
+                // Progreso Real = currentVal - initialVal
+                // Progreso Necesario = goalValFromCSV - initialVal
+                let progressNeeded = goalValFromCSV - initialVal;
+                let progressMade = currentVal - initialVal;
+
+                if (progressNeeded > 0) {
+                    percent = (progressMade / progressNeeded) * 100;
+                } else if (progressMade > 0) {
+                    percent = 100; // Si ya se superó la meta inicial (o no había meta definida)
                 }
                 
-                // Display Diferencia
+                // Display Diferencia (Cambio de color)
                 const diff = currentVal - initialVal;
                 const diffColor = diff >= 0 ? 'text-green-500' : 'text-red-500';
                 const diffSign = diff >= 0 ? '+' : '';
@@ -499,10 +506,10 @@
                 
                 barTitle = isFrozen 
                     ? `Progreso congelado: Necesitas jugar ${Math.max(0, MIN_ACTIVITY_TO_UNFREEZE - activityCount)} partidas/intentos más.` 
-                    : `Rating Actual: ${currentVal} / Meta: ${goalValFromCSV}`;
+                    : `Rating Actual: ${currentVal} (Meta: ${goalValFromCSV})`;
 
             } 
-            // --- Lógica Counts/Attempts ---
+            // --- Lógica Counts/Attempts (Partidas o Intentos) ---
             else if (metric.type === 'count') {
                 // Calculation: (Work Done / Target Increment)
                 const workDone = Math.max(0, currentVal - initialVal);
@@ -516,19 +523,20 @@
 
                 // Display Diff con colores semáforo
                 let diffColor = 'text-red-500';
-                if (workDone >= 50) diffColor = 'text-green-600';
+                if (workDone >= targetIncrement) diffColor = 'text-green-600';
                 else if (workDone > 0) diffColor = 'text-orange-500';
                 
                 displayHTML = `
                     <span class="text-2xl font-bold text-gray-800">${currentVal}</span>
-                    <span class="text-xs font-bold ${diffColor} ml-1">(+${workDone})</span>
+                    <span class="text-xs font-bold ${diffColor} ml-1">(${workDone > 0 ? '+' : ''}${workDone})</span>
                 `;
                 
                 barTitle = `Trabajo realizado: ${workDone} de ${targetIncrement} requeridos.`;
             }
 
             let visualPercent = Math.max(0, Math.min(100, percent));
-            if (!isFrozen && percent > 0 && visualPercent < 5) visualPercent = 5;
+            // Asegura que una barra con progreso > 0 se muestre
+            if (!isFrozen && percent > 0 && visualPercent < 5) visualPercent = 5; 
             if (!isFrozen && percent >= 100) hasCelebrationRef.value = true;
 
             let barColorClass = 'bg-indigo-400';
@@ -538,9 +546,10 @@
             // Si está congelado, visualmente lleno pero con estilo frozen
             if (isFrozen) {
                 barColorClass = 'xp-bar-frozen';
-                visualPercent = 100; // Llenamos la barra para que se note el efecto hielo
+                visualPercent = 100; 
             }
 
+            // --- HTML Modificado para incluir Inicio y Meta ---
             return `
                 <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme} relative overflow-hidden">
                     <div class="flex items-center gap-3 mb-2">
@@ -550,10 +559,17 @@
                         ${isFrozen ? '<span class="text-xl" title="Necesitas más actividad para ver tu progreso.">❄️</span>' : ''}
                     </div>
 
+                    <!-- NUEVOS VALORES DE CONTEXTO -->
                     <div class="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
-                        <!-- Etiquetas de rango visual -->
-                        <span>0</span>
-                        <span>${metric.type === 'count' ? '+' + goalValFromCSV : goalValFromCSV}</span>
+                        <span class="text-indigo-500">
+                            Inicio: <span class="text-gray-600">${initialVal}</span>
+                        </span>
+                        ${goalValFromCSV > 0 ? 
+                            `<span class="text-indigo-500">
+                                Meta: <span class="text-gray-600">${metric.type === 'count' ? '+' : ''}${goalValFromCSV}</span>
+                            </span>`
+                            : `<span></span>` // Espacio vacío si no hay meta para mantener el layout
+                        }
                     </div>
 
                     <div class="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden border border-gray-300 shadow-inner" title="${barTitle}">
@@ -642,6 +658,9 @@
             if (hasCelebration.value && typeof confetti !== 'undefined') {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             }
+
+            // Abre la primera zona por defecto después de cargar el dashboard
+            toggleZone(Object.keys(groupedMetrics)[0].replace(/\s+/g, '-').toLowerCase());
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
