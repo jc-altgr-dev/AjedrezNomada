@@ -451,7 +451,7 @@
         }
 
         function createCardHTML(metric, liveData, user, hasCelebrationRef) {
-            // Valores del CSV
+            // Valores del CSV (para display contextual)
             const initialVal = Number(user.initials[metric.csvKey]) || 0;
             const goalValFromCSV = Number(user.goals[metric.csvKey]) || 0;
             
@@ -464,6 +464,9 @@
             let displayHTML = '';
             let isFrozen = false;
             let barTitle = '';
+            
+            // Valor de meta para el cálculo (si no hay meta, se usa la base para evitar división por cero)
+            const effectiveGoalForCalc = Math.max(goalValFromCSV, 1); 
 
             // --- Lógica Rating (Rating o Score de Puzzle/Storm/Racer) ---
             if (metric.type === 'rating') {
@@ -482,19 +485,16 @@
                     isFrozen = true;
                 }
 
-                // Cálculo Porcentual: (Progreso Real / Progreso Necesario)
-                // Progreso Real = currentVal - initialVal
-                // Progreso Necesario = goalValFromCSV - initialVal
-                let progressNeeded = goalValFromCSV - initialVal;
-                let progressMade = currentVal - initialVal;
-
-                if (progressNeeded > 0) {
-                    percent = (progressMade / progressNeeded) * 100;
-                } else if (progressMade > 0) {
-                    percent = 100; // Si ya se superó la meta inicial (o no había meta definida)
+                // *** CAMBIO CLAVE AQUÍ: El progreso se calcula de 0 a la meta final ***
+                // Progreso = (Valor Actual / Meta Final) * 100
+                if (effectiveGoalForCalc > 0) {
+                    percent = (currentVal / effectiveGoalForCalc) * 100;
+                } else {
+                    // Si no hay meta (effectiveGoalForCalc = 1), y currentVal > 0, se considera 100%
+                    percent = currentVal > 0 ? 100 : 0; 
                 }
                 
-                // Display Diferencia (Cambio de color)
+                // Display Diferencia (vs. la base inicial, NO 0)
                 const diff = currentVal - initialVal;
                 const diffColor = diff >= 0 ? 'text-green-500' : 'text-red-500';
                 const diffSign = diff >= 0 ? '+' : '';
@@ -509,7 +509,7 @@
                     : `Rating Actual: ${currentVal} (Meta: ${goalValFromCSV})`;
 
             } 
-            // --- Lógica Counts/Attempts (Partidas o Intentos) ---
+            // --- Lógica Counts/Attempts (Partidas o Intentos) (Sin Cambios) ---
             else if (metric.type === 'count') {
                 // Calculation: (Work Done / Target Increment)
                 const workDone = Math.max(0, currentVal - initialVal);
@@ -559,7 +559,7 @@
                         ${isFrozen ? '<span class="text-xl" title="Necesitas más actividad para ver tu progreso.">❄️</span>' : ''}
                     </div>
 
-                    <!-- NUEVOS VALORES DE CONTEXTO -->
+                    <!-- NUEVOS VALORES DE CONTEXTO (BASE Y META) -->
                     <div class="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
                         <span class="text-indigo-500">
                             Inicio: <span class="text-gray-600">${initialVal}</span>
@@ -568,7 +568,7 @@
                             `<span class="text-indigo-500">
                                 Meta: <span class="text-gray-600">${metric.type === 'count' ? '+' : ''}${goalValFromCSV}</span>
                             </span>`
-                            : `<span></span>` // Espacio vacío si no hay meta para mantener el layout
+                            : `<span></span>` 
                         }
                     </div>
 
