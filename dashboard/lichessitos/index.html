@@ -20,6 +20,18 @@
             background-position: 0 0, 30px 30px;
         }
 
+    .logo-container {
+    width: 200px;          /* tamaño deseado, no el real del archivo */
+    margin: 0 auto;        /* centrado horizontal */
+  }
+
+  .logo-container img {
+    width: 100%;           /* ocupa todo el contenedor */
+    height: auto;          /* conserva proporciones naturales */
+    display: block;        /* elimina espacio extraño debajo de la imagen */
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  }
+
         .card-hover {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -90,7 +102,10 @@
                 <h1 class="text-4xl sm:text-5xl font-bold text-indigo-600 text-shadow-sm flex items-center justify-center gap-3">
                     <span>🏰</span> Club de Ajedrez <span>♟️</span>
                 </h1>
-                <p class="text-lg text-indigo-400 mt-2 font-medium">¡Sube de nivel completando tus metas!</p>
+                <p class="text-lg text-indigo-400 mt-2 font-medium">¡Sube de nivel completando tus metas!
+<div class="logo-container">
+  <img src="logo.png" alt="Logo">
+</div></p>
             </div>
         </header>
 
