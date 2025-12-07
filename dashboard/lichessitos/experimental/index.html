@@ -266,7 +266,7 @@
                 hash = ((hash<<5)-hash)+char;
                 hash |= 0; 
             }
-            const avatarIndex = (Math.abs(hash) % TOTAL_VARIANTS) + 1;
+            const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1;
             // Estructura de carpetas según género
             const folder = (gender === 'f') ? 'peoncitas' : 'peoncitos';
             const prefix = (gender === 'f') ? 'peoncitas' : 'peoncitos';
