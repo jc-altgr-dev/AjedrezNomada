@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Visor de Estudio Lichess</title>
+<style>
+    /* 1. DISEÑO GENERAL (Puedes cambiar colores aquí) */
+    body { font-family: sans-serif; background-color: #222; color: white; display: flex; gap: 20px; justify-content: center; padding: 20px; }
+    
+    /* 2. ESTILO DEL MENÚ LATERAL */
+    .menu-container {
+        width: 250px;
+        background: #333;
+        padding: 15px;
+        border-radius: 8px;
+        height: 600px; /* Misma altura que el tablero */
+        overflow-y: auto; /* Scroll si hay muchas partidas */
+    }
+    
+    .chapter-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: #444;
+        color: #ddd;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: 0.2s;
+    }
+    
+    .chapter-btn:hover { background: #555; }
+    .chapter-btn.active { background: #3692e7; color: white; font-weight: bold; }
+
+    /* 3. CONTENEDOR DEL TABLERO */
+    .board-container {
+        width: 600px;
+        height: 397px; /* Altura estándar de embed lichess */
+    }
+    
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 8px;
+    }
+</style>
+</head>
+<body>
+
+<div class="menu-container" id="buttonList">
+    </div>
+
+<div class="board-container">
+    <iframe id="lichessFrame" src="" allowtransparency="true"></iframe>
+</div>
+
+<script>
+    // --- CONFIGURACIÓN ---
+    
+    // 1. Pon aquí el ID de tu Estudio (lo que va después de /study/)
+    const studyId = "evS54BwR"; 
+
+    // 2. Configura la apariencia del tablero de Lichess
+    // Temas: blue, blue2, blue3, green, purple, brown, maple, ic, grey
+    // Piezas: cburnett, merida, alpha, pirouetti, chessnut, chess7, leipzig
+    // Dark mode: bg=dark o bg=light
+    const themeParams = "?theme=blue&bg=dark&piece=merida";
+
+    // 3. LISTA DE TUS CAPÍTULOS (ID y Nombre)
+    // Tienes que llenar esto con tus IDs
+    const chapters = [
+        { id: "10X7XxTN", title: "1. Gambito de Rey - Variante A" },
+        { id: "WUbud8qx", title: "2. Defensa Siciliana - Celada" },
+        { id: "3JEx0v3Z", title: "3. Final de Torres" }
+        // Agrega tantos como quieras
+    ];
+
+    // --- LÓGICA (NO TOCAR) ---
+    const frame = document.getElementById('lichessFrame');
+    const list = document.getElementById('buttonList');
+
+    function loadChapter(chapId) {
+        // Construye la URL: study/ID/ChapterID + parámetros de tema
+        frame.src = `https://lichess.org/embed/study/${studyId}/${chapId}${themeParams}`;
+        
+        // Actualizar clase 'active' para resaltar el botón seleccionado
+        document.querySelectorAll('.chapter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.dataset.id === chapId) btn.classList.add('active');
+        });
+    }
+
+    // Generar botones
+    chapters.forEach((chap, index) => {
+        const btn = document.createElement('button');
+        btn.innerText = chap.title;
+        btn.className = 'chapter-btn';
+        btn.dataset.id = chap.id;
+        btn.onclick = () => loadChapter(chap.id);
+        list.appendChild(btn);
+        
+        // Cargar el primero automáticamente al iniciar
+        if (index === 0) loadChapter(chap.id);
+    });
+</script>
+
+</body>
+</html>
