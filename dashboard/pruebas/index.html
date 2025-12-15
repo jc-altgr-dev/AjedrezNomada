@@ -186,34 +186,37 @@
                         </div>
                         <div id="content-training-links" class="hidden p-6 bg-gray-50">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <a href="https://lichess.org/training/themes" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
-                                    <span class="text-3xl">📚</span>
+                                <a href="https://lichess.org/learn" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
+                                    <span class="text-3xl">♟️</span>
                                     <div>
-                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">Ejercicios por Temas</h4>
-                                        <p class="text-xs text-gray-500">Mejora tus debilidades específicas.</p>
-                                    </div>
-                                </a>
-                                <a href="https://lichess.org/training/coordinate" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
-                                    <span class="text-3xl">🎯</span>
-                                    <div>
-                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">Practicar Coordenadas</h4>
-                                        <p class="text-xs text-gray-500">Aprende a leer el tablero rápido.</p>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">1) Aprende Fundamentos</h4>
+                                        <p class="text-xs text-gray-500">Lo básico para empezar a jugar.</p>
                                     </div>
                                 </a>
                                 <a href="https://lichess.org/practice" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
                                     <span class="text-3xl">🎓</span>
                                     <div>
-                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">Aprender Fundamentos</h4>
-                                        <p class="text-xs text-gray-500">Lecciones interactivas básicas.</p>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">2) Práctica Avanzada</h4>
+                                        <p class="text-xs text-gray-500">Patrones y técnicas esenciales.</p>
                                     </div>
                                 </a>
-                                <a href="https://lichess.org/video" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
-                                    <span class="text-3xl">🎬</span>
+                                <a href="https://lichess.org/training/coordinate" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
+                                    <span class="text-3xl">🎯</span>
                                     <div>
-                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">Videoteca de Ajedrez</h4>
-                                        <p class="text-xs text-gray-500">Videos educativos gratuitos.</p>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">3) Practicar Coordenadas</h4>
+                                        <p class="text-xs text-gray-500">Aprende a leer el tablero rápido.</p>
                                     </div>
                                 </a>
+                                <a href="https://lichess.org/training/themes" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
+                                    <span class="text-3xl">📚</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">4) Ejercicios por Temas</h4>
+                                        <p class="text-xs text-gray-500">Mejora tus debilidades específicas.</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mt-4 p-3 bg-yellow-50 rounded-xl border border-yellow-200 text-center text-sm text-yellow-800 font-bold">
+                                💡 Nota importante: ¡Recuerda iniciar sesión en Lichess antes de practicar para que se guarde tu progreso!
                             </div>
                         </div>
                     </section>
@@ -350,7 +353,7 @@
             const icon = document.getElementById(`icon-${zoneId}`);
             const header = document.getElementById(`header-${zoneId}`);
             
-            if(!content) return; // Guard para ids dinámicos
+            if(!content) return; 
 
             content.classList.toggle('hidden');
             
@@ -384,12 +387,28 @@
         async function fetchEmblematicGames(username) {
             try {
                 // Solicitar últimas 15 partidas (NDJSON)
-                const response = await fetch(`${LICHESS_GAMES_API}${username}?max=15&opening=true`);
+                // IMPORTANTE: Cabecera Accept para recibir JSON en vez de PGN
+                const response = await fetch(`${LICHESS_GAMES_API}${username}?max=15&opening=true`, {
+                    headers: {
+                        'Accept': 'application/x-ndjson'
+                    }
+                });
+                
                 if (!response.ok) return;
                 
                 const text = await response.text();
                 // Parsear NDJSON (separado por saltos de línea)
-                const games = text.trim().split('\n').filter(line => line).map(JSON.parse);
+                // Filtramos líneas vacías y posibles errores de parseo
+                const games = text.trim().split('\n')
+                    .filter(line => line)
+                    .map(line => {
+                        try {
+                            return JSON.parse(line);
+                        } catch(e) {
+                            return null;
+                        }
+                    })
+                    .filter(game => game !== null);
                 
                 if (games.length === 0) {
                     document.getElementById('emblematic-games-list').innerHTML = '<p class="col-span-3 text-center text-gray-500">No se encontraron partidas recientes.</p>';
@@ -412,9 +431,7 @@
                     const opponent = isWhite ? game.players.black : game.players.white;
                     const opponentRating = opponent.rating || 0;
 
-                    // Moves: A veces Lichess da 'moves' string, estimamos moves por espacios / 2
-                    // O si no está, usamos status (no da moves exactos a veces en stream ligero sin pgnInJson=true salvo que sea default)
-                    // La API default trae "moves" string.
+                    // Moves: A veces Lichess da 'moves' string
                     let moveCount = 0;
                     if (game.moves) {
                         moveCount = Math.ceil(game.moves.split(' ').length / 2);
@@ -432,7 +449,7 @@
                         longestGame = { ...game, label: '⏳ La Maratón', value: `${moveCount} movs`, color: 'bg-yellow-50 border-yellow-200' };
                     }
 
-                    // 3. Más corta (evitar partidas de 0-2 movs si es posible, digamos > 4)
+                    // 3. Más corta (evitar partidas de 0-2 movs)
                     if (moveCount > 0 && moveCount < minMoves && moveCount > 4 && game.status !== 'aborted') {
                         minMoves = moveCount;
                         shortestGame = { ...game, label: '⚡ La Ráfaga', value: `${moveCount} movs`, color: 'bg-blue-50 border-blue-200' };
@@ -444,8 +461,15 @@
                 container.innerHTML = '';
 
                 const emblemGames = [strongestOpponentGame, longestGame, shortestGame].filter(g => g !== null);
-                // Eliminar duplicados si una partida cumple varios roles (ej. fuerte y larga)
-                const uniqueGames = [...new Set(emblemGames)];
+                const uniqueGames = [];
+                const seenIds = new Set();
+                
+                emblemGames.forEach(g => {
+                    if(!seenIds.has(g.id)) {
+                        seenIds.add(g.id);
+                        uniqueGames.push(g);
+                    }
+                });
 
                 uniqueGames.forEach(game => {
                     const isWhite = game.players.white.user?.name.toLowerCase() === username.toLowerCase();
@@ -645,11 +669,8 @@
             // Verificar si debe tener botón de práctica
             if (PRACTICE_URLS[metric.id]) {
                 practiceButton = `
-                    <a href="${PRACTICE_URLS[metric.id]}" target="_blank" class="absolute top-2 right-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-1.5 rounded-full transition-colors" title="Practicar Ahora">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                    <a href="${PRACTICE_URLS[metric.id]}" target="_blank" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full transition-colors flex items-center gap-1" title="Practicar Ahora">
+                        <span>Practicar</span> 🚀
                     </a>
                 `;
             }
@@ -730,7 +751,7 @@
 
             return `
                 <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme} relative overflow-hidden">
-                    ${practiceButton}
+                    
                     <div class="flex items-center gap-3 mb-2">
                         <span class="text-2xl filter drop-shadow-sm">${metric.emoji}</span>
                         <h4 class="font-bold text-gray-700 text-base flex-grow pr-6">${metric.name}</h4>
@@ -756,11 +777,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-2 text-center">
-                        ${displayHTML}
-                        <div class="text-xs text-gray-500 uppercase font-bold tracking-wider">
-                            ${isFrozen ? 'Falta Actividad' : 'Actual'}
+                    <div class="mt-2 flex justify-between items-center">
+                        <div class="text-center flex-1">
+                            ${displayHTML}
+                            <div class="text-xs text-gray-500 uppercase font-bold tracking-wider">
+                                ${isFrozen ? 'Falta Actividad' : 'Actual'}
+                            </div>
                         </div>
+                        ${practiceButton ? `<div>${practiceButton}</div>` : ''}
                     </div>
                 </div>
             `;
