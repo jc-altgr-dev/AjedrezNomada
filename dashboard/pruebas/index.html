@@ -422,7 +422,7 @@
                 let longestGame = null;
                 let maxMoves = -1;
 
-                let shortestGame = null;
+                let shortestMateGame = null;
                 let minMoves = 9999;
 
                 games.forEach(game => {
@@ -449,10 +449,11 @@
                         longestGame = { ...game, label: '⏳ La Maratón', value: `${moveCount} movs`, color: 'bg-yellow-50 border-yellow-200' };
                     }
 
-                    // 3. Más corta (evitar partidas de 0-2 movs)
-                    if (moveCount > 0 && moveCount < minMoves && moveCount > 4 && game.status !== 'aborted') {
+                    // 3. Más corta (FINALIZADA POR JAQUE MATE)
+                    // Debe ser jaque mate y tener más de 4 movimientos para evitar errores o abandonos muy tempranos.
+                    if (game.status === 'mate' && moveCount > 4 && moveCount < minMoves) {
                         minMoves = moveCount;
-                        shortestGame = { ...game, label: '⚡ La Ráfaga', value: `${moveCount} movs`, color: 'bg-blue-50 border-blue-200' };
+                        shortestMateGame = { ...game, label: '⚡ Partida Ráfaga (Mate)', value: `${moveCount} movs`, color: 'bg-blue-50 border-blue-200' };
                     }
                 });
 
@@ -460,7 +461,8 @@
                 const container = document.getElementById('emblematic-games-list');
                 container.innerHTML = '';
 
-                const emblemGames = [strongestOpponentGame, longestGame, shortestGame].filter(g => g !== null);
+                // Usar shortestMateGame en lugar de shortestGame
+                const emblemGames = [strongestOpponentGame, longestGame, shortestMateGame].filter(g => g !== null);
                 const uniqueGames = [];
                 const seenIds = new Set();
                 
@@ -470,6 +472,12 @@
                         uniqueGames.push(g);
                     }
                 });
+
+                if (uniqueGames.length === 0) {
+                     container.innerHTML = '<p class="col-span-3 text-center text-gray-500">No se encontraron partidas emblemáticas recientes con jaque mate.</p>';
+                     document.getElementById('emblematic-games-container').classList.remove('hidden');
+                     return;
+                }
 
                 uniqueGames.forEach(game => {
                     const isWhite = game.players.white.user?.name.toLowerCase() === username.toLowerCase();
@@ -500,6 +508,7 @@
 
             } catch (e) {
                 console.error("Error fetching games", e);
+                document.getElementById('emblematic-games-list').innerHTML = '<p class="col-span-3 text-center text-red-500">Error al cargar las partidas. Verifique la consola para detalles.</p>';
             }
         }
 
