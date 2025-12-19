@@ -3,225 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENAEL Recap 2025</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>ENAEL Recap 2025 - Tu Historia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1a1a1a;
-            --accent: #d4af37;
-            --white: #ffffff;
-            --bg: #f4f4f4;
-            --card-bg: #ffffff;
+            --navidad-rojo: #c0392b;
+            --navidad-verde: #1e8449;
+            --oro: #f1c40f;
+            --blanco: #ffffff;
+            --oscuro: #1a1a1a;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg);
-            color: var(--primary);
-            min-height: 100vh;
+            background-color: var(--oscuro);
+            color: var(--blanco);
+            overflow: hidden; /* Evitar scroll durante las historias */
+            height: 100vh;
+        }
+
+        /* --- Fondo de Nieve --- */
+        #snow-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        /* --- Contenedor de Historias --- */
+        .story-container {
+            max-width: 450px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            background: linear-gradient(180deg, #1a1a1a 0%, #2c3e50 100%);
             display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 40px 20px;
+            display: none; /* Se activa con JS */
             flex-direction: column;
-        }
-
-        /* --- Estilos Visuales --- */
-        .hero {
-            background: linear-gradient(135deg, var(--primary) 0%, #2c3e50 100%);
-            color: var(--white);
-            padding: 3rem 1rem;
+            align-items: center;
+            justify-content: center;
             text-align: center;
+            animation: fadeIn 0.5s ease-in;
         }
 
-        .hero h1 { font-size: 2.5rem; color: var(--accent); text-transform: uppercase; }
+        .active { display: flex; }
 
-        .container {
-            max-width: 900px;
-            margin: -40px auto 2rem;
-            padding: 0 1rem;
-            width: 100%;
+        /* --- Barras de Progreso (Tipo Instagram) --- */
+        .progress-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 100;
+        }
+        .progress-bar {
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            flex-grow: 1;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--oro);
+            width: 0%;
         }
 
-        /* Vistas */
-        #view-loading, #view-general, #view-personal { 
-            background: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            display: none; 
+        /* --- Estilos de Diapositivas --- */
+        h1.navideno {
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 3.5rem;
+            color: var(--oro);
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
+        .stat-huge {
+            font-size: 6rem;
+            font-weight: 900;
+            margin: 20px 0;
+            color: var(--blanco);
+            line-height: 1;
         }
 
-        .stat-card {
-            background: #f9f9f9;
-            padding: 1.5rem;
-            border-radius: 12px;
-            border-bottom: 4px solid var(--accent);
+        .badge {
+            background: var(--navidad-rojo);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 2px solid var(--oro);
         }
 
-        .stat-value { font-size: 2.5rem; font-weight: 900; color: var(--primary); }
-        .stat-label { font-size: 0.8rem; color: #666; text-transform: uppercase; margin-top: 5px; }
-
-        .player-photo {
-            width: 100%;
-            max-width: 500px;
-            height: 350px;
-            margin: 20px auto;
+        .photo-frame {
+            width: 280px;
+            height: 280px;
+            border: 8px solid var(--blanco);
             border-radius: 10px;
             background-size: cover;
             background-position: center;
-            background-color: #ddd;
+            transform: rotate(-3deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            margin: 20px 0;
         }
 
-        .btn {
-            background: var(--accent);
-            color: var(--primary);
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
+        .final-card {
+            background: var(--blanco);
+            color: var(--oscuro);
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            text-align: left;
         }
 
-        footer { margin-top: auto; padding: 2rem; text-align: center; color: #777; font-size: 0.9rem; }
-        .hidden { display: none; }
+        /* --- Botones --- */
+        .nav-zones {
+            position: absolute;
+            top: 0; width: 100%; height: 100%;
+            display: flex;
+            z-index: 90;
+        }
+        .zone { width: 50%; height: 100%; cursor: pointer; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     </style>
 </head>
 <body>
 
-    <div class="hero">
-        <h1>2025 RECAP</h1>
-        <p>Club Escuela Nacional de Ajedrez Emanuel Lasker</p>
-    </div>
+    <canvas id="snow-canvas"></canvas>
 
-    <div class="container">
-        <div id="view-loading" style="display: block;">
-            <p>Cargando tus jugadas del 2025...</p>
+    <div class="story-container">
+        <div class="progress-container" id="progress-bars"></div>
+
+        <div class="nav-zones">
+            <div class="zone" onclick="prevSlide()"></div>
+            <div class="zone" onclick="nextSlide()"></div>
         </div>
 
-        <div id="view-general">
-            <h2>¡Felices Fiestas!</h2>
-            <p>Ingresa tu nombre para ver tu resumen anual:</p>
-            <div style="margin-top:20px;">
-                <input type="text" id="nameInput" style="padding:10px; border:1px solid #ccc; border-radius:5px;" placeholder="ej: juan">
-                <button class="btn" onclick="manualSearch()">Ver mi año</button>
+        <div class="slide active" style="background: var(--navidad-verde);">
+            <h1 class="navideno">¡Hola!</h1>
+            <h2 id="p-name-intro">Cargando...</h2>
+            <p style="margin-top: 20px;">Prepárate para ver tu resumen de ajedrez 2025.</p>
+            <div style="font-size: 3rem; margin-top: 30px;">🎄♟️</div>
+        </div>
+
+        <div class="slide" id="slide-achievement" style="background: var(--navidad-rojo);">
+            <div class="badge">LOGRO 2025</div>
+            <h2 id="p-title" style="font-size: 2rem;">Analizando...</h2>
+            <p id="p-title-desc" style="margin-top: 15px;"></p>
+        </div>
+
+        <div class="slide">
+            <h3>Jugaste</h3>
+            <div class="stat-huge" id="p-part">0</div>
+            <h3>Torneos Oficiales</h3>
+            <p style="margin-top: 20px;">¡Gracias por tu pasión en cada tablero!</p>
+        </div>
+
+        <div class="slide" style="background: #2980b9;">
+            <h3>Acumulaste</h3>
+            <div class="stat-huge" id="p-pts">0</div>
+            <h3>Puntos FIDE/FENAMAC</h3>
+            <p>Cada peón contado valió la pena.</p>
+        </div>
+
+        <div class="slide" style="background: var(--oscuro);">
+            <h3 style="color: var(--oro);">¡BRILLASTE EN EL TOP!</h3>
+            <div style="display: flex; gap: 20px; margin-top: 30px;">
+                <div>
+                    <div class="stat-huge" id="p-top3" style="font-size: 4rem; color: var(--oro);">0</div>
+                    <p>PODIOS</p>
+                </div>
+                <div>
+                    <div class="stat-huge" id="p-top10" style="font-size: 4rem;">0</div>
+                    <p>TOP 10</p>
+                </div>
             </div>
         </div>
 
-        <div id="view-personal">
-            <h2 id="p-full-name">Nombre Apellido</h2>
-            <span id="p-club" style="color: #666; font-weight: bold;">CLUB</span>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="p-part">0</div>
-                    <div class="stat-label">Torneos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="p-pts">0</div>
-                    <div class="stat-label">Puntos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="p-top3">0</div>
-                    <div class="stat-label">Podios</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="p-top10">0</div>
-                    <div class="stat-label">Top 10</div>
-                </div>
-            </div>
+        <div class="slide">
+            <h3>Un gran momento...</h3>
+            <div class="photo-frame" id="p-photo"></div>
+            <p>2025 fue un año de grandes jugadas.</p>
+        </div>
 
-            <div class="player-photo" id="p-photo"></div>
-            <p style="font-style: italic; margin-top: 15px;">"El ajedrez es lucha." - Emanuel Lasker</p>
+        <div class="slide" style="background: var(--navidad-verde);">
+            <div class="final-card">
+                <h3 id="p-final-name" style="border-bottom: 2px solid #ddd; padding-bottom: 5px;">Nombre</h3>
+                <p id="p-final-club" style="font-weight: bold; color: var(--navidad-verde);">Club</p>
+                <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><strong>Torneos:</strong> <span id="f-part"></span></div>
+                    <div><strong>Puntos:</strong> <span id="f-pts"></span></div>
+                    <div><strong>Top 3:</strong> <span id="f-top3"></span></div>
+                    <div><strong>Top 10:</strong> <span id="f-top10"></span></div>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.8rem; text-align: center;">enael.com.mx/recap2025</p>
+            </div>
+            <button onclick="location.reload()" style="margin-top: 20px; padding: 10px; border-radius: 5px; border:none;">Ver de nuevo ⟳</button>
         </div>
     </div>
-
-    <footer>
-        &copy; 2025 ENAEL - enael.com.mx
-    </footer>
 
     <script>
-        // Configuramos la ruta al CSV. 
-        // Usamos ruta absoluta o relativa al root para que funcione desde las subcarpetas.
-        const CSV_URL = '../recapENAEL2025.csv'; 
+        const CSV_URL = '../recapENAEL2025.csv';
+        let currentSlide = 0;
+        let slides = document.querySelectorAll('.slide');
+        let slideDuration = 5000; // 5 segundos por slide
+        let timer;
 
         async function init() {
             try {
-                const response = await fetch(CSV_URL);
-                const csvData = await response.text();
-                const players = parseCSV(csvData);
+                const res = await fetch(CSV_URL);
+                const data = await res.text();
+                const players = parseCSV(data);
+                
+                // Obtener usuario de la carpeta
+                const pathArray = window.location.pathname.split('/').filter(p => p);
+                const nameInPage = pathArray[pathArray.length - 1];
 
-                // Lógica de detección:
-                // Si la URL es enael.com.mx/recap2025/juan/ , el name será "juan"
-                const pathArray = window.location.pathname.split('/').filter(part => part !== "");
-                const lastSegment = pathArray[pathArray.length - 1];
-
-                // Si el último segmento es "recap2025", estamos en la raíz
-                if (lastSegment === 'recap2025' || !lastSegment) {
-                    showView('view-general');
+                const player = players.find(p => p.NameInPage.toLowerCase() === nameInPage.toLowerCase());
+                
+                if (player) {
+                    analyzeAndFill(player, players);
+                    setupProgressBars();
+                    startStory();
                 } else {
-                    renderPlayer(lastSegment, players);
+                    document.getElementById('p-name-intro').innerText = "¡Usuario no encontrado!";
                 }
-            } catch (e) {
-                console.error(e);
-                document.getElementById('view-loading').innerText = "Error al cargar datos.";
-            }
+            } catch (e) { console.error(e); }
         }
 
         function parseCSV(text) {
-            const [headerLine, ...rows] = text.split('\n').filter(r => r.trim());
-            const headers = headerLine.split(',').map(h => h.trim());
+            const [header, ...rows] = text.split('\n').filter(r => r.trim());
+            const keys = header.split(',').map(k => k.trim());
             return rows.map(row => {
                 const values = row.split(',').map(v => v.trim());
-                return headers.reduce((obj, h, i) => ({ ...obj, [h]: values[i] }), {});
+                return keys.reduce((o, k, i) => ({ ...o, [k]: values[i] }), {});
             });
         }
 
-        function renderPlayer(nameInPage, players) {
-            const player = players.find(p => p.NameInPage.toLowerCase() === nameInPage.toLowerCase());
-            
-            if (!player) {
-                showView('view-general');
-                alert("Usuario no encontrado");
-                return;
-            }
-
-            document.getElementById('view-loading').style.display = 'none';
-            showView('view-personal');
-
-            // Llenar datos
-            document.getElementById('p-full-name').innerText = `${player.NombresPila} ${player.Apellidos}`;
-            document.getElementById('p-club').innerText = player.Club;
+        function analyzeAndFill(player, all) {
+            // Llenar datos básicos
+            document.getElementById('p-name-intro').innerText = player.NombresPila;
             document.getElementById('p-part').innerText = player.PARTICIPACIONES;
             document.getElementById('p-pts').innerText = player.PUNTOS;
             document.getElementById('p-top3').innerText = player.TOP3;
             document.getElementById('p-top10').innerText = player.TOP10;
+            document.getElementById('p-photo').style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
+            
+            // Llenar tarjeta final
+            document.getElementById('p-final-name').innerText = player.NombresPila + " " + player.Apellidos;
+            document.getElementById('p-final-club').innerText = player.Club;
+            document.getElementById('f-part').innerText = player.PARTICIPACIONES;
+            document.getElementById('f-pts').innerText = player.PUNTOS;
+            document.getElementById('f-top3').innerText = player.TOP3;
+            document.getElementById('f-top10').innerText = player.TOP10;
 
-            // Foto: asumimos que están en ../fotos/nombre.jpg
-            const photoEl = document.getElementById('p-photo');
-            photoEl.style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
+            // --- ESCUDRIÑAR ESTADÍSTICAS ---
+            const maxPart = Math.max(...all.map(p => parseInt(p.PARTICIPACIONES)));
+            const maxPts = Math.max(...all.map(p => parseFloat(p.PUNTOS)));
+            const clubMates = all.filter(p => p.Club === player.Club);
+            const maxClubPts = Math.max(...clubMates.map(p => parseFloat(p.PUNTOS)));
+
+            let title = "¡Un gran 2025!";
+            let desc = "Seguiste creciendo en cada partida.";
+
+            if (parseInt(player.PARTICIPACIONES) >= maxPart) {
+                title = "¡El Más Activo!";
+                desc = "Nadie jugó más torneos que tú este año. ¡Tu constancia es inspiradora!";
+            } else if (parseFloat(player.PUNTOS) >= maxPts) {
+                title = "¡Máximo Goleador!";
+                desc = "Lograste la puntuación más alta de todo el ciclo 2025. ¡Imparable!";
+            } else if (parseFloat(player.PUNTOS) >= maxClubPts) {
+                title = `Orgullo de ${player.Club}`;
+                desc = `Fuiste el jugador con más puntos de tu club. ¡Felicidades!`;
+            } else if (parseInt(player.TOP3) > 0) {
+                title = "Rey del Podio";
+                desc = "Tus trofeos en el Top 3 demuestran tu gran nivel competitivo.";
+            }
+
+            document.getElementById('p-title').innerText = title;
+            document.getElementById('p-title-desc').innerText = desc;
         }
 
-        function showView(id) {
-            document.getElementById('view-loading').style.display = 'none';
-            document.getElementById(id).style.display = 'block';
+        // --- LÓGICA DE STORY ---
+        function setupProgressBars() {
+            const container = document.getElementById('progress-bars');
+            slides.forEach((_, i) => {
+                const bar = document.createElement('div');
+                bar.className = 'progress-bar';
+                bar.innerHTML = `<div class="progress-fill" id="fill-${i}"></div>`;
+                container.appendChild(bar);
+            });
         }
 
-        function manualSearch() {
-            const name = document.getElementById('nameInput').value.toLowerCase().trim();
-            if (name) window.location.href = `./${name}/`;
+        function startStory() {
+            showSlide(0);
         }
 
-        window.onload = init;
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+            
+            // Reiniciar rellenos de barras
+            for(let i=0; i<slides.length; i++) {
+                document.getElementById(`fill-${i}`).style.width = i < index ? '100%' : '0%';
+            }
+
+            // Animar barra actual
+            let fill = document.getElementById(`fill-${index}`);
+            let start = null;
+            
+            cancelAnimationFrame(timer);
+            
+            function animate(timestamp) {
+                if (!start) start = timestamp;
+                let progress = (timestamp - start) / slideDuration;
+                fill.style.width = Math.min(progress * 100, 100) + '%';
+                
+                if (progress < 1) {
+                    timer = requestAnimationFrame(animate);
+                } else {
+                    nextSlide();
+                }
+            }
+            timer = requestAnimationFrame(animate);
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        // --- EFECTO NIEVE ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let flakes = [];
+
+        function setupSnow() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<100; i++) {
+                flakes.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1, d: Math.random()*1 });
+            }
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            flakes.forEach(f => {
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+                f.y += Math.cos(f.d) + 1 + f.r/2;
+                f.x += Math.sin(f.d) * 2;
+                if(f.y > canvas.height) { f.y = -10; f.x = Math.random()*canvas.width; }
+            });
+            ctx.fill();
+            requestAnimationFrame(drawSnow);
+        }
+
+        window.onload = () => { init(); setupSnow(); drawSnow(); };
     </script>
 </body>
 </html>
