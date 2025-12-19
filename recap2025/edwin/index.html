@@ -145,7 +145,7 @@
 
         <div class="slide" style="background: var(--oscuro);">
             <div id="capture-area">
-                <span class="final-logo">Club Escuela Nacional de Ajedrez Emanuel Lasker les agradece</span>
+                <span class="final-logo">Club Escuela Nacional de Ajedrez Emanuel Lasker</span>
                 <h3 id="p-final-name" style="font-size: 1.4rem;">Nombre Jugador</h3>
                 <p id="p-final-club" style="color: var(--navidad-verde); font-weight: bold; font-size: 0.9rem;">Club</p>
                 
@@ -206,43 +206,81 @@
             });
         }
 
-        function analyzeAndFill(player, all) {
-            // Llenar datos de los slides
-            document.getElementById('p-name-intro').innerText = player.NombresPila;
-            document.getElementById('p-part').innerText = player.PARTICIPACIONES;
-            document.getElementById('p-pts').innerText = player.PUNTOS;
-            document.getElementById('p-top3').innerText = player.TOP3;
-            document.getElementById('p-top10').innerText = player.TOP10;
-            document.getElementById('p-photo').style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
-            
-            // Llenar tarjeta final
-            document.getElementById('p-final-name').innerText = player.NombresPila + " " + player.Apellidos;
-            document.getElementById('p-final-club').innerText = player.Club;
-            document.getElementById('f-part').innerText = player.PARTICIPACIONES;
-            document.getElementById('f-pts').innerText = player.PUNTOS;
+        /* --- REEMPLAZA TODA LA FUNCIÓN analyzeAndFill EN TU CÓDIGO --- */
 
-            // Omitir 0s en TARJETA FINAL
-            if(parseInt(player.TOP3) > 0) { document.getElementById('f-top3').innerText = player.TOP3; } 
-            else { document.getElementById('box-top3').style.display = 'none'; }
-            
-            if(parseInt(player.TOP10) > 0) { document.getElementById('f-top10').innerText = player.TOP10; } 
-            else { document.getElementById('box-top10').style.display = 'none'; }
+function analyzeAndFill(player, all) {
+    // 1. Llenado de datos básicos en los slides
+    document.getElementById('p-name-intro').innerText = player.NombresPila;
+    document.getElementById('p-part').innerText = player.PARTICIPACIONES;
+    document.getElementById('p-pts').innerText = player.PUNTOS;
+    document.getElementById('p-top3').innerText = player.TOP3;
+    document.getElementById('p-top10').innerText = player.TOP10;
+    document.getElementById('p-photo').style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
+    
+    // 2. Llenado de la tarjeta final
+    document.getElementById('p-final-name').innerText = player.NombresPila + " " + player.Apellidos;
+    document.getElementById('p-final-club').innerText = player.Club;
+    document.getElementById('f-part').innerText = player.PARTICIPACIONES;
+    document.getElementById('f-pts').innerText = player.PUNTOS;
 
-            // Lógica de Título Especial
-            const maxPart = Math.max(...all.map(p => parseInt(p.PARTICIPACIONES)));
-            const maxPts = Math.max(...all.map(p => parseFloat(p.PUNTOS)));
-            let title = "¡Gran año de ajedrez!";
-            let desc = "Gracias por ser parte fundamental de nuestra comunidad este 2025.";
-            if (parseInt(player.PARTICIPACIONES) >= maxPart) {
-                title = "¡Rey de la Constancia!";
-                desc = "Fuiste de los jugadores más activos del año. ¡Tu disciplina es admirable!";
-            } else if (parseFloat(player.PUNTOS) >= maxPts) {
-                title = "¡Estratega Maestro!";
-                desc = "Lograste una de las puntuaciones más altas del ciclo. ¡Impresionante!";
-            }
-            document.getElementById('p-title').innerText = title;
-            document.getElementById('p-title-desc').innerText = desc;
-        }
+    // Lógica para ocultar 0s solo en la TARJETA FINAL
+    if(parseInt(player.TOP3) > 0) { 
+        document.getElementById('f-top3').innerText = player.TOP3; 
+        document.getElementById('box-top3').style.display = 'block';
+    } else { 
+        document.getElementById('box-top3').style.display = 'none'; 
+    }
+    
+    if(parseInt(player.TOP10) > 0) { 
+        document.getElementById('f-top10').innerText = player.TOP10; 
+        document.getElementById('box-top10').style.display = 'block';
+    } else { 
+        document.getElementById('box-top10').style.display = 'none'; 
+    }
+
+    // 3. --- LÓGICA DE ESCUDRIÑAR ESTADÍSTICAS (LOGROS) ---
+    
+    // Convertir datos a números para comparar
+    const pPart = parseInt(player.PARTICIPACIONES);
+    const pPts = parseFloat(player.PUNTOS);
+    
+    // Máximos globales
+    const maxPartGlobal = Math.max(...all.map(p => parseInt(p.PARTICIPACIONES) || 0));
+    const maxPtsGlobal = Math.max(...all.map(p => parseFloat(p.PUNTOS) || 0));
+    
+    // Máximos del Club
+    const compañerosClub = all.filter(p => p.Club === player.Club);
+    const maxPtsClub = Math.max(...compañerosClub.map(p => parseFloat(p.PUNTOS) || 0));
+
+    let title = "¡Gran año de ajedrez!";
+    let desc = "Gracias por ser parte fundamental de nuestra comunidad este 2025.";
+
+    // Prioridad de títulos (del más difícil al más común)
+    if (pPart >= maxPartGlobal && pPart > 0) {
+        title = "¡Rey de la Constancia!";
+        desc = "Fuiste de los jugadores más activos de toda la escuela este año. ¡Disciplina de acero!";
+    } 
+    else if (pPts >= maxPtsGlobal && pPts > 0) {
+        title = "¡Estratega Maestro!";
+        desc = "¡Increíble! Lograste la puntuación más alta de todo el ciclo 2025.";
+    } 
+    else if (pPts >= maxPtsClub && compañerosClub.length > 1 && pPts > 0) {
+        title = `Líder en ${player.Club}`;
+        desc = `Fuiste el jugador con mayor puntuación de tu club. ¡Felicidades por ese logro!`;
+    } 
+    else if (parseInt(player.TOP3) > 0) {
+        title = "¡Directo al Podio!";
+        desc = "Tus resultados en el Top 3 demuestran que estás entre los mejores competidores.";
+    }
+    else if (pPart >= 3) {
+        title = "¡Jugador de Élite!";
+        desc = "Tu participación constante en torneos oficiales es lo que hace grande a este club.";
+    }
+
+    // Inyectar el resultado en el Slide 2
+    document.getElementById('p-title').innerText = title;
+    document.getElementById('p-title-desc').innerText = desc;
+}
 
         function setupProgressBars() {
             const container = document.getElementById('progress-bars');
