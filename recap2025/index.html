@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENAEL Recap 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #d4af37;
+            --white: #ffffff;
+            --bg: #f4f4f4;
+            --card-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Estilos Visuales --- */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #2c3e50 100%);
+            color: var(--white);
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
+        .hero h1 { font-size: 2.5rem; color: var(--accent); text-transform: uppercase; }
+
+        .container {
+            max-width: 900px;
+            margin: -40px auto 2rem;
+            padding: 0 1rem;
+            width: 100%;
+        }
+
+        /* Vistas */
+        #view-loading, #view-general, #view-personal { 
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            display: none; 
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .stat-value { font-size: 2.5rem; font-weight: 900; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: #666; text-transform: uppercase; margin-top: 5px; }
+
+        .player-photo {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            margin: 20px auto;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+            background-color: #ddd;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: var(--primary);
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        footer { margin-top: auto; padding: 2rem; text-align: center; color: #777; font-size: 0.9rem; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <h1>2025 RECAP</h1>
+        <p>Club Escuela Nacional de Ajedrez Emanuel Lasker</p>
+    </div>
+
+    <div class="container">
+        <div id="view-loading" style="display: block;">
+            <p>Cargando tus jugadas del 2025...</p>
+        </div>
+
+        <div id="view-general">
+            <h2>¡Felices Fiestas!</h2>
+            <p>Ingresa tu nombre para ver tu resumen anual:</p>
+            <div style="margin-top:20px;">
+                <input type="text" id="nameInput" style="padding:10px; border:1px solid #ccc; border-radius:5px;" placeholder="ej: juan">
+                <button class="btn" onclick="manualSearch()">Ver mi año</button>
+            </div>
+        </div>
+
+        <div id="view-personal">
+            <h2 id="p-full-name">Nombre Apellido</h2>
+            <span id="p-club" style="color: #666; font-weight: bold;">CLUB</span>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="p-part">0</div>
+                    <div class="stat-label">Torneos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="p-pts">0</div>
+                    <div class="stat-label">Puntos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="p-top3">0</div>
+                    <div class="stat-label">Podios</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="p-top10">0</div>
+                    <div class="stat-label">Top 10</div>
+                </div>
+            </div>
+
+            <div class="player-photo" id="p-photo"></div>
+            <p style="font-style: italic; margin-top: 15px;">"El ajedrez es lucha." - Emanuel Lasker</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 ENAEL - enael.com.mx
+    </footer>
+
+    <script>
+        // Configuramos la ruta al CSV. 
+        // Usamos ruta absoluta o relativa al root para que funcione desde las subcarpetas.
+        const CSV_URL = '../recapENAEL2025.csv'; 
+
+        async function init() {
+            try {
+                const response = await fetch(CSV_URL);
+                const csvData = await response.text();
+                const players = parseCSV(csvData);
+
+                // Lógica de detección:
+                // Si la URL es enael.com.mx/recap2025/juan/ , el name será "juan"
+                const pathArray = window.location.pathname.split('/').filter(part => part !== "");
+                const lastSegment = pathArray[pathArray.length - 1];
+
+                // Si el último segmento es "recap2025", estamos en la raíz
+                if (lastSegment === 'recap2025' || !lastSegment) {
+                    showView('view-general');
+                } else {
+                    renderPlayer(lastSegment, players);
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('view-loading').innerText = "Error al cargar datos.";
+            }
+        }
+
+        function parseCSV(text) {
+            const [headerLine, ...rows] = text.split('\n').filter(r => r.trim());
+            const headers = headerLine.split(',').map(h => h.trim());
+            return rows.map(row => {
+                const values = row.split(',').map(v => v.trim());
+                return headers.reduce((obj, h, i) => ({ ...obj, [h]: values[i] }), {});
+            });
+        }
+
+        function renderPlayer(nameInPage, players) {
+            const player = players.find(p => p.NameInPage.toLowerCase() === nameInPage.toLowerCase());
+            
+            if (!player) {
+                showView('view-general');
+                alert("Usuario no encontrado");
+                return;
+            }
+
+            document.getElementById('view-loading').style.display = 'none';
+            showView('view-personal');
+
+            // Llenar datos
+            document.getElementById('p-full-name').innerText = `${player.NombresPila} ${player.Apellidos}`;
+            document.getElementById('p-club').innerText = player.Club;
+            document.getElementById('p-part').innerText = player.PARTICIPACIONES;
+            document.getElementById('p-pts').innerText = player.PUNTOS;
+            document.getElementById('p-top3').innerText = player.TOP3;
+            document.getElementById('p-top10').innerText = player.TOP10;
+
+            // Foto: asumimos que están en ../fotos/nombre.jpg
+            const photoEl = document.getElementById('p-photo');
+            photoEl.style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
+        }
+
+        function showView(id) {
+            document.getElementById('view-loading').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function manualSearch() {
+            const name = document.getElementById('nameInput').value.toLowerCase().trim();
+            if (name) window.location.href = `./${name}/`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
