@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ENAEL Recap 2025</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -23,66 +24,76 @@
             color: var(--blanco);
             overflow: hidden;
             height: 100vh;
+            display: flex;
+            justify-content: center;
         }
 
         #snow-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 99; }
 
         .story-container {
-            max-width: 450px; height: 100vh; margin: 0 auto;
-            position: relative; background: linear-gradient(180deg, #1a1a1a 0%, #2c3e50 100%);
-            display: flex; align-items: center; justify-content: center;
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(180deg, #1a1a1a 0%, #2c3e50 100%);
+            overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
+        /* Diapositivas */
         .slide {
-            position: absolute; width: 100%; height: 100%; padding: 50px 25px;
+            position: absolute; width: 100%; height: 100%; padding: 60px 30px;
             display: none; flex-direction: column; align-items: center;
             justify-content: center; text-align: center; animation: fadeIn 0.4s ease-in;
         }
         .active { display: flex; }
 
-        /* Barras de Progreso */
+        /* Barras de Progreso Superior */
         .progress-container { position: absolute; top: 15px; left: 10px; right: 10px; display: flex; gap: 5px; z-index: 100; }
         .progress-bar { height: 3px; background: rgba(255,255,255,0.2); flex-grow: 1; border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--oro); width: 0%; }
 
+        /* Textos */
         h1.navideno { font-family: 'Mountains of Christmas', cursive; font-size: 3rem; color: var(--oro); text-shadow: 2px 2px 8px rgba(0,0,0,0.5); }
         .stat-huge { font-size: 5.5rem; font-weight: 900; color: var(--blanco); line-height: 1; margin: 15px 0; }
         
         /* Foto Proporción Vertical 4:6 */
         .photo-frame {
-            width: 75%;
+            width: 80%;
             aspect-ratio: 4 / 6;
             border: 6px solid var(--blanco);
             border-radius: 8px;
             background-size: cover;
             background-position: center;
-            transform: rotate(-2deg);
+            transform: rotate(-1.5deg);
             box-shadow: 0 10px 20px rgba(0,0,0,0.4);
             margin: 15px 0;
+            background-color: #333;
         }
 
-        /* Tarjeta Final de Captura */
+        /* Tarjeta Final Estilo Spotify/Instagram */
         #capture-area {
             background: var(--blanco); color: var(--oscuro);
-            padding: 20px; border-radius: 12px; width: 100%;
-            text-align: left; border-bottom: 6px solid var(--navidad-verde);
+            padding: 25px 20px; border-radius: 12px; width: 100%;
+            text-align: left; border-bottom: 8px solid var(--navidad-verde);
         }
-        .final-logo { font-family: 'Mountains of Christmas', cursive; font-size: 1.2rem; color: var(--navidad-rojo); margin-bottom: 5px; display: block;}
-        .stat-badge { background: #f4f4f4; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 5px; }
+        .final-logo { font-family: 'Mountains of Christmas', cursive; font-size: 1.3rem; color: var(--navidad-rojo); margin-bottom: 5px; display: block;}
+        .stat-badge { background: #f0f0f0; padding: 8px; border-radius: 5px; font-size: 0.85rem; }
 
-        /* Botones y Mensajes */
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; z-index: 101; }
-        .btn { padding: 12px 18px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        /* Botones */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; z-index: 101; }
+        .btn { padding: 12px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
         .btn-wa { background: #25D366; color: white; }
         .btn-dl { background: var(--oro); color: var(--oscuro); }
-        .official-msg { font-size: 0.75rem; line-height: 1.3; color: #eee; margin-top: 15px; padding: 0 5px; }
+        .btn:active { transform: scale(0.95); }
 
-        /* Zonas de navegación */
+        .official-msg { font-size: 0.78rem; line-height: 1.4; color: #eee; margin-top: 20px; padding: 0 5px; opacity: 0.9; }
+
+        /* Navegación Invisible */
         .nav-zones { position: absolute; top: 0; width: 100%; height: 100%; display: flex; z-index: 90; }
         .zone { width: 50%; height: 100%; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -99,35 +110,35 @@
 
         <div class="slide active" style="background: var(--navidad-verde);">
             <h1 class="navideno">¡Hola!</h1>
-            <h2 id="p-name-intro">...</h2>
+            <h2 id="p-name-intro">Cargando...</h2>
             <p style="margin-top: 15px;">Bienvenido a tu resumen 2025</p>
             <div style="font-size: 3rem; margin-top: 20px;">🎄♟️</div>
         </div>
 
         <div class="slide" style="background: var(--navidad-rojo);">
-            <h2 id="p-title" style="font-size: 1.8rem; line-height: 1.2;">...</h2>
-            <p id="p-title-desc" style="margin-top: 15px; font-size: 0.9rem; opacity: 0.9;"></p>
+            <h2 id="p-title" style="font-size: 1.8rem; line-height: 1.2;">¡Preparando tu corona!</h2>
+            <p id="p-title-desc" style="margin-top: 15px; font-size: 0.95rem; opacity: 0.9;"></p>
         </div>
 
         <div class="slide">
             <h3 style="color: var(--oro);">CONSTANCIA</h3>
             <div class="stat-huge" id="p-part">0</div>
             <h3>Torneos Jugados</h3>
-            <p style="margin-top: 15px; font-size: 0.9rem;">¡Cada partida sumó a tu historia!</p>
+            <p style="margin-top: 15px;">¡Gracias por cada batalla en el tablero!</p>
         </div>
 
         <div class="slide" style="background: #2980b9;">
             <h3 style="color: var(--oro);">PUNTUACIÓN</h3>
             <div class="stat-huge" id="p-pts">0</div>
             <h3>Puntos Totales</h3>
-            <p style="font-size: 0.9rem;">FIDE / FENAMAC</p>
+            <p style="font-size: 0.9rem;">Puntos FIDE / FENAMAC</p>
         </div>
 
-        <div class="slide" style="background: var(--oscuro);">
-            <h3 style="color: var(--oro);">TUS RESULTADOS</h3>
-            <div style="display: flex; gap: 30px; margin-top: 30px;">
+        <div class="slide" style="background: #2c3e50;">
+            <h3 style="color: var(--oro);">BRILLASTE EN EL TOP</h3>
+            <div style="display: flex; gap: 40px; margin-top: 30px;">
                 <div>
-                    <div class="stat-huge" id="p-top3" style="font-size: 4rem;">0</div>
+                    <div class="stat-huge" id="p-top3" style="font-size: 4rem; color: var(--oro);">0</div>
                     <p>TOP 3</p>
                 </div>
                 <div>
@@ -138,12 +149,12 @@
         </div>
 
         <div class="slide">
-            <h3>Tus mejores jugadas</h3>
+            <h3>Tu 2025 en imágenes</h3>
             <div class="photo-frame" id="p-photo"></div>
             <p style="font-size: 0.8rem; font-style: italic;">Club Emanuel Lasker</p>
         </div>
 
-        <div class="slide" style="background: var(--oscuro);">
+        <div class="slide" id="last-slide">
             <div id="capture-area">
                 <span class="final-logo">Club Escuela Nacional de Ajedrez Emanuel Lasker</span>
                 <h3 id="p-final-name" style="font-size: 1.4rem;">Nombre Jugador</h3>
@@ -159,7 +170,7 @@
 
             <div class="official-msg">
                 Felicita a todos sus miembros y amigos que participaron en nuestros torneos oficiales durante el ciclo 2025, esperando verlos de vuelta en 2026.<br><br>
-                <strong>¡Felices fiestas y un próspero año nuevo rodeados de sus seres queridos!</strong>
+                <strong>¡Felices fiestas y un próspero año nuevo!</strong>
             </div>
 
             <div class="btn-group">
@@ -182,6 +193,8 @@
                 const res = await fetch(CSV_URL);
                 const data = await res.text();
                 const players = parseCSV(data);
+                
+                // Detectar nombre por carpeta
                 const pathArray = window.location.pathname.split('/').filter(p => p);
                 const nameInPage = pathArray[pathArray.length - 1];
 
@@ -192,98 +205,93 @@
                     setupProgressBars();
                     startStory();
                 } else {
-                    document.getElementById('p-name-intro').innerText = "¡Bienvenido!";
+                    document.getElementById('p-name-intro').innerText = "¡Hola!";
+                    console.error("Jugador no encontrado en el CSV.");
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("Error cargando el CSV:", e);
+                document.getElementById('p-name-intro').innerText = "Error de Datos";
+            }
         }
 
         function parseCSV(text) {
-            const [header, ...rows] = text.split('\n').filter(r => r.trim());
-            const keys = header.split(',').map(k => k.trim());
-            return rows.map(row => {
-                const values = row.split(',').map(v => v.trim());
-                return keys.reduce((o, k, i) => ({ ...o, [k]: values[i] }), {});
+            const lines = text.split('\n').filter(l => l.trim());
+            const headers = lines[0].split(',').map(h => h.trim());
+            return lines.slice(1).map(line => {
+                const values = line.split(',').map(v => v.trim());
+                return headers.reduce((obj, header, i) => {
+                    obj[header] = values[i];
+                    return obj;
+                }, {});
             });
         }
 
-        /* --- REEMPLAZA TODA LA FUNCIÓN analyzeAndFill EN TU CÓDIGO --- */
+        function analyzeAndFill(player, all) {
+            // Llenar datos básicos en slides
+            document.getElementById('p-name-intro').innerText = player.NombresPila;
+            document.getElementById('p-part').innerText = player.PARTICIPACIONES || 0;
+            document.getElementById('p-pts').innerText = player.PUNTOS || 0;
+            document.getElementById('p-top3').innerText = player.TOP3 || 0;
+            document.getElementById('p-top10').innerText = player.TOP10 || 0;
+            document.getElementById('p-photo').style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
+            
+            // Llenar tarjeta final
+            document.getElementById('p-final-name').innerText = player.NombresPila + " " + (player.Apellidos || "");
+            document.getElementById('p-final-club').innerText = player.Club || "Independiente";
+            document.getElementById('f-part').innerText = player.PARTICIPACIONES || 0;
+            document.getElementById('f-pts').innerText = player.PUNTOS || 0;
 
-function analyzeAndFill(player, all) {
-    // 1. Llenado de datos básicos en los slides
-    document.getElementById('p-name-intro').innerText = player.NombresPila;
-    document.getElementById('p-part').innerText = player.PARTICIPACIONES;
-    document.getElementById('p-pts').innerText = player.PUNTOS;
-    document.getElementById('p-top3').innerText = player.TOP3;
-    document.getElementById('p-top10').innerText = player.TOP10;
-    document.getElementById('p-photo').style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
-    
-    // 2. Llenado de la tarjeta final
-    document.getElementById('p-final-name').innerText = player.NombresPila + " " + player.Apellidos;
-    document.getElementById('p-final-club').innerText = player.Club;
-    document.getElementById('f-part').innerText = player.PARTICIPACIONES;
-    document.getElementById('f-pts').innerText = player.PUNTOS;
+            // Omitir ceros en TARJETA FINAL
+            const t3 = parseInt(player.TOP3) || 0;
+            const t10 = parseInt(player.TOP10) || 0;
+            
+            if(t3 > 0) {
+                document.getElementById('f-top3').innerText = t3;
+                document.getElementById('box-top3').style.display = 'block';
+            } else {
+                document.getElementById('box-top3').style.display = 'none';
+            }
 
-    // Lógica para ocultar 0s solo en la TARJETA FINAL
-    if(parseInt(player.TOP3) > 0) { 
-        document.getElementById('f-top3').innerText = player.TOP3; 
-        document.getElementById('box-top3').style.display = 'block';
-    } else { 
-        document.getElementById('box-top3').style.display = 'none'; 
-    }
-    
-    if(parseInt(player.TOP10) > 0) { 
-        document.getElementById('f-top10').innerText = player.TOP10; 
-        document.getElementById('box-top10').style.display = 'block';
-    } else { 
-        document.getElementById('box-top10').style.display = 'none'; 
-    }
+            if(t10 > 0) {
+                document.getElementById('f-top10').innerText = t10;
+                document.getElementById('box-top10').style.display = 'block';
+            } else {
+                document.getElementById('box-top10').style.display = 'none';
+            }
 
-    // 3. --- LÓGICA DE ESCUDRIÑAR ESTADÍSTICAS (LOGROS) ---
-    
-    // Convertir datos a números para comparar
-    const pPart = parseInt(player.PARTICIPACIONES);
-    const pPts = parseFloat(player.PUNTOS);
-    
-    // Máximos globales
-    const maxPartGlobal = Math.max(...all.map(p => parseInt(p.PARTICIPACIONES) || 0));
-    const maxPtsGlobal = Math.max(...all.map(p => parseFloat(p.PUNTOS) || 0));
-    
-    // Máximos del Club
-    const compañerosClub = all.filter(p => p.Club === player.Club);
-    const maxPtsClub = Math.max(...compañerosClub.map(p => parseFloat(p.PUNTOS) || 0));
+            // LÓGICA DE TÍTULOS ESPECIALES (PARA QUE NO SALGAN ...)
+            const pPart = parseInt(player.PARTICIPACIONES) || 0;
+            const pPts = parseFloat(player.PUNTOS) || 0;
+            const maxPartGlobal = Math.max(...all.map(p => parseInt(p.PARTICIPACIONES) || 0));
+            const maxPtsGlobal = Math.max(...all.map(p => parseFloat(p.PUNTOS) || 0));
+            const compañeros = all.filter(p => p.Club === player.Club);
+            const maxPtsClub = Math.max(...compañeros.map(p => parseFloat(p.PUNTOS) || 0));
 
-    let title = "¡Gran año de ajedrez!";
-    let desc = "Gracias por ser parte fundamental de nuestra comunidad este 2025.";
+            let title = "¡Un año increíble!";
+            let desc = "Gracias por acompañarnos en cada tablero durante este ciclo 2025.";
 
-    // Prioridad de títulos (del más difícil al más común)
-    if (pPart >= maxPartGlobal && pPart > 0) {
-        title = "¡Rey de la Constancia!";
-        desc = "Fuiste de los jugadores más activos de toda la escuela este año. ¡Disciplina de acero!";
-    } 
-    else if (pPts >= maxPtsGlobal && pPts > 0) {
-        title = "¡Estratega Maestro!";
-        desc = "¡Increíble! Lograste la puntuación más alta de todo el ciclo 2025.";
-    } 
-    else if (pPts >= maxPtsClub && compañerosClub.length > 1 && pPts > 0) {
-        title = `Líder en ${player.Club}`;
-        desc = `Fuiste el jugador con mayor puntuación de tu club. ¡Felicidades por ese logro!`;
-    } 
-    else if (parseInt(player.TOP3) > 0) {
-        title = "¡Directo al Podio!";
-        desc = "Tus resultados en el Top 3 demuestran que estás entre los mejores competidores.";
-    }
-    else if (pPart >= 3) {
-        title = "¡Jugador de Élite!";
-        desc = "Tu participación constante en torneos oficiales es lo que hace grande a este club.";
-    }
+            if (pPart >= maxPartGlobal && pPart > 0) {
+                title = "¡Rey de la Constancia!";
+                desc = "Fuiste de los jugadores más activos de toda la escuela. ¡Disciplina ejemplar!";
+            } else if (pPts >= maxPtsGlobal && pPts > 0) {
+                title = "¡Estratega Maestro!";
+                desc = "Lograste la puntuación más alta de todo el ciclo. ¡Simplemente imparable!";
+            } else if (pPts >= maxPtsClub && compañeros.length > 1 && pPts > 0) {
+                title = `Orgullo de ${player.Club}`;
+                desc = "Fuiste el jugador con mayor puntaje de tu club. ¡Felicidades!";
+            } else if (t3 > 0) {
+                title = "¡Fuerza en el Podio!";
+                desc = "Tus trofeos demuestran que estás en el nivel más alto de competencia.";
+            }
 
-    // Inyectar el resultado en el Slide 2
-    document.getElementById('p-title').innerText = title;
-    document.getElementById('p-title-desc').innerText = desc;
-}
+            document.getElementById('p-title').innerText = title;
+            document.getElementById('p-title-desc').innerText = desc;
+        }
 
+        // LÓGICA DE HISTORIAS
         function setupProgressBars() {
             const container = document.getElementById('progress-bars');
+            container.innerHTML = ""; // Limpiar
             slides.forEach((_, i) => {
                 const bar = document.createElement('div');
                 bar.className = 'progress-bar';
@@ -295,18 +303,22 @@ function analyzeAndFill(player, all) {
         function showSlide(index) {
             slides.forEach(s => s.classList.remove('active'));
             slides[index].classList.add('active');
+            
             for(let i=0; i<slides.length; i++) {
-                document.getElementById(`fill-${i}`).style.width = i < index ? '100%' : '0%';
+                const fill = document.getElementById(`fill-${i}`);
+                if(fill) fill.style.width = i < index ? '100%' : '0%';
             }
+
             if (index === slides.length - 1) { cancelAnimationFrame(timer); return; }
             
-            let fill = document.getElementById(`fill-${index}`);
+            let fillCurrent = document.getElementById(`fill-${index}`);
             let start = null;
             cancelAnimationFrame(timer);
+            
             function animate(timestamp) {
                 if (!start) start = timestamp;
                 let progress = (timestamp - start) / slideDuration;
-                fill.style.width = Math.min(progress * 100, 100) + '%';
+                if(fillCurrent) fillCurrent.style.width = Math.min(progress * 100, 100) + '%';
                 if (progress < 1) timer = requestAnimationFrame(animate);
                 else nextSlide();
             }
@@ -319,29 +331,31 @@ function analyzeAndFill(player, all) {
 
         function downloadRecap() {
             const area = document.getElementById('capture-area');
-            html2canvas(area).then(canvas => {
+            html2canvas(area, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Recap2025_${playerData.NombresPila}.png`;
-                link.href = canvas.toDataURL();
+                link.download = `Recap2025_ENAEL.png`;
+                link.href = canvas.toDataURL("image/png");
                 link.click();
             });
         }
 
         function shareWhatsApp() {
-            const msg = `Mira mi resumen 2025 en el Club Escuela Nacional de Ajedrez Emanuel Lasker: ${window.location.href}`;
+            const msg = `¡Mira mi resumen 2025 en el Club Emanuel Lasker! Míralo aquí: ${window.location.href}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // Nieve
+        // Animación de Nieve
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
         let flakes = [];
         function setupSnow() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            flakes = [];
             for(let i=0; i<70; i++) flakes.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1 });
         }
         function drawSnow() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = "white"; ctx.beginPath();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white"; ctx.beginPath();
             flakes.forEach(f => {
                 ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
                 f.y += 1 + f.r/2; if(f.y > canvas.height) f.y = -10;
@@ -350,6 +364,7 @@ function analyzeAndFill(player, all) {
         }
 
         window.onload = () => { init(); setupSnow(); drawSnow(); };
+        window.onresize = setupSnow;
     </script>
 </body>
 </html>
