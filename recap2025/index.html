@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENAEL Recap 2025</title>
+    <title>ENAEL Recap 2025 - Resumen Global</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
@@ -36,41 +35,42 @@
             overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
+        /* Slides */
         .slide {
-            position: absolute; width: 100%; height: 100%; padding: 40px 30px;
+            position: absolute; width: 100%; height: 100%; padding: 40px 25px;
             display: none; flex-direction: column; align-items: center;
-            justify-content: center; text-align: center; animation: fadeIn 0.4s ease-in;
+            justify-content: center; text-align: center; animation: fadeIn 0.5s ease-in;
         }
         .active { display: flex; }
 
-        .progress-container { position: absolute; top: 15px; left: 10px; right: 10px; display: flex; gap: 5px; z-index: 100; }
+        /* Barras de Progreso */
+        .progress-container { position: absolute; top: 15px; left: 10px; right: 10px; display: flex; gap: 3px; z-index: 100; }
         .progress-bar { height: 3px; background: rgba(255,255,255,0.2); flex-grow: 1; border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--oro); width: 0%; }
 
-        h1.navideno { font-family: 'Mountains of Christmas', cursive; font-size: 3.2rem; color: var(--oro); text-shadow: 2px 2px 8px rgba(0,0,0,0.5); }
-        .stat-huge { font-size: 5.5rem; font-weight: 900; color: var(--blanco); line-height: 1; margin: 15px 0; }
-        
-        .photo-frame {
-            width: 85%; aspect-ratio: 4 / 6;
-            border: 6px solid var(--blanco); border-radius: 8px;
-            background-size: cover; background-position: center;
-            transform: rotate(-1.5deg); box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            margin: 20px 0; background-color: #333;
-        }
+        /* Textos y Estilos */
+        h1.navideno { font-family: 'Mountains of Christmas', cursive; font-size: 3rem; color: var(--oro); text-shadow: 2px 2px 8px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        .stat-huge { font-size: 4.5rem; font-weight: 900; color: var(--blanco); line-height: 1; margin: 10px 0; }
+        .stat-label { font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
 
-        #capture-area {
-            background: var(--blanco); color: var(--oscuro);
-            padding: 25px 20px; border-radius: 12px; width: 100%;
-            text-align: left; border-bottom: 8px solid var(--navidad-verde);
-        }
-        .final-logo { font-family: 'Mountains of Christmas', cursive; font-size: 1.3rem; color: var(--navidad-rojo); margin-bottom: 5px; display: block;}
-        .stat-badge { background: #f0f0f0; padding: 8px; border-radius: 5px; font-size: 0.85rem; }
+        /* Listas de Top Players */
+        .leader-list { width: 100%; text-align: left; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-top: 10px; }
+        .leader-item { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
+        .leader-item:last-child { border: none; margin: 0; }
+        .leader-name { font-weight: bold; color: var(--oro); }
+        .leader-val { font-weight: 400; }
 
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; z-index: 101; }
-        .btn { padding: 12px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
-        .btn-wa { background: #25D366; color: white; }
-        .btn-dl { background: var(--oro); color: var(--oscuro); }
-        .official-msg { font-size: 0.75rem; line-height: 1.4; color: #eee; margin-top: 20px; }
+        /* Buscador Final */
+        .search-box { margin-top: 30px; width: 100%; }
+        input { padding: 15px; width: 70%; border-radius: 30px 0 0 30px; border: none; outline: none; font-size: 1rem; text-align: center; }
+        button.search-btn { padding: 15px 20px; width: 25%; border-radius: 0 30px 30px 0; border: none; background: var(--oro); color: var(--oscuro); font-weight: bold; cursor: pointer; }
+
+        /* Foto Destacada (Generada por JS) */
+        .spotlight-frame {
+            width: 85%; aspect-ratio: 4/6; border: 5px solid white; border-radius: 10px;
+            background-size: cover; background-position: center; margin-bottom: 15px;
+            transform: rotate(2deg); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
 
         .nav-zones { position: absolute; top: 0; width: 100%; height: 100%; display: flex; z-index: 90; }
         .zone { width: 50%; height: 100%; }
@@ -82,7 +82,7 @@
 
     <canvas id="snow-canvas"></canvas>
 
-    <div class="story-container">
+    <div class="story-container" id="story-box">
         <div class="progress-container" id="progress-bars"></div>
         <div class="nav-zones">
             <div class="zone" onclick="prevSlide()"></div>
@@ -90,105 +90,83 @@
         </div>
 
         <div class="slide active" style="background: var(--navidad-verde);">
-            <h1 class="navideno">¡Hola!</h1>
-            <h2 id="p-name-intro">Cargando...</h2>
-            <p style="margin-top: 15px;">Bienvenido a tu resumen 2025</p>
-            <div style="font-size: 3.5rem; margin-top: 25px;">🎄♟️</div>
-        </div>
-
-        <div class="slide" style="background: var(--navidad-rojo);">
-            <h2 id="p-title" style="font-size: 1.8rem; line-height: 1.2;">¡Un año para recordar!</h2>
-            <div style="font-size: 4rem; margin: 20px 0;">🏆</div>
-            <p id="p-title-desc" style="font-size: 1rem; opacity: 0.9; padding: 0 10px;"></p>
-        </div>
-
-        <div class="slide">
-            <h3 style="color: var(--oro);">CONSTANCIA</h3>
-            <div class="stat-huge" id="p-part">0</div>
-            <h3>Torneos Jugados</h3>
-            <p style="margin-top: 15px;">Cada partida te hizo más fuerte.</p>
-        </div>
-
-        <div class="slide" style="background: #2980b9;">
-            <h3 style="color: var(--oro);">PUNTUACIÓN</h3>
-            <div class="stat-huge" id="p-pts">0</div>
-            <h3>Puntos Totales</h3>
-            <p style="font-size: 0.9rem;">Ranking oficial ENAEL</p>
+            <h1 class="navideno">Resumen 2025</h1>
+            <h2>Club Escuela Nacional de Ajedrez Emanuel Lasker</h2>
+            <div style="font-size: 4rem; margin: 30px 0;">♟️🌎</div>
+            <p>Un año de grandes jugadas y nuevos amigos.</p>
         </div>
 
         <div class="slide" style="background: #2c3e50;">
-            <h3 style="color: var(--oro);">EN EL PODIO</h3>
-            <div style="display: flex; gap: 30px; margin-top: 30px;">
-                <div>
-                    <div class="stat-huge" id="p-top3" style="font-size: 4rem; color: var(--oro);">0</div>
-                    <p>TOP 3</p>
-                </div>
-                <div>
-                    <div class="stat-huge" id="p-top10" style="font-size: 4rem;">0</div>
-                    <p>TOP 10</p>
-                </div>
-            </div>
+            <h1 class="navideno">En Números</h1>
+            
+            <div class="stat-huge" id="g-players">0</div>
+            <div class="stat-label">Jugadores Activos</div>
+            
+            <div class="stat-huge" id="g-games">0</div>
+            <div class="stat-label">Torneos Jugados</div>
+            
+            <p style="opacity: 0.8; font-size: 0.9rem;">Sumando esfuerzo colectivo</p>
         </div>
 
-        <div class="slide">
-            <h3>Tu 2025 en imágenes</h3>
-            <div class="photo-frame" id="p-photo"></div>
-            <p style="font-size: 0.8rem; font-style: italic; opacity: 0.8;">Club Emanuel Lasker</p>
+        <div class="slide" style="background: var(--navidad-rojo);">
+            <h1 class="navideno">Los Más Activos</h1>
+            <p style="margin-bottom: 20px;">Nadie jugó más torneos que ellos:</p>
+            <div class="leader-list" id="list-part">
+                </div>
         </div>
 
-        <div class="slide">
-            <div id="capture-area">
-                <span class="final-logo">Club ENAEL Emanuel Lasker</span>
-                <h3 id="p-final-name" style="font-size: 1.3rem;">Nombre</h3>
-                <p id="p-final-club" style="color: var(--navidad-verde); font-weight: bold; font-size: 0.8rem; margin-bottom: 15px;">Club</p>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div class="stat-badge"><strong>Torneos:</strong> <span id="f-part">0</span></div>
-                    <div class="stat-badge"><strong>Puntos:</strong> <span id="f-pts">0</span></div>
-                    <div class="stat-badge" id="box-top3"><strong>Top 3:</strong> <span id="f-top3">0</span></div>
-                    <div class="stat-badge" id="box-top10"><strong>Top 10:</strong> <span id="f-top10">0</span></div>
+        <div class="slide" style="background: #2980b9;">
+            <h1 class="navideno">Máximos Puntos</h1>
+            <p style="margin-bottom: 20px;">Liderando el ranking FENAMAC/FIDE:</p>
+            <div class="leader-list" id="list-pts">
                 </div>
-            </div>
+        </div>
 
-            <div class="official-msg">
-                Felicita a todos sus miembros y amigos por este ciclo 2025. ¡Nos vemos en el tablero este 2026!<br><br>
-                <strong>¡Felices fiestas y próspero año nuevo!</strong>
-            </div>
+        <div class="slide" style="background: var(--oscuro);">
+            <h1 class="navideno" style="color: var(--oro);">Reyes del Podio</h1>
+            <p style="margin-bottom: 20px;">Más veces en el Top 3:</p>
+            <div class="leader-list" id="list-top3">
+                </div>
+        </div>
 
-            <div class="btn-group">
-                <button class="btn btn-dl" onclick="downloadRecap()">💾 Guardar</button>
-                <button class="btn btn-wa" onclick="shareWhatsApp()">📱 Compartir</button>
+        <div class="slide search-slide" style="background: var(--navidad-verde);">
+            <h1 class="navideno">Tu Turno</h1>
+            <p>¿Jugaste con nosotros en 2025?</p>
+            <p style="margin-top: 10px;">Busca tu resumen personal:</p>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Tu nombre (ej: Juan)">
+                <button class="search-btn" onclick="manualSearch()">IR</button>
             </div>
+            <p id="error-msg" style="color: #ffcccc; margin-top: 15px; display: none;">Usuario no encontrado. Prueba otro nombre.</p>
+            
+            <div style="font-size: 3rem; margin-top: 40px;">🎄</div>
         </div>
     </div>
 
     <script>
-        const CSV_URL = '../recapENAEL2025.csv';
+        const CSV_URL = 'recapENAEL2025.csv'; // Asegúrate que esté en la misma carpeta
         let currentSlide = 0;
-        let slides = document.querySelectorAll('.slide');
-        let slideDuration = 5500;
+        let slideDuration = 5000;
         let timer;
-        let playerData = null;
+        let allPlayers = [];
+        let slides; // Se definirá después de inyectar
 
         async function init() {
             try {
                 const res = await fetch(CSV_URL);
-                const data = await res.text();
-                const players = parseCSV(data);
+                const text = await res.text();
+                allPlayers = parseCSV(text);
                 
-                const pathArray = window.location.pathname.split('/').filter(p => p);
-                const nameInPage = pathArray[pathArray.length - 1];
-
-                playerData = players.find(p => p.NameInPage && p.NameInPage.trim().toLowerCase() === nameInPage.toLowerCase());
+                calculateGlobals(allPlayers);
+                injectSpotlightSlides(allPlayers); // Inyectar fotos antes de iniciar
                 
-                if (playerData) {
-                    analyzeAndFill(playerData, players);
-                    setupProgressBars();
-                    showSlide(0);
-                } else {
-                    document.getElementById('p-name-intro').innerText = "¡Bienvenido!";
-                }
-            } catch (e) { console.error(e); }
+                // Reiniciar lista de slides ahora que agregamos nuevos
+                slides = document.querySelectorAll('.slide');
+                
+                setupProgressBars();
+                showSlide(0);
+            } catch (e) { console.error("Error:", e); }
         }
 
         function parseCSV(text) {
@@ -204,58 +182,60 @@
             });
         }
 
-        function analyzeAndFill(player, all) {
-            // Llenar textos básicos
-            document.getElementById('p-name-intro').innerText = player.NombresPila;
-            document.getElementById('p-part').innerText = player.PARTICIPACIONES || "0";
-            document.getElementById('p-pts').innerText = player.PUNTOS || "0";
-            document.getElementById('p-top3').innerText = player.TOP3 || "0";
-            document.getElementById('p-top10').innerText = player.TOP10 || "0";
-            document.getElementById('p-photo').style.backgroundImage = `url('../fotos/${player.NameInPage}.jpg')`;
-            
-            // Tarjeta Final
-            document.getElementById('p-final-name').innerText = player.NombresPila + " " + (player.Apellidos || "");
-            document.getElementById('p-final-club').innerText = player.Club || "Independiente";
-            document.getElementById('f-part').innerText = player.PARTICIPACIONES || "0";
-            document.getElementById('f-pts').innerText = player.PUNTOS || "0";
+        function calculateGlobals(players) {
+            // 1. Totales
+            document.getElementById('g-players').innerText = players.length;
+            const totalTorneos = players.reduce((sum, p) => sum + (parseInt(p.PARTICIPACIONES)||0), 0);
+            document.getElementById('g-games').innerText = totalTorneos;
 
-            // Omitir 0s en tarjeta final
-            const t3 = parseInt(player.TOP3 || "0");
-            const t10 = parseInt(player.TOP10 || "0");
-            if(t3 > 0) { document.getElementById('f-top3').innerText = t3; } 
-            else { document.getElementById('box-top3').style.display = 'none'; }
-            if(t10 > 0) { document.getElementById('f-top10').innerText = t10; } 
-            else { document.getElementById('box-top10').style.display = 'none'; }
+            // 2. Tops
+            const topPart = [...players].sort((a,b) => (parseInt(b.PARTICIPACIONES)||0) - (parseInt(a.PARTICIPACIONES)||0)).slice(0, 3);
+            const topPts = [...players].sort((a,b) => (parseFloat(b.PUNTOS)||0) - (parseFloat(a.PUNTOS)||0)).slice(0, 3);
+            const topPodium = [...players].sort((a,b) => (parseInt(b.TOP3)||0) - (parseInt(a.TOP3)||0)).slice(0, 3);
 
-            // LÓGICA DE FELICITACIÓN ESPECIAL (SLIDE 2)
-            const pPart = parseInt(player.PARTICIPACIONES || "0");
-            const pPts = parseFloat(player.PUNTOS || "0");
-            const maxPart = Math.max(...all.map(p => parseInt(p.PARTICIPACIONES || "0")));
-            const maxPts = Math.max(...all.map(p => parseFloat(p.PUNTOS || "0")));
-            const compañeros = all.filter(p => p.Club === player.Club);
-            const maxPtsClub = Math.max(...compañeros.map(p => parseFloat(p.PUNTOS || "0")));
-
-            let title = "¡Gran año 2025!";
-            let desc = "Tu presencia en los torneos oficiales ha sido fundamental para el club este año.";
-
-            if (pPart >= maxPart && pPart > 0) {
-                title = "¡Rey de la Constancia!";
-                desc = "Eres uno de los jugadores más activos de toda la escuela. ¡Nada te detiene!";
-            } else if (pPts >= maxPts && pPts > 0) {
-                title = "¡Estratega Maestro!";
-                desc = "Lograste una de las puntuaciones más altas de todo el ciclo 2025. ¡Impresionante!";
-            } else if (pPts >= maxPtsClub && compañeros.length > 1 && pPts > 0) {
-                title = `Líder de ${player.Club}`;
-                desc = `Fuiste el jugador con mayor puntaje de tu club este año. ¡Felicidades!`;
-            } else if (t3 > 0) {
-                title = "¡Fuerza en el Podio!";
-                desc = "Tus resultados en el Top 3 demuestran un nivel competitivo excepcional.";
-            }
-
-            document.getElementById('p-title').innerText = title;
-            document.getElementById('p-title-desc').innerText = desc;
+            renderList('list-part', topPart, 'PARTICIPACIONES', 'torneos');
+            renderList('list-pts', topPts, 'PUNTOS', 'pts');
+            renderList('list-top3', topPodium, 'TOP3', 'podios');
         }
 
+        function renderList(id, list, key, label) {
+            const container = document.getElementById(id);
+            list.forEach(p => {
+                container.innerHTML += `
+                    <div class="leader-item">
+                        <span class="leader-name">${p.NombresPila}</span>
+                        <span class="leader-val">${p[key]} ${label}</span>
+                    </div>`;
+            });
+        }
+
+        function injectSpotlightSlides(players) {
+            // Seleccionar 5 jugadores aleatorios para destacar
+            // Filtramos los que tengan nombre de foto (NameInPage)
+            const validPlayers = players.filter(p => p.NameInPage);
+            const shuffled = validPlayers.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+            const container = document.getElementById('story-box');
+            const searchSlide = document.querySelector('.search-slide'); // Insertar antes del buscador
+
+            shuffled.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'slide';
+                div.innerHTML = `
+                    <h3 style="color: var(--oro);">Destacado 2025</h3>
+                    <div class="spotlight-frame" style="background-image: url('fotos/${p.NameInPage}.jpg')"></div>
+                    <h2 style="font-size: 2rem;">${p.NombresPila}</h2>
+                    <p>${p.Club}</p>
+                    <div style="margin-top:10px; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px;">
+                        ${p.PARTICIPACIONES} Torneos jugados
+                    </div>
+                `;
+                // Insertamos antes del último slide (buscador)
+                container.insertBefore(div, searchSlide);
+            });
+        }
+
+        // --- NAVEGACIÓN ---
         function setupProgressBars() {
             const container = document.getElementById('progress-bars');
             container.innerHTML = "";
@@ -270,14 +250,18 @@
         function showSlide(index) {
             slides.forEach(s => s.classList.remove('active'));
             slides[index].classList.add('active');
+
             for(let i=0; i<slides.length; i++) {
                 const fill = document.getElementById(`fill-${i}`);
                 if(fill) fill.style.width = i < index ? '100%' : '0%';
             }
-            if (index === slides.length - 1) { cancelAnimationFrame(timer); return; }
+
+            if (index === slides.length - 1) { cancelAnimationFrame(timer); return; } // Parar en el buscador
+
             let fillCurrent = document.getElementById(`fill-${index}`);
             let start = null;
             cancelAnimationFrame(timer);
+            
             function animate(timestamp) {
                 if (!start) start = timestamp;
                 let progress = (timestamp - start) / slideDuration;
@@ -291,21 +275,20 @@
         function nextSlide() { if (currentSlide < slides.length - 1) { currentSlide++; showSlide(currentSlide); } }
         function prevSlide() { if (currentSlide > 0) { currentSlide--; showSlide(currentSlide); } }
 
-        function downloadRecap() {
-            const area = document.getElementById('capture-area');
-            html2canvas(area, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `Recap2025_ENAEL.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            });
+        // --- BUSCADOR ---
+        function manualSearch() {
+            const input = document.getElementById('searchInput').value.trim().toLowerCase();
+            const player = allPlayers.find(p => p.NameInPage.toLowerCase() === input || p.NombresPila.toLowerCase() === input);
+            
+            if (player) {
+                // Redirigir a la carpeta del usuario
+                window.location.href = `${player.NameInPage}/`; 
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
         }
 
-        function shareWhatsApp() {
-            const msg = `¡Mira mi resumen 2025 en el Club Emanuel Lasker! ♟️ Ver aquí: ${window.location.href}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
+        // --- NIEVE ---
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
         let flakes = [];
