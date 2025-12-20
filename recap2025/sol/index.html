@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>ENAEL Recap 2025</title>
+
+<!-- html2canvas -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+:root{
+  --rojo:#c0392b;
+  --verde:#1e8449;
+  --oro:#f1c40f;
+  --blanco:#ffffff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
+
+body{
+  background:#111;
+  display:flex;
+  justify-content:center;
+}
+
+#app{
+  width:100%;
+  max-width:450px;
+  height:100vh;
+  background:linear-gradient(180deg,var(--rojo),var(--verde));
+  color:var(--blanco);
+  position:relative;
+  overflow:hidden;
+}
+
+/* PROGRESS */
+#progress{
+  display:flex;
+  gap:4px;
+  padding:10px;
+}
+.bar{
+  flex:1;
+  height:4px;
+  background:rgba(255,255,255,.3);
+}
+.bar.active{background:var(--oro);}
+
+/* SLIDES */
+.slide{
+  display:none;
+  height:calc(100vh - 30px);
+  padding:20px;
+  text-align:center;
+}
+.slide.active{display:flex;flex-direction:column;justify-content:center;}
+
+h1{font-size:2rem;}
+.big{font-size:4rem;font-weight:800;color:var(--oro);}
+.sub{opacity:.9}
+
+/* FOTO */
+.photo-box{
+  margin:auto;
+  width:70%;
+  aspect-ratio:4/6;
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+}
+.photo-box img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#000;
+}
+.badge{
+  position:absolute;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--oro);
+  color:#000;
+  padding:6px 14px;
+  border-radius:20px;
+  font-weight:700;
+}
+
+/* FINAL CARD */
+#finalCard{
+  background:#fff;
+  color:#000;
+  padding:20px;
+  border-radius:16px;
+}
+.stat{display:flex;justify-content:space-between;margin:6px 0;}
+.hidden{display:none;}
+
+/* NAV TOUCH */
+#navLeft,#navRight{
+  position:absolute;
+  top:0;bottom:0;width:50%;
+}
+#navLeft{left:0;}
+#navRight{right:0;}
+
+/* ACTIONS */
+.actions{
+  margin-top:20px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:20px;
+  font-weight:600;
+}
+
+/* SNOW */
+canvas{
+  position:absolute;
+  top:0;left:0;
+  pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+  <canvas id="snow"></canvas>
+
+  <div id="progress"></div>
+
+  <div class="slide" id="s0"><h1 id="hello">¡Hola!</h1></div>
+
+  <div class="slide"><div class="big" id="part"></div><div class="sub">Torneos jugados</div></div>
+
+  <div class="slide"><div class="big" id="points"></div><div class="sub">Puntos totales</div></div>
+
+  <div class="slide">
+    <div class="big">🏆</div>
+    <p>Top 3: <b id="top3"></b></p>
+    <p>Top 10: <b id="top10"></b></p>
+  </div>
+
+  <div class="slide">
+    <div class="photo-box">
+      <img id="photo" />
+      <div class="badge" id="badge"></div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div id="finalCard">
+      <h2 id="finalName"></h2>
+      <p id="finalClub"></p>
+      <div class="stat"><span>Torneos</span><span id="fPart"></span></div>
+      <div class="stat"><span>Puntos</span><span id="fPoints"></span></div>
+      <div class="stat" id="rowTop3"><span>Top 3</span><span id="fTop3"></span></div>
+      <div class="stat" id="rowTop10"><span>Top 10</span><span id="fTop10"></span></div>
+    </div>
+
+    <div class="actions">
+      <button onclick="download()">📸 Descargar</button>
+      <button onclick="share()">📤 Compartir</button>
+    </div>
+  </div>
+
+  <div id="navLeft"></div>
+  <div id="navRight"></div>
+
+</div>
+
+<script>
+/* ================= CSV ================= */
+const clean = t => t?.replace(/^\uFEFF/,'').trim() || '';
+
+async function loadCSV(){
+  const res = await fetch('../recapENAEL2025.csv');
+  const txt = await res.text();
+  const rows = txt.split('\n').map(r=>r.split(',').map(clean));
+  const headers = rows.shift();
+  return rows.map(r=>{
+    let o={};
+    headers.forEach((h,i)=>o[h]=r[i]);
+    return o;
+  });
+}
+
+/* ================= APP ================= */
+let slides, bars, idx=0;
+
+function show(i){
+  if(i<0||i>=slides.length) return;
+  slides[idx].classList.remove('active');
+  bars[idx].classList.remove('active');
+  idx=i;
+  slides[idx].classList.add('active');
+  bars[idx].classList.add('active');
+}
+
+function buildProgress(n){
+  const p=document.getElementById('progress');
+  for(let i=0;i<n;i++){
+    const b=document.createElement('div');
+    b.className='bar'+(i===0?' active':'');
+    p.appendChild(b);
+  }
+  bars=[...document.querySelectorAll('.bar')];
+}
+
+/* ================= DATA ================= */
+loadCSV().then(data=>{
+  const page = location.pathname.split('/').slice(-2,-1)[0];
+  const d = data.find(x=>x.NameInPage===page) || {};
+
+  document.getElementById('hello').textContent =
+    `¡Hola, ${d.NombresPila || ''}!` || '¡Felicidades por tu 2025!';
+
+  part.textContent = d.PARTICIPACIONES || 0;
+  points.textContent = d.PUNTOS || 0;
+  top3.textContent = d.TOP3 || 0;
+  top10.textContent = d.TOP10 || 0;
+
+  photo.src = `../fotos/${page}.jpg`;
+  badge.textContent = d.PARTICIPACIONES>20?'Rey de la Constancia':'Guerrero del Tablero';
+
+  finalName.textContent = `${d.NombresPila||''} ${d.Apellidos||''}`;
+  finalClub.textContent = d.Club||'';
+  fPart.textContent = d.PARTICIPACIONES||0;
+  fPoints.textContent = d.PUNTOS||0;
+  fTop3.textContent = d.TOP3||0;
+  fTop10.textContent = d.TOP10||0;
+
+  if(d.TOP3==='0'||!d.TOP3) rowTop3.classList.add('hidden');
+  if(d.TOP10==='0'||!d.TOP10) rowTop10.classList.add('hidden');
+
+  slides=[...document.querySelectorAll('.slide')];
+  buildProgress(slides.length);
+  slides[0].classList.add('active');
+});
+
+/* ================= NAV ================= */
+navLeft.onclick=()=>show(idx-1);
+navRight.onclick=()=>show(idx+1);
+
+/* ================= SHARE ================= */
+function share(){
+  const url=encodeURIComponent(location.href);
+  const msg=encodeURIComponent('Mi ENAEL Recap 2025 ♟️');
+  window.open(`https://wa.me/?text=${msg}%20${url}`);
+}
+
+/* ================= DOWNLOAD ================= */
+function download(){
+  html2canvas(finalCard).then(c=>{
+    const a=document.createElement('a');
+    a.download='ENAEL-Recap-2025.png';
+    a.href=c.toDataURL();
+    a.click();
+  });
+}
+
+/* ================= SNOW ================= */
+const c=document.getElementById('snow');
+const ctx=c.getContext('2d');
+function resize(){c.width=innerWidth;c.height=innerHeight}
+resize();onresize=resize;
+let snow=Array.from({length:80},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*3+1}));
+(function anim(){
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='white';
+  snow.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.y+=1; if(s.y>c.height)s.y=0;
+  });
+  requestAnimationFrame(anim);
+})();
+</script>
+</body>
+</html>
+
