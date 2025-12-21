@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENAEL Recap 2025 - Resumen de la Comunidad</title>
+    <title>ENAEL Recap 2025 - Comunidad y Mérito</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
     
@@ -46,12 +46,12 @@
         .progress-bar { height: 3px; background: rgba(255,255,255,0.2); flex-grow: 1; border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--oro); width: 0%; }
 
-        h1.navideno { font-family: 'Mountains of Christmas', cursive; font-size: 3rem; color: var(--oro); text-shadow: 2px 2px 8px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        h1.navideno { font-family: 'Mountains of Christmas', cursive; font-size: 2.8rem; color: var(--oro); text-shadow: 2px 2px 8px rgba(0,0,0,0.5); margin-bottom: 15px; }
         .stat-huge { font-size: 4.5rem; font-weight: 900; color: var(--blanco); line-height: 1; margin: 10px 0; }
         .stat-label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 30px; font-weight: 700; color: var(--oro); }
 
-        .leader-list { width: 100%; text-align: left; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-top: 10px; }
-        .leader-item { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
+        .leader-list { width: 100%; text-align: left; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-top: 5px; }
+        .leader-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 3px; }
         .leader-item:last-child { border: none; margin: 0; }
         .leader-name { font-weight: bold; color: var(--oro); }
 
@@ -60,10 +60,12 @@
         button.search-btn { padding: 15px 20px; width: 25%; border-radius: 0 30px 30px 0; border: none; background: var(--oro); color: var(--oscuro); font-weight: bold; cursor: pointer; }
 
         .spotlight-frame {
-            width: 80%; aspect-ratio: 4/6; border: 5px solid white; border-radius: 10px;
+            width: 75%; aspect-ratio: 4/6; border: 5px solid white; border-radius: 10px;
             background-size: cover; background-position: center; margin-bottom: 15px;
-            transform: rotate(1.5deg); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transform: rotate(1deg); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
+
+        .badge-club { background: var(--navidad-rojo); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin-top: 5px; border: 1px solid var(--oro); }
 
         .nav-zones { position: absolute; top: 0; width: 100%; height: 100%; display: flex; z-index: 90; }
         .zone { width: 50%; height: 100%; }
@@ -85,54 +87,46 @@
         <div class="slide active" style="background: var(--navidad-verde);">
             <h1 class="navideno">Comunidad ENAEL</h1>
             <h2>Resumen Colectivo 2025</h2>
-            <div style="font-size: 4rem; margin: 30px 0;">♟️🤝</div>
-            <p>Celebrando un año de crecimiento y pasión por el ajedrez.</p>
+            <div style="font-size: 4rem; margin: 25px 0;">♟️🤝</div>
+            <p>Un año de historia escrito en el tablero.</p>
         </div>
 
         <div class="slide" style="background: #2c3e50;">
-            <h1 class="navideno">Impacto 2025</h1>
-            
+            <h1 class="navideno">Impacto Real</h1>
             <div class="stat-huge" id="g-players">0</div>
-            <div class="stat-label">Ajedrecistas Activos</div>
-            
+            <div class="stat-label">Ajedrecistas Unidos</div>
             <div class="stat-huge" id="g-games">0</div>
-            <div class="stat-label">Encuentros en el Tablero</div>
-            
-            <p style="opacity: 0.9; font-size: 0.85rem; padding: 0 15px;">
-                Cada partida sumó al compañerismo y fortaleció nuestra comunidad en la ciudad.
-            </p>
+            <div class="stat-label">Encuentros Disputados</div>
+            <p style="opacity: 0.9; font-size: 0.8rem; padding: 0 15px;">Fortaleciendo el tejido social a través del deporte ciencia.</p>
         </div>
 
         <div class="slide" style="background: var(--navidad-rojo);">
-            <h1 class="navideno">Los Más Activos</h1>
-            <p style="margin-bottom: 20px;">Liderando en asistencia este ciclo:</p>
+            <h1 class="navideno">Top 5 Constancia</h1>
+            <p style="margin-bottom: 10px; font-size: 0.9rem;">Líderes en asistencia 2025:</p>
             <div class="leader-list" id="list-part"></div>
         </div>
 
         <div class="slide" style="background: #2980b9;">
-            <h1 class="navideno">Máximo Puntaje</h1>
-            <p style="margin-bottom: 20px;">Destacados en el ranking oficial:</p>
+            <h1 class="navideno">Top 5 Puntuación</h1>
+            <p style="margin-bottom: 10px; font-size: 0.9rem;">Mejor desempeño deportivo:</p>
             <div class="leader-list" id="list-pts"></div>
         </div>
 
         <div class="slide" style="background: var(--oscuro);">
-            <h1 class="navideno" style="color: var(--oro);">En el Podio</h1>
-            <p style="margin-bottom: 20px;">Más veces en los primeros lugares:</p>
+            <h1 class="navideno" style="color: var(--oro);">Top 5 Podios</h1>
+            <p style="margin-bottom: 10px; font-size: 0.9rem;">Frecuencia en el Top 3:</p>
             <div class="leader-list" id="list-top3"></div>
         </div>
 
         <div class="slide search-slide" style="background: var(--navidad-verde);">
             <h1 class="navideno">¡Busca tu Recap!</h1>
-            <p>Si participaste en nuestros torneos,</p>
-            <p>aquí está tu resumen personalizado:</p>
-            
+            <p>Ingresa tu nombre para ver tus</p>
+            <p>estadísticas personales de este año:</p>
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Escribe tu Nombre">
+                <input type="text" id="searchInput" placeholder="Tu Nombre">
                 <button class="search-btn" onclick="manualSearch()">IR</button>
             </div>
-            <p id="error-msg" style="color: #ffcccc; margin-top: 15px; display: none; font-size: 0.8rem;">No encontrado. Prueba con tu nombre de pila (Ej: Juan).</p>
-            
-            <div style="font-size: 2.5rem; margin-top: 40px;">🎄</div>
+            <p id="error-msg" style="color: #ffcccc; margin-top: 15px; display: none; font-size: 0.8rem;">No encontrado. Intenta con tu nombre de pila.</p>
         </div>
     </div>
 
@@ -149,9 +143,7 @@
                 const res = await fetch(CSV_URL);
                 const text = await res.text();
                 allPlayers = parseCSV(text);
-                
                 calculateGlobals(allPlayers);
-                
                 slides = document.querySelectorAll('.slide');
                 setupProgressBars();
                 showSlide(0);
@@ -172,35 +164,53 @@
         }
 
         function calculateGlobals(players) {
-            // Lógica de Encuentros: (Total Participaciones * 6 rondas) / 2 personas por tablero
+            // Lógica Encuentros
             const sumParticipaciones = players.reduce((sum, p) => sum + (parseInt(p.PARTICIPACIONES) || 0), 0);
             const totalEncuentros = Math.floor((sumParticipaciones * 6) / 2);
-
             document.getElementById('g-players').innerText = players.length;
             document.getElementById('g-games').innerText = totalEncuentros;
 
-            // Ordenar por categorías para los Tops
-            const sortedByPart = [...players].sort((a,b) => (parseInt(b.PARTICIPACIONES)||0) - (parseInt(a.PARTICIPACIONES)||0));
-            const sortedByPts = [...players].sort((a,b) => (parseFloat(b.PUNTOS)||0) - (parseFloat(a.PUNTOS)||0));
-            const sortedByTop3 = [...players].sort((a,b) => (parseInt(b.TOP3)||0) - (parseInt(a.TOP3)||0));
+            // Listas Top 5
+            const top5Part = [...players].sort((a,b) => (parseInt(b.PARTICIPACIONES)||0) - (parseInt(a.PARTICIPACIONES)||0)).slice(0, 5);
+            const top5Pts = [...players].sort((a,b) => (parseFloat(b.PUNTOS)||0) - (parseFloat(a.PUNTOS)||0)).slice(0, 5);
+            const top5Podium = [...players].sort((a,b) => (parseInt(b.TOP3)||0) - (parseInt(a.TOP3)||0)).slice(0, 5);
 
-            renderList('list-part', sortedByPart.slice(0, 3), 'PARTICIPACIONES', 'torneos');
-            renderList('list-pts', sortedByPts.slice(0, 3), 'PUNTOS', 'pts');
-            renderList('list-top3', sortedByTop3.slice(0, 3), 'TOP3', 'podios');
+            renderList('list-part', top5Part, 'PARTICIPACIONES', 'Torns');
+            renderList('list-pts', top5Pts, 'PUNTOS', 'Pts');
+            renderList('list-top3', top5Podium, 'TOP3', 'Pod');
 
-            // Selección de Fotos Meritocrática (Top de cada categoría)
-            const destacados = [sortedByPart[0], sortedByPts[0], sortedByTop3[0], sortedByPart[1], sortedByPts[1]];
-            const destacadosUnicos = [...new Map(destacados.map(p => [p.NameInPage, p])).values()];
+            // --- Lógica de Fotos (Muro de Honor) ---
+            let destacados = [];
 
-            injectSpotlightSlides(destacadosUnicos);
+            // 1. Mejores de cada Club
+            const clubs = [...new Set(players.map(p => p.Club).filter(c => c && c !== ""))];
+            clubs.forEach(clubName => {
+                const mejorDelClub = players
+                    .filter(p => p.Club === clubName)
+                    .sort((a,b) => (parseFloat(b.PUNTOS)||0) - (parseFloat(a.PUNTOS)||0))[0];
+                if(mejorDelClub) {
+                    mejorDelClub.honorTitle = `Mejor de ${clubName}`;
+                    destacados.push(mejorDelClub);
+                }
+            });
+
+            // 2. Agregar Top 5 General (si no están ya)
+            top5Pts.forEach((p, index) => {
+                if(!destacados.some(d => d.NameInPage === p.NameInPage)) {
+                    p.honorTitle = `Top ${index + 1} General`;
+                    destacados.push(p);
+                }
+            });
+
+            injectSpotlightSlides(destacados);
         }
 
         function renderList(id, list, key, label) {
             const container = document.getElementById(id);
-            list.forEach(p => {
+            list.forEach((p, i) => {
                 container.innerHTML += `
                     <div class="leader-item">
-                        <span class="leader-name">${p.NombresPila}</span>
+                        <span>${i+1}. <span class="leader-name">${p.NombresPila}</span></span>
                         <span>${p[key]} ${label}</span>
                     </div>`;
             });
@@ -209,18 +219,17 @@
         function injectSpotlightSlides(destacados) {
             const container = document.getElementById('story-box');
             const searchSlide = document.querySelector('.search-slide');
-
             destacados.forEach(p => {
                 if(!p.NameInPage) return;
                 const div = document.createElement('div');
                 div.className = 'slide';
                 div.innerHTML = `
-                    <h3 style="color: var(--oro); font-size: 1rem; letter-spacing: 2px;">MURO DE HONOR</h3>
+                    <h3 style="color: var(--oro); font-size: 0.9rem; letter-spacing: 2px;">MURO DE HONOR</h3>
                     <div class="spotlight-frame" style="background-image: url('fotos/${p.NameInPage}.jpg')"></div>
-                    <h2 style="font-size: 2.2rem; margin-top: 5px;">${p.NombresPila}</h2>
-                    <p style="color: var(--oro); font-weight: bold;">${p.Club || "Comunidad ENAEL"}</p>
-                    <p style="margin-top: 15px; font-size: 0.9rem; line-height: 1.4; padding: 0 10px; opacity: 0.9;">
-                        Pilar fundamental en el compañerismo y crecimiento del ajedrez local en 2025.
+                    <h2 style="font-size: 2rem;">${p.NombresPila}</h2>
+                    <div class="badge-club">${p.honorTitle}</div>
+                    <p style="margin-top: 15px; font-size: 0.85rem; line-height: 1.4; padding: 0 15px; opacity: 0.9;">
+                        Inspirando a la comunidad ENAEL con su talento y dedicación en este 2025.
                     </p>
                 `;
                 container.insertBefore(div, searchSlide);
@@ -264,13 +273,9 @@
 
         function manualSearch() {
             const input = document.getElementById('searchInput').value.trim().toLowerCase();
-            // Buscamos tanto por NameInPage como por NombresPila para ayudar al usuario
             const player = allPlayers.find(p => p.NameInPage.toLowerCase() === input || p.NombresPila.toLowerCase() === input);
-            if (player) {
-                window.location.href = `${player.NameInPage}/`; 
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
-            }
+            if (player) { window.location.href = `${player.NameInPage}/`; } 
+            else { document.getElementById('error-msg').style.display = 'block'; }
         }
 
         const canvas = document.getElementById('snow-canvas');
@@ -289,7 +294,6 @@
             });
             ctx.fill(); requestAnimationFrame(drawSnow);
         }
-
         window.onload = () => { init(); setupSnow(); drawSnow(); };
     </script>
 </body>
