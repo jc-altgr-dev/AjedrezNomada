@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Entrenamiento Metacognitivo</title>
+    
+    <style>
+        /* =========================================
+           CONFIGURACIÓN VISUAL (ESTILO CRISTAL)
+           ========================================= */
+        :root {
+            --azul-guia: #00d2ff;
+            --fondo: #050a12;
+            --cristal: rgba(255, 255, 255, 0.05);
+            --borde-cristal: rgba(255, 255, 255, 0.1);
+            --error: #ff416c;
+            --exito: #00ff87;
+        }
+
+        body {
+            background-color: var(--fondo);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Línea azul guía que recorre la página */
+        body::before {
+            content: '';
+            position: fixed;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--azul-guia), transparent);
+            transform: translateX(-50%);
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .contenedor-principal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 100px 0;
+        }
+
+        /* =========================================
+           BLOQUE REPLICABLE (EL "NODO")
+           ========================================= */
+        .nodo-ejercicio {
+            width: 90%;
+            max-width: 650px;
+            margin-bottom: 200px; /* Espacio para el descubrimiento */
+            background: var(--cristal);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--borde-cristal);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.6s ease;
+        }
+
+        /* Zona del Tablero */
+        .zona-tablero {
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .imagen-tablero {
+            width: 100%;
+            display: block;
+            transition: opacity 1.5s ease, filter 1.5s ease;
+        }
+
+        /* Efecto Fantasma */
+        .modo-fantasma-activo .imagen-tablero {
+            opacity: 0.03;
+            filter: blur(10px);
+        }
+
+        /* Ramas Laterales (Variantes) */
+        .rama-lateral {
+            position: absolute;
+            left: 105%; /* Aparece a la derecha */
+            top: 50px;
+            width: 300px;
+            background: rgba(255, 65, 108, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 20px;
+            border-radius: 0 15px 15px 0;
+            display: none; /* Oculta hasta que se pide */
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Botones y Respuestas */
+        .botonera {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--azul-guia);
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover { background: var(--azul-guia); color: black; }
+
+        .feedback-oculto {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            background: rgba(0,0,0,0.3);
+        }
+
+        /* Coach / Porras */
+        .coach-mensaje {
+            font-style: italic;
+            color: var(--azul-guia);
+            border-left: 2px solid var(--azul-guia);
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-principal">
+
+        <div class="nodo-ejercicio" id="paso1">
+            
+            <div class="zona-tablero" id="tablero1">
+                <img src="saavedra_1.png" class="imagen-tablero" alt="Posición Inicial">
+            </div>
+
+            <button onclick="activarFantasma('tablero1', 3000)">👁️ Memorizar (3s)</button>
+
+            <h3>Momento 1: La chispa inicial</h3>
+            <p class="coach-mensaje">"¡Vamos campeón! 2500 de rating no es nada para tu capacidad de cálculo. Observa bien..."</p>
+            <p>Blancas juegan. ¿Cuál es la jugada que mantiene la ventaja de forma inmediata?</p>
+
+            <div class="botonera">
+                <button onclick="mostrarFeedback('f1', true, 'paso2')">1. c7</button>
+                
+                <button onclick="toggleVariante('var1')">Ver 1. Kb7</button>
+            </div>
+
+            <div id="f1" class="feedback-oculto">
+                <span style="color: var(--exito);">¡Exacto!</span> c7 es la única. El peón está a punto de coronar. Pero espera... ¿qué hará el negro?
+            </div>
+
+            <div id="var1" class="rama-lateral">
+                <h4>Variante: 1. Kb7</h4>
+                <p>Esta jugada es demasiado lenta. El negro responde con <strong>1... Td7</strong> clavando el peón y logrando tablas fáciles. ¡Sé más agresivo!</p>
+            </div>
+        </div>
+        <div class="nodo-ejercicio" id="paso2" style="opacity: 0.1;"> <div class="zona-tablero" id="tablero2">
+                <img src="saavedra_2.png" class="imagen-tablero">
+            </div>
+
+            <h3>Momento 2: El primer obstáculo</h3>
+            <p>Tras 1. c7, las negras juegan <strong>1... Td6+</strong>. ¿Hacia dónde escapas?</p>
+
+            <div class="botonera">
+                <button onclick="mostrarFeedback('f2', true, 'paso3')">2. Kb5</button>
+                <button onclick="toggleVariante('var2')">2. Kc5</button>
+            </div>
+
+            <div id="f2" class="feedback-oculto">
+                Buen zigzag. Si vas a c5, te dan jaque en d1 y pierdes el peón. ¡Sigue bajando!
+            </div>
+
+            <div id="var2" class="rama-lateral">
+                <h4>Error: 2. Kc5?</h4>
+                <p>Parece lógica para defender el peón, pero tras <strong>2... Td1!</strong>, las negras amenazan Tc1+ ganando la dama cuando corones.</p>
+            </div>
+        </div>
+        </div>
+
+    <script>
+        // Función para el Modo Fantasma
+        function activarFantasma(tableroId, tiempo) {
+            const tablero = document.getElementById(tableroId);
+            tablero.classList.remove('modo-fantasma-activo');
+            
+            // Espera el tiempo configurado y luego oculta
+            setTimeout(() => {
+                tablero.classList.add('modo-fantasma-activo');
+            }, tiempo);
+        }
+
+        // Función para mostrar feedback y revelar el siguiente paso
+        function mostrarFeedback(idFeedback, esCorrecto, idSiguiente) {
+            const f = document.getElementById(idFeedback);
+            f.style.display = 'block';
+            
+            if(esCorrecto && idSiguiente) {
+                const prox = document.getElementById(idSiguiente);
+                prox.style.opacity = "1";
+                prox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Función para abrir/cerrar variantes laterales
+        function toggleVariante(idVariante) {
+            const v = document.getElementById(idVariante);
+            v.style.display = (v.style.display === 'block') ? 'none' : 'block';
+        }
+    </script>
+</body>
+</html>
