@@ -6,7 +6,6 @@
     <title>🏆 Club de Ajedrez - Mis Logros</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
 
     <style>
         body {
@@ -85,15 +84,10 @@
                 <!-- Perfil del Jugador -->
                 <div class="bg-white rounded-3xl p-6 shadow-xl border-b-8 border-purple-200 mb-8 flex flex-col sm:flex-row items-center gap-6 max-w-4xl mx-auto relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-                    <div class="relative z-10">
-                        <img id="player-avatar" src="" alt="Avatar" class="w-24 h-24 rounded-2xl border-4 border-purple-300 shadow-md object-cover bg-white">
-                        <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full shadow border-2 border-white">⭐</div>
-                    </div>
                     <div class="text-center sm:text-left flex-1 relative z-10">
                         <h2 id="player-name" class="text-3xl font-bold text-purple-700 mb-1">Jugador</h2>
                         <div id="player-category-container" class="mb-3">
-                            <span id="player-category-badge" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-bold border border-purple-200 inline-block mb-1">Calculando...</span>
-                            <p id="player-category-desc" class="text-xs text-gray-500 italic max-w-lg"></p>
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-bold border border-yellow-200 inline-block mb-1">⭐ Perfil Activo</span>
                         </div>
                         <a id="player-link" href="#" target="_blank" class="text-xs text-purple-400 font-medium hover:text-purple-600 transition-colors border border-purple-100 px-3 py-1 rounded-full inline-block">Ver en Lichess ↗</a>
                     </div>
@@ -147,7 +141,6 @@
         const CSV_METAS_FILE = 'metas.csv';
         const MIN_ACTIVITY_TO_UNFREEZE = 20;
 
-        // URLS de práctica/juego
         const ACTION_URLS = {
             'bullet_rating': 'https://lichess.org',
             'blitz_rating': 'https://lichess.org',
@@ -180,9 +173,10 @@
 
         async function fetchAndParseCSV(url) {
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`No se pudo encontrar: ${url}`);
+            if (!response.ok) throw new Error(`No se pudo cargar el archivo: ${url.split('/').pop()}`);
             const text = await response.text();
             const lines = text.trim().split('\n');
+            if (lines.length < 2) return [];
             const headers = lines[0].split(/[,\t;]/).map(h => h.trim());
             return lines.slice(1).map(line => {
                 const values = line.split(/[,\t;]/).map(v => v.trim());
@@ -222,15 +216,14 @@
 
         async function initApp() {
             try {
-                updateStatus('loading', 'Sincronizando metas...');
+                updateStatus('loading', 'Sincronizando configuración...');
                 const [initialData, goalsData] = await Promise.all([
                     fetchAndParseCSV(CSV_BASE_FILE),
                     fetchAndParseCSV(CSV_METAS_FILE)
                 ]);
                 allGoals = goalsData; 
                 trackingData = initialData.map(row => ({
-                    userId: row['Lichess']?.toLowerCase().trim(),
-                    gender: row['Género']?.toLowerCase().trim() || 'm',
+                    userId: row['Lichess']?.toString().toLowerCase().trim(),
                     initials: row
                 })).filter(u => u.userId);
 
@@ -267,23 +260,26 @@
         async function loadUserProfile(userId) {
             const user = trackingData.find(u => u.userId === userId);
             if (!user) return;
-            updateStatus('loading', `Buscando a ${userId} en Lichess...`);
+            updateStatus('loading', `Conectando con Lichess para ${userId}...`);
             try {
                 const response = await fetch(`${LICHESS_API_BASE}${userId}`);
+                if (!response.ok) throw new Error('Jugador no encontrado en Lichess');
                 const liveData = await response.json();
                 
-                // Buscar meta personalizada o usar la general (primera fila)
-                const personalizedGoal = allGoals.find(g => g['Lichess']?.toLowerCase().trim() === userId);
-                user.goals = personalizedGoal || allGoals[0];
+                const personalizedGoal = allGoals.find(g => g['Lichess']?.toString().toLowerCase().trim() === userId);
+                user.goals = personalizedGoal || (allGoals.length > 0 ? allGoals[0] : {});
 
                 renderDashboard(user, liveData);
                 fetchEmblematicGames(userId);
                 updateStatus('ready');
                 document.getElementById('progress-dashboard').classList.remove('hidden');
-            } catch (err) { updateStatus('error', 'Error al cargar perfil.'); }
+            } catch (err) { 
+                console.error(err);
+                updateStatus('error', 'Error al obtener datos del perfil. Verifica que el usuario de Lichess sea correcto.'); 
+            }
         }
 
-        function createCardHTML(metric, liveData, user, hasCelebration) {
+        function createCardHTML(metric, liveData, user) {
             const initialVal = user.initials[metric.csvKey] || 0;
             const goalVal = user.goals[metric.csvKey] || 0;
             let currentVal = getNestedValue(liveData, metric.apiPath) || 0;
@@ -304,7 +300,6 @@
             }
 
             let visualPercent = Math.max(0, Math.min(100, percent));
-            if (percent >= 100) hasCelebration.value = true;
 
             const actionBtn = ACTION_URLS[metric.id] ? `
                 <a href="${ACTION_URLS[metric.id]}" target="_blank" class="text-[10px] bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded-lg font-bold transition-all shadow-sm">
@@ -346,7 +341,7 @@
                 list.innerHTML = '';
                 
                 if (games.length === 0) {
-                    list.innerHTML = '<p class="col-span-3 text-center text-gray-400">No hay mates recientes.</p>';
+                    list.innerHTML = '<p class="col-span-3 text-center text-gray-400">No hay mates recientes para mostrar.</p>';
                 } else {
                     const shortest = games.reduce((prev, curr) => (curr.moves.split(' ').length < prev.moves.split(' ').length) ? curr : prev);
                     const isWhite = shortest.players.white.user?.name.toLowerCase() === username.toLowerCase();
@@ -359,21 +354,21 @@
                                 <span class="text-xs font-bold text-blue-400">${Math.ceil(shortest.moves.split(' ').length/2)} movs</span>
                             </div>
                             <p class="text-center font-bold text-gray-700">¡Jaque mate contra ${isWhite ? shortest.players.black.user.name : shortest.players.white.user.name}!</p>
-                            <div class="text-center mt-2 ${won ? 'text-green-600' : 'text-red-600'} font-bold">${won ? '¡Victoria Magistral!' : 'Derrota honorable'}</div>
+                            <div class="text-center mt-2 ${won ? 'text-green-600' : 'text-red-600'} font-bold">${won ? '¡Victoria Magistral!' : 'Finalizado'}</div>
                         </a>`;
                 }
                 document.getElementById('emblematic-games-container').classList.remove('hidden');
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.warn("No se pudieron cargar partidas emblemáticas.");
+            }
         }
 
         function renderDashboard(user, liveData) {
             document.getElementById('player-name').textContent = user.userId;
-            document.getElementById('player-avatar').src = `https://lichess1.org/assets/images/missing_avatar.svg`;
             document.getElementById('player-link').href = `https://lichess.org/@/${user.userId}`;
             
             const zonesContainer = document.getElementById('zones-container');
             zonesContainer.innerHTML = '';
-            let hasCelebration = { value: false };
 
             const zones = ['Rendimiento en Vivo', 'Gimnasio Cerebral'];
             zones.forEach(z => {
@@ -386,12 +381,10 @@
                             <span id="icon-${id}" class="chevron-icon text-2xl text-purple-400">👇</span>
                         </div>
                         <div id="content-${id}" class="hidden p-4 bg-gray-50 grid grid-cols-1 sm:grid-cols-2 gap-4">`;
-                metrics.forEach(m => html += createCardHTML(m, liveData, user, hasCelebration));
+                metrics.forEach(m => html += createCardHTML(m, liveData, user));
                 html += `</div></section>`;
                 zonesContainer.innerHTML += html;
             });
-
-            if (hasCelebration.value) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
 
         initApp();
