@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏆 Club de Ajedrez ALyG - Mis Logros</title>
+    <title>🏆 Club de Ajedrez - Mis Logros</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Divertida para Niños -->
@@ -20,7 +20,7 @@
             background-position: 0 0, 30px 30px;
         }
 
-   .logo-container {
+.logo-container {
     width: 200px;          /* tamaño deseado, no el real del archivo */
     margin: 0 auto;        /* centrado horizontal */
   }
@@ -100,7 +100,7 @@
         <header class="mb-10 text-center relative">
             <div class="inline-block bg-white p-6 rounded-3xl shadow-xl border-4 border-indigo-200 transform rotate-1 hover:rotate-0 transition-transform duration-300">
                 <h1 class="text-4xl sm:text-5xl font-bold text-indigo-600 text-shadow-sm flex items-center justify-center gap-3">
-                    <span>🏰</span> Club de Ajedrez Antonio León y Gama <span>♟️</span>
+                    <span>🏰</span> Club de Ajedrez <span>♟️</span>
                 </h1>
                 <p class="text-lg text-indigo-400 mt-2 font-medium">¡Sube de nivel completando tus metas!
 <div class="logo-container">
@@ -172,6 +172,72 @@
                 <div id="zones-container" class="max-w-4xl mx-auto space-y-6">
                     <!-- Las zonas y tarjetas se generan aquí -->
                 </div>
+
+                <!-- Contenedor para Partidas Emblemáticas -->
+                <div id="emblematic-games-container" class="max-w-4xl mx-auto hidden mt-8">
+                    <section class="bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 border-orange-400">
+                        <div onclick="toggleZone('emblematic')" class="zone-header p-6 flex justify-between items-center bg-white border-b-2 border-gray-100 hover:bg-gray-50">
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-purple-700 flex items-center gap-3">
+                                <span>🏰</span> Partidas Emblemáticas (Recientes)
+                            </h3>
+                            <span id="icon-emblematic" class="chevron-icon text-3xl text-purple-400">👇</span>
+                        </div>
+                        <div id="content-emblematic" class="hidden p-6 bg-gray-50">
+                            <div id="emblematic-games-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- Se llena dinámicamente -->
+                                <p class="text-gray-500 text-center col-span-3">Cargando partidas...</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Contenedor para Enlaces de Entrenamiento -->
+                <div class="max-w-4xl mx-auto mt-8">
+                    <section class="bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 border-green-400">
+                        <div onclick="toggleZone('training-links')" class="zone-header p-6 flex justify-between items-center bg-white border-b-2 border-gray-100 hover:bg-gray-50">
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-purple-700 flex items-center gap-3">
+                                <span>🎓</span> Zona de Entrenamiento
+                            </h3>
+                            <span id="icon-training-links" class="chevron-icon text-3xl text-purple-400">👇</span>
+                        </div>
+                        <div id="content-training-links" class="hidden p-6 bg-gray-50">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <a href="https://lichess.org/learn" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
+                                    <span class="text-3xl">♟️</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">1) Aprende Fundamentos</h4>
+                                        <p class="text-xs text-gray-500">Lo básico para empezar a jugar.</p>
+                                    </div>
+                                </a>
+                                <a href="https://lichess.org/practice" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
+                                    <span class="text-3xl">🎓</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">2) Práctica Avanzada</h4>
+                                        <p class="text-xs text-gray-500">Patrones y técnicas esenciales.</p>
+                                    </div>
+                                </a>
+                                <a href="https://lichess.org/training/coordinate" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
+                                    <span class="text-3xl">🎯</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">3) Practicar Coordenadas</h4>
+                                        <p class="text-xs text-gray-500">Aprende a leer el tablero rápido.</p>
+                                    </div>
+                                </a>
+                                <a href="https://lichess.org/training/themes" target="_blank" class="card-hover bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4 group hover:bg-green-50">
+                                    <span class="text-3xl">📚</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 group-hover:text-green-600">4) Ejercicios por Temas</h4>
+                                        <p class="text-xs text-gray-500">Mejora tus debilidades específicas.</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mt-4 p-3 bg-yellow-50 rounded-xl border border-yellow-200 text-center text-sm text-yellow-800 font-bold">
+                                💡 Nota importante: ¡Recuerda iniciar sesión en Lichess antes de practicar para que se guarde tu progreso!
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
             </div>
         </main>
     </div>
@@ -180,6 +246,7 @@
     <script>
         // --- Configuración ---
         const LICHESS_API_BASE = 'https://lichess.org/api/user/';
+        const LICHESS_GAMES_API = 'https://lichess.org/api/games/user/';
         const SEARCH_INPUT_ID = 'user-search';
         const STATUS_ID = 'status-container';
         const DASHBOARD_ID = 'progress-dashboard';
@@ -189,10 +256,22 @@
         const TOTAL_AVATARS = 9; 
         const MIN_ACTIVITY_TO_UNFREEZE = 20; // Partidas mínimas para mostrar rating
 
+        // URL de prácticas para botones (AHORA INCLUYE LOS JUEGOS)
+        const PRACTICE_URLS = {
+            'bullet_rating': 'https://lichess.org',
+            'blitz_rating': 'https://lichess.org',
+            'rapid_rating': 'https://lichess.org',
+            'classical_rating': 'https://lichess.org',
+            'puzzle_rating': 'https://lichess.org/training',
+            'streak_score': 'https://lichess.org/streak',
+            'storm_score': 'https://lichess.org/storm',
+            'racer_score': 'https://lichess.org/racer'
+        };
+
         let trackingData = [];
+        let allGoals = [];
 
         // Definición de métricas 
-        // Agregamos 'relatedCountKey' para saber qué métrica controla el "congelamiento" del rating
         const metricDefinitions = [
             // ZONA 1: Rendimiento en Vivo
             { id: 'bullet_rating', name: 'Bullet Rating', emoji: '🚅', csvKey: 'Bullet', apiPath: 'perfs.bullet.rating', theme: 'theme-bullet', mainZone: 'Rendimiento en Vivo', subZone: 'Rayo Veloz', type: 'rating', relatedCountKey: 'bullet_games' },
@@ -284,9 +363,7 @@
                 hash = ((hash<<5)-hash)+char;
                 hash |= 0; 
             }
-            // Usar TOTAL_AVATARS para el cálculo
             const avatarIndex = (Math.abs(hash) % TOTAL_AVATARS) + 1; 
-            // Estructura de carpetas según género
             const folder = (gender === 'f') ? 'peoncitas' : 'peoncitos';
             const prefix = (gender === 'f') ? 'peoncitas' : 'peoncitos';
             return `${folder}/${prefix}_${avatarIndex}.png`;
@@ -297,6 +374,8 @@
             const icon = document.getElementById(`icon-${zoneId}`);
             const header = document.getElementById(`header-${zoneId}`);
             
+            if(!content) return; 
+
             content.classList.toggle('hidden');
             
             if (content.classList.contains('hidden')) {
@@ -308,22 +387,141 @@
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
                         bars.forEach(bar => {
-                            // Si está congelada, el width se maneja diferente (o se mantiene bajo)
                             if (!bar.classList.contains('xp-bar-frozen')) {
                                 bar.style.width = `${bar.getAttribute('data-percent')}%`;
                             } else {
-                                // Barra congelada: ancho fijo pequeño o lleno pero con estilo diferente
                                 bar.style.width = '100%'; 
                             }
                         });
                     });
                 });
 
-                setTimeout(() => {
-                    header.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
+                if(header) {
+                    setTimeout(() => {
+                        header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
             }
         }
+
+        // --- Lógica de Partidas Emblemáticas ---
+        async function fetchEmblematicGames(username) {
+            try {
+                // Solicitar últimas 15 partidas (NDJSON)
+                const response = await fetch(`${LICHESS_GAMES_API}${username}?max=15&opening=true`, {
+                    headers: {
+                        'Accept': 'application/x-ndjson'
+                    }
+                });
+                
+                if (!response.ok) return;
+                
+                const text = await response.text();
+                // Parsear NDJSON 
+                const games = text.trim().split('\n')
+                    .filter(line => line)
+                    .map(line => {
+                        try { return JSON.parse(line); } catch(e) { return null; }
+                    })
+                    .filter(game => game !== null);
+                
+                if (games.length === 0) {
+                    document.getElementById('emblematic-games-list').innerHTML = '<p class="col-span-3 text-center text-gray-500">No se encontraron partidas recientes.</p>';
+                    return;
+                }
+
+                // Procesar partidas
+                let strongestOpponentGame = null;
+                let maxOpponentRating = -1;
+
+                let longestGame = null;
+                let maxMoves = -1;
+
+                let shortestMateGame = null;
+                let minMoves = 9999;
+
+                games.forEach(game => {
+                    const isWhite = game.players.white.user?.name.toLowerCase() === username.toLowerCase();
+                    const opponent = isWhite ? game.players.black : game.players.white;
+                    const opponentRating = opponent.rating || 0;
+
+                    let moveCount = 0;
+                    if (game.moves) {
+                        moveCount = Math.ceil(game.moves.split(' ').length / 2);
+                    }
+
+                    // 1. Rival más fuerte
+                    if (opponentRating > maxOpponentRating) {
+                        maxOpponentRating = opponentRating;
+                        strongestOpponentGame = { ...game, label: '💪 Rival más Fuerte', value: `vs ${opponentRating}`, color: 'bg-red-50 border-red-200' };
+                    }
+
+                    // 2. Más larga
+                    if (moveCount > maxMoves) {
+                        maxMoves = moveCount;
+                        longestGame = { ...game, label: '⏳ La Maratón', value: `${moveCount} movs`, color: 'bg-yellow-50 border-yellow-200' };
+                    }
+
+                    // 3. Más corta (MATE)
+                    if (game.status === 'mate' && moveCount > 4 && moveCount < minMoves) {
+                        minMoves = moveCount;
+                        shortestMateGame = { ...game, label: '⚡ Partida Ráfaga (Mate)', value: `${moveCount} movs`, color: 'bg-blue-50 border-blue-200' };
+                    }
+                });
+
+                // Renderizar
+                const container = document.getElementById('emblematic-games-list');
+                container.innerHTML = '';
+
+                const emblemGames = [strongestOpponentGame, longestGame, shortestMateGame].filter(g => g !== null);
+                const uniqueGames = [];
+                const seenIds = new Set();
+                
+                emblemGames.forEach(g => {
+                    if(!seenIds.has(g.id)) {
+                        seenIds.add(g.id);
+                        uniqueGames.push(g);
+                    }
+                });
+
+                if (uniqueGames.length === 0) {
+                     container.innerHTML = '<p class="col-span-3 text-center text-gray-500">No se encontraron partidas emblemáticas recientes con jaque mate.</p>';
+                     document.getElementById('emblematic-games-container').classList.remove('hidden');
+                     return;
+                }
+
+                uniqueGames.forEach(game => {
+                    const isWhite = game.players.white.user?.name.toLowerCase() === username.toLowerCase();
+                    const opponent = isWhite ? game.players.black : game.players.white;
+                    const result = game.winner ? (game.winner === (isWhite ? 'white' : 'black') ? 'Victoria' : 'Derrota') : 'Tablas';
+                    const resultColor = result === 'Victoria' ? 'text-green-600' : (result === 'Derrota' ? 'text-red-500' : 'text-gray-500');
+
+                    const html = `
+                        <a href="https://lichess.org/${game.id}" target="_blank" class="card-hover p-4 rounded-xl border-2 ${game.color} block group">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-bold uppercase tracking-wider bg-white px-2 py-1 rounded border border-gray-100 shadow-sm">${game.label}</span>
+                                <span class="text-xs font-bold text-gray-400">${game.speed}</span>
+                            </div>
+                            <div class="text-center mb-2">
+                                <div class="text-2xl font-bold text-gray-700">${game.value}</div>
+                                <div class="text-sm text-gray-500">vs ${opponent.user ? opponent.user.name : 'Anon'}</div>
+                            </div>
+                            <div class="text-center font-bold ${resultColor} text-sm bg-white/50 rounded py-1">
+                                ${result}
+                            </div>
+                        </a>
+                    `;
+                    container.innerHTML += html;
+                });
+
+                document.getElementById('emblematic-games-container').classList.remove('hidden');
+
+            } catch (e) {
+                console.error("Error fetching games", e);
+                document.getElementById('emblematic-games-list').innerHTML = '<p class="col-span-3 text-center text-red-500">Error al cargar las partidas. Verifique la consola para detalles.</p>';
+            }
+        }
+
 
         // --- Lógica del Buscador ---
         function handleSearchInput(e) {
@@ -376,7 +574,7 @@
                     fetchAndParseCSV(CSV_METAS_FILE)
                 ]);
 
-                const globalGoals = goalsData.length > 0 ? goalsData[0] : {};
+                allGoals = goalsData; 
 
                 const dataMap = {};
                 initialData.forEach(row => {
@@ -386,12 +584,13 @@
                             userId: userId,
                             gender: row['Género'] ? row['Género'].toLowerCase().trim() : null,
                             initials: row,
-                            goals: globalGoals
+                            goals: (allGoals.length > 0 ? allGoals[0] : {}) // Default global goal
                         };
                     }
                 });
 
                 trackingData = Object.values(dataMap);
+
                 updateStatus('ready');
                 document.getElementById(SEARCH_INPUT_ID).addEventListener('input', handleSearchInput);
 
@@ -406,6 +605,7 @@
             if (!user) return;
 
             document.getElementById(DASHBOARD_ID).classList.add('hidden');
+            document.getElementById('emblematic-games-container').classList.add('hidden'); 
             updateStatus('loading', `Conectando con Lichess para ver a ${user.userId}...`);
 
             try {
@@ -413,7 +613,12 @@
                 if (!response.ok) throw new Error('Usuario no encontrado en Lichess');
                 const liveData = await response.json();
 
+                const personalizedGoal = allGoals.find(g => g['Lichess']?.toLowerCase().trim() === userId);
+                user.goals = personalizedGoal || (allGoals.length > 0 ? allGoals[0] : {});
+
                 renderDashboard(user, liveData);
+                fetchEmblematicGames(userId);
+
                 updateStatus('ready');
                 document.getElementById(DASHBOARD_ID).classList.remove('hidden');
 
@@ -423,7 +628,6 @@
         }
 
         function calculateCategory(liveData) {
-            // Obtener ratings actuales (usando 0 si es 1500 provisional)
             const rhythms = ['bullet', 'blitz', 'rapid', 'classical'];
             let sum = 0;
             let count = 0;
@@ -463,37 +667,43 @@
                 desc = 'Maestría total y competitiva. Ícono de la era contemporánea.';
             }
 
-            return { badge, desc };
+            return { badge, desc, average: Math.round(avg) };
         }
 
         function createCardHTML(metric, liveData, user, hasCelebrationRef) {
-            // Valores del CSV (para display contextual)
             const initialVal = Number(user.initials[metric.csvKey]) || 0;
             const goalValFromCSV = Number(user.goals[metric.csvKey]) || 0;
             
-            // Valor actual de Lichess
             let currentVal = Number(getNestedValue(liveData, metric.apiPath)) || 0;
-            // Regla Rating 1500 -> 0 (Provisional)
             if (metric.type === 'rating' && currentVal === 1500) currentVal = 0;
 
             let percent = 0;
             let displayHTML = '';
             let isFrozen = false;
             let barTitle = '';
+            let practiceButton = '';
             
-            // Valor de meta para el cálculo (si no hay meta, se usa la base para evitar división por cero)
             const effectiveGoalForCalc = Math.max(goalValFromCSV, 1); 
 
-            // --- Lógica Rating (Rating o Score de Puzzle/Storm/Racer) ---
+            // Verificar si debe tener botón de práctica (Ahora para TODOS)
+            if (PRACTICE_URLS[metric.id]) {
+                const btnText = metric.id.includes('rating') || metric.id.includes('score') ? '¡A JUGAR!' : 'PRACTICAR';
+                practiceButton = `
+                    <a href="${PRACTICE_URLS[metric.id]}" target="_blank" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full transition-colors flex items-center gap-1 shadow-sm border border-indigo-100" title="${btnText}">
+                        <span>${btnText}</span> 🚀
+                    </a>
+                `;
+            }
+
+            // --- Lógica Rating ---
             if (metric.type === 'rating') {
-                // Verificar actividad mínima para descongelar
                 let activityCount = 0;
                 if (metric.relatedCountKey) {
                     const countMetricDef = metricDefinitions.find(m => m.id === metric.relatedCountKey);
                     if (countMetricDef) {
                         const currentActivityTotal = Number(getNestedValue(liveData, countMetricDef.apiPath)) || 0;
                         const initialActivity = Number(user.initials[countMetricDef.csvKey]) || 0;
-                        activityCount = currentActivityTotal - initialActivity; // Actividad realizada en el periodo
+                        activityCount = currentActivityTotal - initialActivity; 
                     }
                 }
 
@@ -501,16 +711,12 @@
                     isFrozen = true;
                 }
 
-                // *** CAMBIO CLAVE AQUÍ: El progreso se calcula de 0 a la meta final ***
-                // Progreso = (Valor Actual / Meta Final) * 100
                 if (effectiveGoalForCalc > 0) {
                     percent = (currentVal / effectiveGoalForCalc) * 100;
                 } else {
-                    // Si no hay meta (effectiveGoalForCalc = 1), y currentVal > 0, se considera 100%
                     percent = currentVal > 0 ? 100 : 0; 
                 }
                 
-                // Display Diferencia (vs. la base inicial, NO 0)
                 const diff = currentVal - initialVal;
                 const diffColor = diff >= 0 ? 'text-green-500' : 'text-red-500';
                 const diffSign = diff >= 0 ? '+' : '';
@@ -525,19 +731,17 @@
                     : `Rating Actual: ${currentVal} (Meta: ${goalValFromCSV})`;
 
             } 
-            // --- Lógica Counts/Attempts (Partidas o Intentos) (Sin Cambios) ---
+            // --- Lógica Counts/Attempts ---
             else if (metric.type === 'count') {
-                // Calculation: (Work Done / Target Increment)
                 const workDone = Math.max(0, currentVal - initialVal);
-                const targetIncrement = goalValFromCSV; // Interpretamos meta del CSV como incremento
+                const targetIncrement = goalValFromCSV; 
 
                 if (targetIncrement > 0) {
                     percent = (workDone / targetIncrement) * 100;
                 } else if (workDone > 0) {
-                    percent = 100; // Si no hay meta incremento pero hizo algo
+                    percent = 100; 
                 }
 
-                // Display Diff con colores semáforo
                 let diffColor = 'text-red-500';
                 if (workDone >= targetIncrement) diffColor = 'text-green-600';
                 else if (workDone > 0) diffColor = 'text-orange-500';
@@ -551,7 +755,6 @@
             }
 
             let visualPercent = Math.max(0, Math.min(100, percent));
-            // Asegura que una barra con progreso > 0 se muestre
             if (!isFrozen && percent > 0 && visualPercent < 5) visualPercent = 5; 
             if (!isFrozen && percent >= 100) hasCelebrationRef.value = true;
 
@@ -559,23 +762,21 @@
             if (visualPercent >= 100) barColorClass = 'bg-yellow-400';
             else if (visualPercent >= 50) barColorClass = 'bg-green-400';
 
-            // Si está congelado, visualmente lleno pero con estilo frozen
             if (isFrozen) {
                 barColorClass = 'xp-bar-frozen';
                 visualPercent = 100; 
             }
 
-            // --- HTML Modificado para incluir Inicio y Meta ---
             return `
                 <div class="card-hover bg-white rounded-2xl p-4 border-b-6 shadow-sm ${metric.theme} relative overflow-hidden">
+                    
                     <div class="flex items-center gap-3 mb-2">
                         <span class="text-2xl filter drop-shadow-sm">${metric.emoji}</span>
-                        <h4 class="font-bold text-gray-700 text-base flex-grow">${metric.name}</h4>
+                        <h4 class="font-bold text-gray-700 text-base flex-grow pr-6">${metric.name}</h4>
                         ${(!isFrozen && percent >= 100) ? '<span class="animate-bounce text-xl">🏆</span>' : ''}
                         ${isFrozen ? '<span class="text-xl" title="Necesitas más actividad para ver tu progreso.">❄️</span>' : ''}
                     </div>
 
-                    <!-- NUEVOS VALORES DE CONTEXTO (BASE Y META) -->
                     <div class="flex justify-between text-xs font-bold text-gray-400 mb-1 px-1">
                         <span class="text-indigo-500">
                             Inicio: <span class="text-gray-600">${initialVal}</span>
@@ -594,11 +795,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-2 text-center">
-                        ${displayHTML}
-                        <div class="text-xs text-gray-500 uppercase font-bold tracking-wider">
-                            ${isFrozen ? 'Falta Actividad' : 'Actual'}
+                    <div class="mt-2 flex justify-between items-center">
+                        <div class="text-center flex-1">
+                            ${displayHTML}
+                            <div class="text-xs text-gray-500 uppercase font-bold tracking-wider">
+                                ${isFrozen ? 'Falta Actividad' : 'Actual'}
+                            </div>
                         </div>
+                        ${practiceButton ? `<div>${practiceButton}</div>` : ''}
                     </div>
                 </div>
             `;
@@ -613,12 +817,11 @@
             avatarImg.src = customAvatarUrl;
             avatarImg.onerror = () => { avatarImg.src = 'peoncitos/peoncitos_1.png'; };
 
-            // Calcular y renderizar categoría
             const cat = calculateCategory(liveData);
-            document.getElementById('player-category-badge').textContent = cat.badge;
+            document.getElementById('player-category-badge').textContent = `${cat.badge} • Promedio: ${cat.average}`;
             document.getElementById('player-category-desc').textContent = cat.desc;
 
-            const zonesContainer = document.getElementById(ZONES_CONTAINER_ID);
+            const zonesContainer = document.getElementById('zones-container');
             zonesContainer.innerHTML = ''; 
             
             let hasCelebration = { value: false }; 
@@ -635,7 +838,6 @@
                 }
             });
 
-            // Generar HTML
             for (const [mainZoneTitle, subZones] of Object.entries(groupedMetrics)) {
                 const mainZoneColor = mainZoneTitle === 'Rendimiento en Vivo' ? 'border-sky-400' : 'border-pink-400';
                 const safeZoneId = mainZoneTitle.replace(/\s+/g, '-').toLowerCase();
@@ -674,9 +876,6 @@
             if (hasCelebration.value && typeof confetti !== 'undefined') {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             }
-
-            // Abre la primera zona por defecto después de cargar el dashboard
-            toggleZone(Object.keys(groupedMetrics)[0].replace(/\s+/g, '-').toLowerCase());
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
