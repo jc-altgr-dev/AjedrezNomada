@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Mind - Entrenamiento Adaptativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #f1f5f9; }
+        .option-btn { transition: all 0.2s; }
+        .selected-correct { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #166534; font-weight: bold; }
+        .selected-wrong { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b; font-weight: bold; }
+        .chess-hidden { opacity: 0; pointer-events: none; transform: scale(0.95); }
+        .chess-img { transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; }
+        
+        /* MODO EXPERTO */
+        .expert-mode { 
+            border-color: #fbbf24 !important; 
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+            background: linear-gradient(to bottom, #ffffff, #fffdf2);
+        }
+        .expert-text { color: #b45309 !important; }
+        .expert-bg { background-color: #fef3c7 !important; }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 flex flex-col items-center">
+
+    <div id="app" class="max-w-3xl w-full bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-4 border-white transition-all duration-700">
+        
+        <div id="screen-start" class="p-10 text-center">
+            <div class="mb-4 inline-block animate-bounce text-6xl">🧠</div>
+            <h1 class="text-4xl font-bold text-slate-800 mb-2">Chess Memory Adaptativo</h1>
+            <p class="text-slate-500 mb-8 italic">"¡Memoriza, calcula y conquista!"</p>
+            
+            <div id="level-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10"></div>
+            
+            <a href="https://enael.com.mx" target="_blank" class="inline-flex items-center gap-2 text-indigo-600 font-bold hover:underline">
+                🌐 Volver a Enael.com.mx
+            </a>
+        </div>
+
+        <div id="screen-game" class="hidden p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 id="current-lvl-tag" class="text-2xl font-bold text-indigo-600 transition-colors">Nivel A1</h2>
+                    <p id="progress-text" class="text-xs text-slate-400 font-bold uppercase tracking-widest">Cargando...</p>
+                </div>
+                <div class="flex flex-col items-end">
+                    <div id="timer" class="text-3xl font-mono font-bold text-slate-700 leading-none">00:00</div>
+                    <div id="speed-indicator" class="mt-2 text-[10px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
+                        VELOCIDAD: 30s / 30s
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative mb-8 bg-slate-50 rounded-3xl overflow-hidden aspect-square flex items-center justify-center border-4 border-slate-100 shadow-inner">
+                <img id="exercise-img" src="" class="chess-img w-full h-full object-contain">
+                
+                <div id="hidden-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 hidden">
+                    <span id="placeholder-icon" class="text-6xl mb-4">🙈</span>
+                    <p id="placeholder-msg" class="text-lg font-bold">¡Confía en tu memoria!</p>
+                </div>
+
+                <div class="absolute bottom-0 left-0 w-full h-2 bg-slate-200">
+                    <div id="visibility-bar" class="h-full bg-indigo-400 transition-all duration-1000"></div>
+                </div>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3 mb-6"></div>
+
+            <div id="feedback" class="mt-6 p-6 rounded-2xl hidden text-center shadow-lg border-2 animate-in fade-in zoom-in duration-300">
+                <p id="feedback-text" class="text-xl font-bold mb-1"></p>
+                <p id="feedback-explanation" class="text-slate-600 mb-4 text-sm"></p>
+                <button onclick="nextExercise()" class="bg-indigo-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-md">
+                    Siguiente →
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-results" class="hidden p-10 bg-white">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🏆</div>
+                <h2 class="text-3xl font-bold text-slate-800">¡Reto Finalizado!</h2>
+                <p id="report-date" class="text-slate-400 text-sm italic mt-1"></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-indigo-50 p-6 rounded-[2rem] text-center border-2 border-indigo-100">
+                    <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1">Puntaje</p>
+                    <p id="final-score" class="text-4xl font-bold text-indigo-600">0/0</p>
+                </div>
+                <div class="bg-amber-50 p-6 rounded-[2rem] text-center border-2 border-amber-100">
+                    <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1">Velocidad</p>
+                    <p id="final-speed" class="text-4xl font-bold text-amber-600">30s</p>
+                </div>
+            </div>
+
+            <div class="overflow-hidden border border-slate-100 rounded-3xl mb-8">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="p-4 text-slate-400 uppercase text-[10px]">Ejer.</th>
+                            <th class="p-4 text-slate-400 uppercase text-[10px]">Resultado</th>
+                            <th class="p-4 text-slate-400 uppercase text-[10px]">Tiempo</th>
+                            <th class="p-4 text-center text-slate-400 uppercase text-[10px]">Estudio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table-body" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+
+            <div id="final-recommendation" class="bg-slate-50 p-6 rounded-2xl mb-8 border-l-4 border-indigo-400 italic text-slate-600 text-sm"></div>
+
+            <button onclick="location.reload()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">
+                Cerrar y Volver al Inicio
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = {
+            "A1": { title: "Nivel 400 ELO", color: "bg-emerald-100 text-emerald-800 border-emerald-200", exercises: [
+                { img: "A1/1.png", options: ["Df6+", "Axb7", "Dxg8+", "Dxb7"], correct: 2, why: "Simple y directo.", url: "https://lichess.org/editor/8/p3bq1k/b1p1p2p/2PpP1p1/3Pp1N1/4P1Q1/P5PP/4B1K1_b_-_-_5_28" },
+                { img: "A1/2.png", options: ["Df2+", "Df1+", "Af1", "Dh5"], correct: 1, why: "Simple y directo.", url: "https://lichess.org/training/FtgDG" },
+                { img: "A1/3.png", options: ["Te1 defendiendo", "Td8 ganando caballo", "Td7", "Td8 seguido de mate"], correct: 3, why: "Simple y directo.", url: "https://lichess.org/training/Z8KCl" },
+                { img: "A1/4.png", options: ["Td8", "Txb1", "Td7", "Td2"], correct: 0, why: "Simple y directo.", url: "https://lichess.org/training/P7H3a" },
+                { img: "A1/5.png", options: ["Tc8+", "Tc7 invadiendo séptima fila", "f4", "Tc8, ganando torre"], correct: 0, why: "Simple y directo.", url: "https://lichess.org/training/HBu1J" },
+                { img: "A1/6.png", options: ["Dxh7#", "Td8 seguido de Ta8", "Td8 ganando alfil y mate", "Ab5"], correct: 2, why: "Simple y directo.", url: "https://lichess.org/training/o0AII" },
+                { img: "A1/7.png", options: ["Ta8", "Te2", "Te1", "Af3"], correct: 2, why: "Simple y directo.", url: "https://lichess.org/training/tzAsu" },
+                { img: "A1/8.png", options: ["g5!", "Df1", "Df2", "Af2!"], correct: 1, why: "Simple y directo.", url: "https://lichess.org/training/CWu6g" },
+                { img: "A1/9.png", options: ["h3", "Da8", "Tc2 y mate!", "Cc8"], correct: 1, why: "Simple y directo.", url: "https://lichess.org/training/MlPRr" },
+                { img: "A1/10.png", options: ["g4 ganando Torre", "De5", "Dd4", "Dh6"], correct: 3, why: "Se requiere mucha concentración para encontrar la jugada correcta!", url: "https://lichess.org/training/l0MSD" }
+            ]},
+            "A2": { title: "Nivel 800 ELO", color: "bg-blue-100 text-blue-800 border-blue-200", exercises: [
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" }
+            ]},
+            "B1": { title: "Nivel 1200 ELO", color: "bg-orange-100 text-orange-800 border-orange-200", exercises: [
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" }
+            ]},
+            "B2": { title: "Nivel 1600 ELO", color: "bg-purple-100 text-purple-800 border-purple-200", exercises: [
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" }
+            ]},
+            "C1": { title: "Nivel 2000 ELO", color: "bg-rose-100 text-rose-800 border-rose-200", exercises: [
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" }
+            ]},
+            "C2": { title: "Nivel 2400 ELO", color: "bg-indigo-100 text-indigo-800 border-indigo-200", exercises: [
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-06_A1_1.png", options: ["Dxh7#", "Rf1", "d4", "Ab5"], correct: 0, why: "Mate directo del pastor.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-32_A1_2.png", options: ["Cf3", "Dxd5", "Ae2", "O-O"], correct: 1, why: "Pieza sin defensa.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-55-50_A1_3.png", options: ["O-O", "Ad3", "Te1", "f4"], correct: 1, why: "Desarrollo de piezas menores.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-09_A1_4.png", options: ["h3", "Cc3", "a3", "Ab5"], correct: 1, why: "Ocupación del centro.", url: "https://lichess.org/analysis" },
+                { img: "A1/2025-12-23 13-56-36_A1_5.png", options: ["Rh1", "d4", "f4", "e4"], correct: 1, why: "Ruptura temática d4.", url: "https://lichess.org/analysis" }
+            ]}
+        };
+
+        let currentLevel = "", currentIndex = 0, sessionStats = [], timerInterval, visibilityTimeout, exerciseStartTime, totalStartTime;
+        let currentVisibleTime = 30, currentHiddenTime = 30;
+
+        function init() {
+            const grid = document.getElementById('level-grid');
+            Object.keys(quizData).forEach(lvl => {
+                grid.innerHTML += `
+                    <button onclick="startLevel('${lvl}')" class="${quizData[lvl].color} p-6 rounded-[2rem] border-4 border-white shadow-sm hover:scale-105 transition-all active:scale-95">
+                        <div class="text-3xl font-bold">${lvl}</div>
+                        <div class="text-[10px] font-bold opacity-60 uppercase">${quizData[lvl].title}</div>
+                    </button>`;
+            });
+        }
+
+        function startLevel(lvl) {
+            currentLevel = lvl; currentIndex = 0; sessionStats = [];
+            currentVisibleTime = 30; currentHiddenTime = 30;
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('app').classList.remove('expert-mode');
+            totalStartTime = Date.now();
+            loadExercise();
+            startGlobalTimer();
+        }
+
+        function startGlobalTimer() {
+            timerInterval = setInterval(() => {
+                const diff = Math.floor((Date.now() - totalStartTime) / 1000);
+                const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                const s = (diff % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function loadExercise() {
+            const data = quizData[currentLevel].exercises[currentIndex];
+            clearTimeout(visibilityTimeout);
+            exerciseStartTime = Date.now();
+            
+            document.getElementById('exercise-img').src = data.img;
+            document.getElementById('progress-text').innerText = `EJERCICIO ${currentIndex + 1} DE ${quizData[currentLevel].exercises.length}`;
+            
+            const speedInd = document.getElementById('speed-indicator');
+            speedInd.innerText = `VELOCIDAD: ${currentVisibleTime}s / ${currentHiddenTime}s`;
+            
+            // ACTIVAR MODO EXPERTO VISUAL
+            if (currentVisibleTime === 5) {
+                document.getElementById('app').classList.add('expert-mode');
+                document.getElementById('current-lvl-tag').classList.add('expert-text');
+                speedInd.classList.add('expert-bg', 'expert-text', 'border-amber-200');
+                speedInd.innerText = "⭐ MODO MAESTRO: 5s / 5s ⭐";
+            }
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            data.options.forEach((opt, i) => {
+                container.innerHTML += `<button onclick="checkAnswer(${i})" class="option-btn w-full p-4 bg-white border-2 border-slate-100 rounded-2xl text-left font-semibold hover:border-indigo-300 transition-all">${opt}</button>`;
+            });
+            
+            document.getElementById('feedback').classList.add('hidden');
+            runVisibilityCycle(true);
+        }
+
+        function runVisibilityCycle(shouldShow) {
+            const img = document.getElementById('exercise-img');
+            const placeholder = document.getElementById('hidden-placeholder');
+            const bar = document.getElementById('visibility-bar');
+            if (!document.getElementById('feedback').classList.contains('hidden')) return;
+
+            if (shouldShow) {
+                img.classList.remove('chess-hidden');
+                placeholder.classList.add('hidden');
+                bar.style.transitionDuration = '0s';
+                bar.style.width = "100%";
+                setTimeout(() => {
+                    bar.style.transitionDuration = `${currentVisibleTime}s`;
+                    bar.style.width = "0%";
+                }, 50);
+                visibilityTimeout = setTimeout(() => runVisibilityCycle(false), currentVisibleTime * 1000);
+            } else {
+                img.classList.add('chess-hidden');
+                placeholder.classList.remove('hidden');
+                visibilityTimeout = setTimeout(() => runVisibilityCycle(true), currentHiddenTime * 1000);
+            }
+        }
+
+        function checkAnswer(idx) {
+            clearTimeout(visibilityTimeout);
+            const data = quizData[currentLevel].exercises[currentIndex];
+            const btns = document.querySelectorAll('.option-btn');
+            const timeSpent = Math.floor((Date.now() - exerciseStartTime) / 1000);
+            const isCorrect = idx === data.correct;
+
+            if (isCorrect && timeSpent < 10) {
+                currentVisibleTime = Math.max(5, currentVisibleTime - 5);
+                currentHiddenTime = Math.max(5, currentHiddenTime - 5);
+            }
+
+            document.getElementById('exercise-img').classList.remove('chess-hidden');
+            document.getElementById('hidden-placeholder').classList.add('hidden');
+            sessionStats.push({ correct: isCorrect, time: timeSpent, url: data.url });
+
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if(i === idx) btn.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+                if(i === data.correct && !isCorrect) btn.classList.add('selected-correct');
+            });
+
+            const fb = document.getElementById('feedback');
+            fb.classList.remove('hidden');
+            fb.className = isCorrect ? "mt-6 p-6 rounded-2xl text-center bg-green-50 border-green-200 border-2" : "mt-6 p-6 rounded-2xl text-center bg-red-50 border-red-200 border-2";
+            document.getElementById('feedback-text').innerText = isCorrect ? "¡Excelente! ✨" : "¡Sigue adelante! 💪";
+            document.getElementById('feedback-explanation').innerText = data.why;
+        }
+
+        function nextExercise() {
+            currentIndex++;
+            currentIndex < quizData[currentLevel].exercises.length ? loadExercise() : showResults();
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+            
+            const corrects = sessionStats.filter(s => s.correct).length;
+            document.getElementById('report-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('final-score').innerText = `${corrects}/${sessionStats.length}`;
+            document.getElementById('final-speed').innerText = `${currentVisibleTime}s`;
+
+            const tableBody = document.getElementById('report-table-body');
+            tableBody.innerHTML = "";
+            sessionStats.forEach((stat, i) => {
+                tableBody.innerHTML += `
+                    <tr class="border-t border-slate-50">
+                        <td class="p-4 font-bold text-slate-300">${i+1}</td>
+                        <td class="p-4">${stat.correct ? '✅' : '❌'}</td>
+                        <td class="p-4 text-slate-600 font-medium">${stat.time}s</td>
+                        <td class="p-4 text-center"><a href="${stat.url}" target="_blank" class="text-indigo-500 hover:scale-110 inline-block transition-transform">↗️</a></td>
+                    </tr>`;
+            });
+
+            document.getElementById('final-recommendation').innerHTML = (corrects === sessionStats.length) 
+                ? "🌟 <b>¡Dominio Perfecto!</b> Tu capacidad de retención visual es increíble. Estás listo para niveles superiores." 
+                : "📚 <b>Buen esfuerzo.</b> Para mejorar, intenta cerrar los ojos e imaginar la posición completa antes de elegir tu jugada.";
+        }
+
+        init();
+    </script>
+</body>
+</html>
