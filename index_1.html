@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club ENAEL - Academia de Ajedrez Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: white; }
+        .hero-bg {
+            background: linear-gradient(to right, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.2) 100%), 
+                        url('https://images.unsplash.com/photo-1529692236671-f1f6e9460272?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+        }
+        .gold-text { color: #d4af37; }
+        .gold-bg { background-color: #d4af37; }
+        .gold-border { border-color: #d4af37; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="fixed w-full z-50 bg-black/50 backdrop-blur-md">
+        <nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold tracking-tighter">
+                CLUB <span class="gold-text">ENAEL</span>
+            </div>
+            <ul class="hidden md:flex space-x-8 text-sm uppercase tracking-widest font-medium">
+                <li><a href="#inicio" class="hover:text-yellow-500 transition">Inicio</a></li>
+                <li><a href="#clases" class="hover:text-yellow-500 transition">Clases</a></li>
+                <li><a href="#inscripcion" class="hover:text-yellow-500 transition">Inscripción</a></li>
+                <li><a href="#torneos" class="hover:text-yellow-500 transition">Torneos</a></li>
+                <li><a href="#contacto" class="hover:text-yellow-500 transition">Contacto</a></li>
+            </ul>
+            <div class="hidden md:block w-10"></div>
+        </nav>
+    </header>
+
+    <section id="inicio" class="hero-bg min-h-screen flex items-center pt-20">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center w-full">
+            
+            <div class="space-y-8">
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight">
+                    ¿Estás listo para llevar tu juego <span class="gold-text italic">al próximo nivel?</span>
+                </h1>
+                <p class="text-lg text-gray-300 max-w-lg leading-relaxed">
+                    En esta escuela encontrarás clases y contenido dirigido a jugadores de nivel intermedio en adelante, enfocados en el desarrollo competitivo. Aprende de los mejores ajedrecistas de <span class="text-white font-semibold">México y Latinoamérica.</span>
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                    <a href="#inscripcion" class="gold-bg text-black font-bold px-8 py-4 rounded-sm flex items-center justify-center hover:bg-yellow-600 transition duration-300 uppercase tracking-wider text-sm">
+                        Inscríbete Ya 
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
+                    <a href="#calendario" class="border border-white/30 px-8 py-4 rounded-sm flex items-center justify-center hover:bg-white/10 transition duration-300 uppercase tracking-wider text-sm">
+                        Calendario
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="pt-8 flex items-center space-x-3">
+                    <span class="text-xl font-light tracking-widest uppercase">Academia de Ajedrez Online</span>
+                    <span class="text-2xl">🇲🇽</span>
+                </div>
+            </div>
+
+            <div class="relative hidden md:block">
+                <div class="relative z-10 transform hover:scale-105 transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1517336712462-8c675c270373?auto=format&fit=crop&q=80&w=1000" alt="Laptop Academy" class="rounded-lg shadow-2xl border border-white/10">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-20 h-20 bg-yellow-500/80 rounded-full flex items-center justify-center backdrop-blur-sm cursor-pointer hover:scale-110 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-black fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -inset-4 bg-yellow-500/10 blur-3xl rounded-full"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="calendario" class="py-20 bg-[#0f0f0f]">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-12 uppercase tracking-widest">Próximas Clases y Torneos</h2>
+            <div class="grid gap-4">
+                <div class="bg-white/5 p-6 rounded-lg border-l-4 gold-border flex justify-between items-center text-left">
+                    <div>
+                        <p class="gold-text font-bold text-sm uppercase">Lunes 19:00 hrs</p>
+                        <h3 class="text-xl font-semibold">Estrategia en Finales de Torres</h3>
+                    </div>
+                    <span class="text-gray-400">Online Zoom</span>
+                </div>
+                <div class="bg-white/5 p-6 rounded-lg border-l-4 border-gray-600 flex justify-between items-center text-left opacity-70">
+                    <div>
+                        <p class="text-gray-400 font-bold text-sm uppercase">Miércoles 18:00 hrs</p>
+                        <h3 class="text-xl font-semibold">Torneo Relámpago ENAEL</h3>
+                    </div>
+                    <span class="text-gray-400">Lichess.org</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 text-center text-gray-500 text-sm border-t border-white/5">
+        &copy; 2026 Club ENAEL. Todos los derechos reservados.
+    </footer>
+
+</body>
+</html>
