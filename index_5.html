@@ -18,8 +18,8 @@
             --accent: #cbc0d3;
             --glass-bg: rgba(255, 255, 255, 0.25);
             --glass-border: rgba(255, 255, 255, 0.5);
-            /* Color de menú móvil: un lila cristalino que combina con el fondo */
-            --glass-mobile: rgba(224, 195, 252, 0.85); 
+            /* Color de menú móvil: un lila cristalino más suave para mejor lectura */
+            --glass-mobile: rgba(230, 210, 255, 0.92); 
             --text-dark: #2b2d42;
             --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
@@ -329,28 +329,28 @@
 
             .hamburger { display: block; }
 
-            /* Menú Desplegable Corregido */
+            /* Menú Desplegable Corregido: Letras visibles y sin desborde */
             .nav-links {
                 position: fixed;
                 top: 0;
-                right: 0; /* Lo movemos a la derecha */
-                width: 100vw;
+                right: 0; 
+                width: 100%; /* Cambiado de 100vw a 100% para evitar desbordes */
                 height: 100vh;
                 background: var(--glass-mobile);
-                backdrop-filter: blur(25px); /* Efecto cristal más fuerte */
+                backdrop-filter: blur(25px); 
                 -webkit-backdrop-filter: blur(25px);
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 gap: 2.5rem;
-                padding: 0;
+                padding: 0 20px; /* Margen interno de seguridad para evitar letras cortadas */
                 margin: 0;
                 z-index: 1001;
                 
                 /* Estado inicial oculto */
                 opacity: 0;
                 visibility: hidden;
-                transform: translateX(100%); /* Sale por la derecha */
+                transform: translateX(100%); 
                 transition: all 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
             }
 
@@ -361,12 +361,17 @@
                 transform: translateX(0);
             }
 
-            .nav-links li { width: 100%; }
+            .nav-links li { 
+                width: 100%; 
+                text-align: center; /* Asegura centrado horizontal total */
+            }
+
             .nav-links a { 
                 font-size: 2rem; 
-                display: block; 
+                display: inline-block; /* Cambiado de block para mejor control de centrado */
                 color: var(--text-dark);
                 font-weight: 800;
+                padding: 10px 0;
             }
 
             .hamburger.active .bar:nth-child(2) { opacity: 0; }
