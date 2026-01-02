@@ -1,49 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Codificación de caracteres -->
-  <meta charset="UTF-8">
+    <!-- Codificación de caracteres -->
+    <meta charset="UTF-8">
 
-  <!-- Adaptación a móviles y tablets -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Adaptación a móviles y tablets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <!-- Idioma del contenido -->
-  <meta http-equiv="Content-Language" content="es">
+    <!-- Idioma del contenido -->
+    <meta http-equiv="Content-Language" content="es">
 
-  <!-- Control de indexación (SEO) -->
-  <meta name="robots" content="index, follow">
+    <!-- Control de indexación (SEO) -->
+    <meta name="robots" content="index, follow">
 
-  <!-- Autor -->
-  <meta name="author" content="José Carlos Alvarado Garzón - Club ENAEL">
+    <!-- Autor -->
+    <meta name="author" content="José Carlos Alvarado Garzón - Club ENAEL">
 
-  <!-- Canonical: versión oficial del sitio -->
-  <link rel="canonical" href="https://enael.com.mx">
+    <!-- Canonical: versión oficial del sitio -->
+    <link rel="canonical" href="https://enael.com.mx">
 
-  <!-- Título principal (SEO y navegadores) -->
-  <title>Academia de Ajedrez Online | Aprende con la Escuela Nacional de Ajedrez Emanuel Lasker</title>
+    <!-- Título principal (SEO y navegadores) -->
+    <title>Academia de Ajedrez Online | Aprende con la Escuela Nacional de Ajedrez Emanuel Lasker</title>
 
-  <!-- Descripción (máx. ~160 caracteres) -->
-  <meta name="description" content="Aprende ajedrez online con clases en vivo, torneos virtuales y recursos exclusivos para todas las edades y niveles.">
+    <!-- Descripción (máx. ~160 caracteres) -->
+    <meta name="description" content="Aprende ajedrez online con clases en vivo, torneos virtuales y recursos exclusivos para todas las edades y niveles.">
 
-  <!-- Palabras clave (menos importantes hoy, pero útiles para buscadores menores) -->
-  <meta name="keywords" content="enael, ajedrez, Lasker, tehuacan, ajedrez tehuacan,aprender ajedrez, ajedrez online, clases de ajedrez, academia de ajedrez, torneos de ajedrez, estrategia, táctica, Escuela Nacional de Ajedrez Emanuel Lasker">
+    <!-- Palabras clave -->
+    <meta name="keywords" content="enael, ajedrez, Lasker, tehuacán, ajedrez tehuacán, aprender ajedrez, ajedrez online, clases de ajedrez, academia de ajedrez, torneos de ajedrez, estrategia, táctica, Escuela Nacional de Ajedrez Emanuel Lasker">
 
-  <!-- Open Graph (para compartir en redes sociales como Facebook, WhatsApp) -->
-  <meta property="og:title" content="Academia de Ajedrez Online | Escuela Nacional de Ajedrez Emanuel Lasker">
-  <meta property="og:description" content="Clases online con entrenadores expertos, torneos virtuales y recursos exclusivos para todos los niveles.">
-  <meta property="og:image" content="https://enael.com.mx/img/og-image-blue.jpg">
-  <meta property="og:url" content="https://enael.com.mx">
-  <meta property="og:type" content="website">
-  <meta property="fb:app_id" content="">
+    <!-- Open Graph (Facebook, WhatsApp) -->
+    <meta property="og:title" content="Academia de Ajedrez Online | Escuela Nacional de Ajedrez Emanuel Lasker">
+    <meta property="og:description" content="Clases online con entrenadores expertos, torneos virtuales y recursos exclusivos para todos los niveles.">
+    <meta property="og:image" content="https://enael.com.mx/img/og-image-blue.jpg">
+    <meta property="og:url" content="https://enael.com.mx">
+    <meta property="og:type" content="website">
+    <meta property="fb:app_id" content="">
 
-  <!-- Twitter Card (para que se vea atractivo al compartir en X/Twitter) -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Academia de Ajedrez Online | Escuela Nacional de Ajedrez Emanuel Lasker">
-  <meta name="twitter:description" content="Clases online con entrenadores expertos, torneos virtuales y recursos exclusivos para todos los niveles.">
-  <meta name="twitter:image" content="https://enael.com.mx/img/og-image-blue.jpg">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Academia de Ajedrez Online | Escuela Nacional de Ajedrez Emanuel Lasker">
+    <meta name="twitter:description" content="Clases online con entrenadores expertos, torneos virtuales y recursos exclusivos para todos los niveles.">
+    <meta name="twitter:image" content="https://enael.com.mx/img/og-image-blue.jpg">
 
-  <!-- Favicon -->
-  <link rel="icon" href="img/favicon.png" type="image/png">
+    <!-- Favicon -->
+    <link rel="icon" href="img/favicon.png" type="image/png">
     
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -417,6 +417,7 @@
             justify-content: center;
             align-items: center;
             padding: 10px;
+            touch-action: none; /* Previene scroll durante el swipe */
         }
         .lightbox.active { display: flex; }
         .lightbox img {
@@ -425,6 +426,8 @@
             border-radius: 4px;
             object-fit: contain;
             box-shadow: 0 0 30px rgba(255,255,255,0.1);
+            user-select: none;
+            pointer-events: none; /* Para que el touch sea detectado por el contenedor */
         }
         .close-lightbox {
             position: absolute;
@@ -450,6 +453,7 @@
             cursor: pointer;
             transition: 0.3s;
             border-radius: 5px;
+            z-index: 3002;
         }
         .nav-btn:hover { background: rgba(255,255,255,0.3); }
         .prev-btn { left: 20px; }
@@ -485,7 +489,7 @@
             .stack-photo.pos-left { transform: rotate(-5deg) translateX(-40px) scale(0.85); }
             .stack-photo.pos-right { transform: rotate(5deg) translateX(40px) scale(0.85); }
 
-            .nav-btn { padding: 10px 8px; font-size: 1.5rem; }
+            .nav-btn { display: none; } /* En móvil preferimos el swipe */
             .hero-content { padding: 1rem; }
             #contacto { width: 95%; padding: 2rem 1rem; }
         }
@@ -553,11 +557,11 @@
     <section id="nosotros">
         <h2 class="section-title">Nuestra Academia</h2>
         <div class="gallery-stack" id="galleryContainer">
-            <img src="./img/somos/landing_1.jpg" data-index="0" class="stack-photo pos-left" onerror="this.src='https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=600'">
-            <img src="./img/somos/landing_2.jpg" data-index="1" class="stack-photo pos-center" onerror="this.src='https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=600'">
-            <img src="./img/somos/landing_3.jpg" data-index="2" class="stack-photo pos-right" onerror="this.src='https://images.unsplash.com/photo-1528819622765-d6bcf132f793?w=600'">
+            <img src="./img/landing_1.jpg" data-index="0" class="stack-photo pos-left" onerror="this.src='https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=600'">
+            <img src="./img/landing_2.jpg" data-index="1" class="stack-photo pos-center" onerror="this.src='https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=600'">
+            <img src="./img/landing_3.jpg" data-index="2" class="stack-photo pos-right" onerror="this.src='https://images.unsplash.com/photo-1528819622765-d6bcf132f793?w=600'">
         </div>
-        <p style="margin-top: 2rem; opacity: 0.7; font-size: 0.9rem; text-align: center;">Usa las fotos laterales para navegar o haz clic al centro para ampliar</p>
+        <p style="margin-top: 2rem; opacity: 0.7; font-size: 0.9rem; text-align: center;">Desliza las fotos laterales para navegar o pulsa al centro para ampliar</p>
     </section>
 
     <!-- CONTACTO -->
@@ -642,11 +646,32 @@
         const nextLightbox = document.getElementById('nextLightbox');
         let lightboxIndex = 0;
 
+        // Swipe Management
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function handleGesture() {
+            if (touchEndX < touchStartX - 50) nextImage();
+            if (touchEndX > touchStartX + 50) prevImage();
+        }
+
+        lightbox.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        lightbox.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, {passive: true});
+
         function openLightbox(index) {
             lightboxIndex = index;
             lightboxImg.src = photos[lightboxIndex].src;
             lightbox.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Push state para que el botón "Atrás" del móvil cierre la galería
+            window.history.pushState({ lightbox: 'open' }, '');
         }
 
         function closeLightboxFunc() {
@@ -664,18 +689,30 @@
             lightboxImg.src = photos[lightboxIndex].src;
         }
 
-        closeLightbox.addEventListener('click', closeLightboxFunc);
+        closeLightbox.addEventListener('click', () => {
+            window.history.back(); // Esto disparará el evento popstate y cerrará el lightbox
+        });
+        
         nextLightbox.addEventListener('click', (e) => { e.stopPropagation(); nextImage(); });
         prevLightbox.addEventListener('click', (e) => { e.stopPropagation(); prevImage(); });
         
         // Cerrar al hacer clic fuera de la imagen
-        lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightboxFunc(); });
+        lightbox.addEventListener('click', (e) => { 
+            if(e.target === lightbox) window.history.back(); 
+        });
+
+        // Escuchar el botón "Atrás"
+        window.addEventListener('popstate', (e) => {
+            if (lightbox.classList.contains('active')) {
+                closeLightboxFunc();
+            }
+        });
 
         // SOPORTE PARA TECLA ESCAPE Y FLECHAS
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
             
-            if (e.key === 'Escape') closeLightboxFunc();
+            if (e.key === 'Escape') window.history.back();
             if (e.key === 'ArrowRight') nextImage();
             if (e.key === 'ArrowLeft') prevImage();
         });
