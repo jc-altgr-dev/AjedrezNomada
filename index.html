@@ -67,6 +67,7 @@
         }
         .hero-content { padding: 3rem; }
         .hero-title { font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1.1; margin-bottom: 1.5rem; }
+        .cta-container { display: flex; gap: 10px; flex-wrap: wrap; }
         .cta-button {
             display: inline-block; padding: 15px 35px; background: white;
             border-radius: 50px; text-decoration: none; color: var(--text-dark);
@@ -79,7 +80,7 @@
         .gallery-stack {
             position: relative; width: 100%; height: 400px;
             display: flex; justify-content: center; align-items: center;
-            touch-action: pan-y;
+            touch-action: none; /* Mejor control para swipe manual */
         }
         .stack-photo {
             position: absolute; width: 220px; height: 320px; object-fit: cover;
@@ -123,14 +124,16 @@
         .lightbox {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 3000; justify-content: center; align-items: center;
+            touch-action: none;
         }
         .lightbox.active { display: flex; }
-        .lightbox img { max-width: 90%; max-height: 80vh; border-radius: 8px; transition: 0.3s ease; }
+        .lightbox img { max-width: 90%; max-height: 80vh; border-radius: 8px; transition: 0.3s ease; pointer-events: none; }
 
         /* RESPONSIVE & MENU FIX */
         @media (max-width: 992px) {
             .hero-container { grid-template-columns: 1fr; }
             .hero-content { text-align: center; padding: 2rem; }
+            .cta-container { justify-content: center; }
             .gallery-stack { height: 350px; }
             .cta-whatsapp { margin-left: 0; }
         }
@@ -178,7 +181,7 @@
             <div class="hero-content glass">
                 <h1 class="hero-title">Domina el Tablero</h1>
                 <p>Estrategia y excelencia en cada jugada. Aprende con maestros en este 2026.</p>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: inherit;">
+                <div class="cta-container">
                     <a href="#academia" class="cta-button">Ver Cursos</a>
                     <a href="https://wa.me/1234567890" target="_blank" class="cta-button cta-whatsapp">Inscribirse</a>
                 </div>
@@ -213,7 +216,7 @@
             </a>
         </div>
 
-        <!-- CALENDARIO REINSTALADO -->
+        <!-- CALENDARIO -->
         <div class="calendar-wrapper glass">
             <h3 style="text-align: center; margin-bottom: 2rem;">📅 Horarios Semanales</h3>
             <div class="calendar-grid">
@@ -298,6 +301,7 @@
 
         // --- LÓGICA GALERÍA AVANZADA ---
         const gallery = document.getElementById('galleryContainer');
+        const lightbox = document.getElementById('lightbox');
         const slides = Array.from(gallery.querySelectorAll('.stack-photo'));
         let currentIdx = 1;
         let startX = 0;
@@ -310,9 +314,9 @@
                 else img.classList.add('pos-right');
             });
             // Si el lightbox está activo, actualizar la imagen que muestra
-            const lb = document.getElementById('lightbox');
-            if(lb.classList.contains('active')) {
-                document.getElementById('lightboxImg').src = slides[currentIdx].src;
+            const lbImg = document.getElementById('lightboxImg');
+            if(lightbox.classList.contains('active')) {
+                lbImg.src = slides[currentIdx].src;
             }
         }
 
@@ -325,35 +329,54 @@
             if (clicked.classList.contains('pos-left')) prevSlide();
             else if (clicked.classList.contains('pos-right')) nextSlide();
             else if (clicked.classList.contains('pos-center')) {
-                const lb = document.getElementById('lightbox');
                 document.getElementById('lightboxImg').src = clicked.src;
-                lb.classList.add('active');
+                lightbox.classList.add('active');
                 history.pushState({lightbox: true}, "");
             }
         });
 
-        // Gestos táctiles (Swipe)
+        // Función unificada para Swipe
+        function handleSwipe(e, startPos) {
+            const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const diff = startPos - endX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+            }
+        }
+
+        // Eventos táctiles en Galería
         gallery.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-        gallery.addEventListener('touchend', e => {
-            const diff = startX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) diff > 0 ? nextSlide() : prevSlide();
+        gallery.addEventListener('touchend', e => handleSwipe(e, startX));
+
+        // Eventos táctiles en Lightbox (Navegabilidad móvil en primer plano)
+        lightbox.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        lightbox.addEventListener('touchend', e => {
+            // Si el toque fue un simple tap (no swipe), cerrar el lightbox
+            const endX = e.changedTouches[0].clientX;
+            if (Math.abs(startX - endX) < 10) {
+                lightbox.classList.remove('active');
+                if (history.state?.lightbox) history.back();
+            } else {
+                handleSwipe(e, startX);
+            }
         });
 
         // Teclado (Escape y Flechas)
         window.addEventListener('keydown', e => {
-            if (e.key === "Escape") document.getElementById('lightbox').classList.remove('active');
+            if (e.key === "Escape") {
+                if (lightbox.classList.contains('active')) {
+                    lightbox.classList.remove('active');
+                    if (history.state?.lightbox) history.back();
+                }
+            }
             if (e.key === "ArrowRight") nextSlide();
             if (e.key === "ArrowLeft") prevSlide();
         });
 
         // Manejo del botón atrás
         window.addEventListener('popstate', (e) => {
-            document.getElementById('lightbox').classList.remove('active');
-        });
-
-        document.getElementById('lightbox').addEventListener('click', () => {
-            document.getElementById('lightbox').classList.remove('active');
-            if (history.state?.lightbox) history.back();
+            lightbox.classList.remove('active');
         });
 
         updateGallery();
