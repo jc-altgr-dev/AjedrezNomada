@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Escuela Nacional de Ajedrez Emanuel Lasker</title>
+    
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. VARIABLES Y RESET --- */
+        :root {
+            --bg-color: #fdfbf7;
+            --primary: #8e9aaf;
+            --accent: #cbc0d3;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            /* Color de menú móvil: un lila cristalino que combina con el fondo */
+            --glass-mobile: rgba(224, 195, 252, 0.85); 
+            --text-dark: #2b2d42;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden; 
+            min-height: 100vh;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background-attachment: fixed;
+            color: var(--text-dark);
+        }
+
+        /* --- 2. UTILIDADES --- */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        /* --- 3. NAV MODERNO --- */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 1002;
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--text-dark);
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after { width: 100%; }
+
+        /* --- HAMBURGER MENU --- */
+        .hamburger {
+            display: none; 
+            cursor: pointer;
+            z-index: 1002;
+            padding: 5px;
+        }
+
+        .bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            margin: 5px auto;
+            transition: all 0.3s ease-in-out;
+            background-color: var(--text-dark);
+            border-radius: 3px;
+        }
+
+        /* --- 4. HERO SECTION --- */
+        #inicio {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 80px 20px 20px 20px;
+        }
+
+        .hero-content {
+            width: 100%;
+            max-width: 800px;
+            padding: 3rem 1.5rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 4.5rem); 
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            background: -webkit-linear-gradient(#2b2d42, #5a6b85);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 4vw, 1.25rem);
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 35px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid white;
+            color: var(--text-dark);
+            font-weight: 800;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .cta-button:hover {
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,255,255,0.5);
+        }
+
+        /* --- 5. NOTICIAS --- */
+        #academia {
+            padding: 4rem 5%;
+            width: 100%;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 2.5rem;
+            color: var(--text-dark);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .news-card {
+            padding: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        /* --- 6. GALERÍA --- */
+        #nosotros {
+            padding: 5rem 1rem;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .gallery-stack {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 400px;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .stack-photo {
+            position: absolute;
+            width: 90%;
+            max-width: 280px;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 4px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: all 0.5s ease;
+            left: 0; right: 0; margin: auto;
+        }
+
+        .stack-photo:nth-child(1) { transform: rotate(-8deg) translateX(-30px); z-index: 1; }
+        .stack-photo:nth-child(2) { transform: rotate(0deg); z-index: 2; }
+        .stack-photo:nth-child(3) { transform: rotate(8deg) translateX(30px); z-index: 3; }
+
+        .gallery-stack:hover .stack-photo:nth-child(1) { transform: rotate(-12deg) translateX(-50px); }
+        .gallery-stack:hover .stack-photo:nth-child(3) { transform: rotate(12deg) translateX(50px); }
+
+        /* --- 7. CONTACTO --- */
+        #contacto {
+            padding: 4rem 5%;
+            text-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            margin-top: 2rem;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 2rem;
+            border-radius: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            padding: 12px 25px;
+            background: white;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .chess-decoration {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+
+        .chess-piece {
+            height: 45px;
+            width: auto;
+        }
+
+        /* --- LIGHTBOX --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 3000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+        .close-lightbox {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 3rem;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 3001;
+        }
+
+        /* --- 8. MEDIA QUERIES (RESPONSIVE REAL) --- */
+        @media (max-width: 768px) {
+            
+            nav {
+                width: 95%;
+                padding: 0.8rem 1.5rem;
+                top: 10px;
+            }
+
+            .hamburger { display: block; }
+
+            /* Menú Desplegable Corregido */
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: 0; /* Lo movemos a la derecha */
+                width: 100vw;
+                height: 100vh;
+                background: var(--glass-mobile);
+                backdrop-filter: blur(25px); /* Efecto cristal más fuerte */
+                -webkit-backdrop-filter: blur(25px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 2.5rem;
+                padding: 0;
+                margin: 0;
+                z-index: 1001;
+                
+                /* Estado inicial oculto */
+                opacity: 0;
+                visibility: hidden;
+                transform: translateX(100%); /* Sale por la derecha */
+                transition: all 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
+            }
+
+            /* Estado activo - Se muestra */
+            .nav-links.active {
+                opacity: 1;
+                visibility: visible;
+                transform: translateX(0);
+            }
+
+            .nav-links li { width: 100%; }
+            .nav-links a { 
+                font-size: 2rem; 
+                display: block; 
+                color: var(--text-dark);
+                font-weight: 800;
+            }
+
+            .hamburger.active .bar:nth-child(2) { opacity: 0; }
+            .hamburger.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+            .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+            .stack-photo:nth-child(1) { transform: rotate(-4deg) translateX(-10px); }
+            .stack-photo:nth-child(3) { transform: rotate(4deg) translateX(10px); }
+            
+            .gallery-stack:hover .stack-photo:nth-child(1) { transform: rotate(-6deg) translateX(-15px); }
+            .gallery-stack:hover .stack-photo:nth-child(3) { transform: rotate(6deg) translateX(15px); }
+            
+            .hero-content { padding: 1rem; }
+            .news-grid { grid-template-columns: 1fr; }
+            #contacto { width: 95%; padding: 2rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav class="glass">
+        <div class="logo">Emanuel Lasker</div>
+        
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="#inicio" class="nav-item">Inicio</a></li>
+            <li><a href="#nosotros" class="nav-item">Nosotros</a></li>
+            <li><a href="#academia" class="nav-item">Academia</a></li>
+            <li><a href="#torneos" class="nav-item">Torneos</a></li>
+        </ul>
+    </nav>
+
+    <!-- INICIO -->
+    <section id="inicio">
+        <div class="hero-content glass">
+            <h1 class="hero-title">Domina el Tablero</h1>
+            <p class="hero-subtitle">Estrategia, pasión y excelencia en cada jugada.</p>
+            <a href="#academia" class="cta-button">Ver Cursos</a>
+        </div>
+    </section>
+
+    <!-- NOTICIAS / ACADEMIA -->
+    <section id="academia">
+        <h2 class="section-title">Novedades</h2>
+        <div class="news-grid">
+            <article class="news-card glass">
+                <span class="news-date">01 Dic</span>
+                <h3>Nuevo Ciclo 2024</h3>
+                <p>Inscripciones abiertas para niveles infantiles y juveniles.</p>
+            </article>
+            <article class="news-card glass">
+                <span class="news-date">28 Nov</span>
+                <h3>Torneo Blitz</h3>
+                <p>Resultados del último torneo relámpago sabatino.</p>
+            </article>
+             <article class="news-card glass">
+                <span class="news-date">15 Nov</span>
+                <h3>Clase Maestra</h3>
+                <p>Seminario especial con el GM invitado este viernes.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- GALERÍA NOSOTROS -->
+    <section id="nosotros">
+        <h2 class="section-title">Nosotros</h2>
+        <div class="gallery-stack" id="galleryTrigger">
+            <img src="./img/landing_1.jpg" class="stack-photo" onerror="this.src='https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=600'">
+            <img src="./img/landing_2.jpg" class="stack-photo" onerror="this.src='https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=600'">
+            <img src="./img/landing_3.jpg" class="stack-photo" onerror="this.src='https://images.unsplash.com/photo-1528819622765-d6bcf132f793?w=600'">
+        </div>
+        <p style="margin-top: 1.5rem; opacity: 0.7; font-size: 0.9rem;">Toca las fotos para ampliar</p>
+    </section>
+
+    <!-- CONTACTO -->
+    <section id="contacto">
+        <h2>Contacto</h2>
+        <p style="margin-bottom: 1.5rem">Únete a la comunidad Lasker</p>
+        
+        <div class="social-links">
+            <a href="#" class="social-btn">Facebook</a>
+            <a href="#" class="social-btn">Instagram</a>
+            <a href="#" class="social-btn">WhatsApp</a>
+        </div>
+
+        <div class="chess-decoration" id="peonesContainer"></div>
+        <div style="margin-top: 2rem; font-size: 0.75rem; opacity: 0.8;">
+            © 2024 Escuela Nacional de Ajedrez Emanuel Lasker
+        </div>
+    </section>
+
+    <!-- LIGHTBOX -->
+    <div class="lightbox" id="mainLightbox">
+        <span class="close-lightbox">&times;</span>
+        <img src="" id="lightboxImg" alt="Full screen">
+    </div>
+
+    <script>
+        // --- 1. MENÚ HAMBURGUESA ---
+        const hamburger = document.querySelector(".hamburger");
+        const navMenu = document.querySelector(".nav-links");
+        const navLinks = document.querySelectorAll(".nav-item");
+
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            navMenu.classList.toggle("active");
+            // Evitar scroll del body cuando el menú está abierto
+            if(navMenu.classList.contains("active")) {
+                document.body.style.overflow = "hidden";
+            } else {
+                document.body.style.overflow = "auto";
+            }
+        });
+
+        navLinks.forEach(n => n.addEventListener("click", () => {
+            hamburger.classList.remove("active");
+            navMenu.classList.remove("active");
+            document.body.style.overflow = "auto";
+        }));
+
+        // --- 2. GALERÍA ---
+        const galleryTrigger = document.getElementById('galleryTrigger');
+        const lightbox = document.getElementById('mainLightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const closeBtn = document.querySelector('.close-lightbox');
+
+        galleryTrigger.addEventListener('click', () => {
+            const img = galleryTrigger.querySelector('img:nth-child(2)'); 
+            if(img) {
+                lightboxImg.src = img.src;
+                lightbox.classList.add('active');
+            }
+        });
+
+        closeBtn.addEventListener('click', () => lightbox.classList.remove('active'));
+        lightbox.addEventListener('click', (e) => { if(e.target === lightbox) lightbox.classList.remove('active'); });
+
+        // --- 3. PEONCITOS ---
+        const peonesContainer = document.getElementById('peonesContainer');
+        function addPiece(folder, prefix, index) {
+            const img = document.createElement('img');
+            img.src = `./img/${folder}/${prefix}_${index}.png`;
+            img.className = 'chess-piece';
+            img.alt = 'chess piece';
+            img.onerror = function() { this.style.display = 'none'; };
+            peonesContainer.appendChild(img);
+        }
+        
+        window.addEventListener('load', () => {
+            for (let i = 1; i <= 5; i++) {
+                addPiece('peoncitos', 'peoncitos', i);
+                addPiece('peoncitas', 'peoncitas', i);
+            }
+        });
+
+        // --- 4. NAV SCROLL ---
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.padding = '0.5rem 1.5rem';
+                nav.style.background = 'rgba(255,255,255, 0.85)';
+            } else {
+                if(window.innerWidth > 768) {
+                    nav.style.padding = '1rem 2rem';
+                } else {
+                    nav.style.padding = '0.8rem 1.5rem';
+                }
+                nav.style.background = 'rgba(255,255,255, 0.25)';
+            }
+        });
+    </script>
+</body>
+</html>
