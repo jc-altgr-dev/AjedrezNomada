@@ -2,38 +2,32 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Chess Training Studio - PNG Local</title>
+    <title>Chess Studio - Final Edition</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
         :root { --bg: #161512; --panel: #262421; --accent: #4581bf; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #ccc; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .main-layout { display: grid; grid-template-columns: 560px 350px; gap: 20px; max-width: 950px; }
         
-        .main-layout { display: grid; grid-template-columns: 550px 350px; gap: 20px; max-width: 950px; }
-        
-        /* Contenedor con padding para ver coordenadas externas */
-        #board-container { background: #1c1a18; padding: 30px; border-radius: 8px; border: 1px solid #3d3d3d; position: relative; }
+        #board-container { background: #1c1a18; padding: 35px; border-radius: 8px; border: 1px solid #3d3d3d; position: relative; }
         #myBoard { width: 500px; }
         
-        .side-panel { background: var(--panel); border-radius: 8px; display: flex; flex-direction: column; border: 1px solid #3d3d3d; height: 680px; }
+        .side-panel { background: var(--panel); border-radius: 8px; display: flex; flex-direction: column; border: 1px solid #3d3d3d; height: 650px; }
         .header { padding: 15px; background: #1c1a18; font-weight: bold; text-align: center; border-bottom: 1px solid #3d3d3d; color: #ffce73; }
         
-        .history-box { flex-grow: 1; padding: 10px; background: #111; overflow-y: auto; font-family: monospace; display: grid; grid-template-columns: 40px 1fr 1fr; gap: 5px; border-bottom: 1px solid #333; }
+        .history-box { flex-grow: 1; padding: 10px; background: #111; overflow-y: auto; font-family: monospace; display: grid; grid-template-columns: 40px 1fr 1fr; gap: 5px; }
         
         .controls { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        input, select { background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 4px; font-size: 13px; }
+        input, select { background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 4px; font-size: 13px; outline: none; }
+        input:focus { border-color: var(--accent); }
         
         button { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; background: #444; color: white; transition: 0.2s; }
         button:hover { background: #555; }
-        .btn-solve { background: var(--accent); color: white; }
+        .btn-solve { background: var(--accent); color: white; margin-top: 5px; }
         
-        .status-msg { padding: 12px; text-align: center; font-weight: bold; font-size: 0.9em; min-height: 20px; }
-        .correct { color: #2ecc71; border-bottom: 2px solid #2ecc71; }
-        .wrong { color: #e74c3c; border-bottom: 2px solid #e74c3c; }
-
-        .theme-blue .white-1e1d7 { background-color: #dee3e6 !important; }
-        .theme-blue .black-3c85d { background-color: #8ca2ad !important; }
-        .theme-pink .white-1e1d7 { background-color: #fce4ec !important; }
-        .theme-pink .black-3c85d { background-color: #f06292 !important; }
+        .status-msg { padding: 12px; text-align: center; font-weight: bold; font-size: 0.9em; min-height: 20px; border-bottom: 1px solid #333; }
+        .correct { color: #2ecc71; }
+        .wrong { color: #e74c3c; }
     </style>
 </head>
 <body class="theme-blue">
@@ -44,15 +38,14 @@
             <div id="myBoard"></div>
         </div>
         <div class="controls">
-            <label style="font-size: 0.8em; color: #888;">ENLACE DE PUZZLE LICHESS:</label>
-            <input type="text" id="lichessLink" placeholder="https://lichess.org/training/XXXXX">
-            <button class="btn-solve" onclick="loadLichessPuzzle()">CARGAR Y JUGAR</button>
+            <input type="text" id="lichessLink" placeholder="Enlace Lichess (ej: https://lichess.org/training/61044)">
+            <button class="btn-solve" onclick="loadLichessPuzzle()">CARGAR EJERCICIO</button>
         </div>
     </div>
 
     <div class="side-panel">
-        <div class="header">ENTRENAMIENTO PERSONAL</div>
-        <div id="feedback" class="status-msg">Esperando ejercicio...</div>
+        <div class="header">DIAGRAMA Y ANÁLISIS</div>
+        <div id="feedback" class="status-msg">Listo</div>
         <div class="history-box" id="history"></div>
         
         <div class="controls">
@@ -61,10 +54,6 @@
                 <button onclick="loadFen()">Cargar FEN</button>
                 <button onclick="board.flip()">Girar</button>
             </div>
-            <select id="boardStyle" onchange="document.body.className = this.value">
-                <option value="theme-blue">Tema Azul</option>
-                <option value="theme-pink">Tema Rosa</option>
-            </select>
             <button onclick="resetGame()">Posición Inicial</button>
         </div>
     </div>
@@ -77,61 +66,58 @@
 <script>
     var board = null;
     var game = new Chess();
-    var solution = [];
+    var puzzleMoves = [];
     var currentStep = 0;
 
-    // CONFIGURACIÓN DE PIEZAS PNG LOCALES
+    // PIEZAS PNG LOCALES
     function pieceTheme(piece) {
         return 'img/' + piece + '.png';
     }
 
-    function onDragStart (source, piece) {
+    function onDragStart(source, piece) {
         if (game.game_over()) return false;
-        // Solo mover si es el turno de la pieza
         if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
             (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false;
     }
 
-    function onDrop (source, target) {
+    function onDrop(source, target) {
         var move = game.move({ from: source, to: target, promotion: 'q' });
+        
+        // Si el movimiento es ilegal según las reglas
         if (move === null) return 'snapback';
 
-        // Si hay un puzzle activo, validar movimiento
-        if (solution.length > 0) {
-            var moveMade = source + target;
-            if (moveMade === solution[currentStep]) {
+        // Si hay un puzzle activo, validar contra la solución
+        if (puzzleMoves.length > 0) {
+            var moveUCI = source + target;
+            // Manejo de promoción en notación UCI (ej: e7e8q)
+            if (move.flags.includes('p')) moveUCI += 'q'; 
+
+            if (moveUCI === puzzleMoves[currentStep]) {
                 currentStep++;
                 $('#feedback').html('¡CORRECTO!').removeClass('wrong').addClass('correct');
                 
-                // Respuesta automática de la máquina si existe
-                if (currentStep < solution.length) {
+                // Respuesta de la máquina
+                if (currentStep < puzzleMoves.length) {
                     setTimeout(() => {
-                        game.move(solution[currentStep], {sloppy: true});
+                        game.move(puzzleMoves[currentStep], {sloppy: true});
                         currentStep++;
-                        updateUI();
-                    }, 600);
+                        board.position(game.fen());
+                        updateHistory();
+                    }, 500);
                 } else {
                     $('#feedback').html('¡EJERCICIO COMPLETADO!');
-                    updateUI();
                 }
             } else {
                 $('#feedback').html('MOVIMIENTO INCORRECTO').addClass('wrong').removeClass('correct');
                 game.undo();
-                setTimeout(updateUI, 250);
-                return 'snapback';
+                return 'snapback'; // Esto evita el efecto de arrastre doble
             }
-        } else {
-            updateUI();
         }
+        updateHistory();
     }
 
-    function updateUI() {
-        board.position(game.fen());
+    function updateHistory() {
         $('#fenInput').val(game.fen());
-        renderHistory();
-    }
-
-    function renderHistory() {
         const history = game.history();
         $('#history').empty();
         for (let i = 0; i < history.length; i += 2) {
@@ -140,53 +126,38 @@
         $('#history').scrollTop($('#history')[0].scrollHeight);
     }
 
-    async function fetchLichess(puzzleId) {
-        // Intentar con un proxy diferente si el primero falla
-        const proxies = [
-            "https://api.allorigins.win/get?url=",
-            "https://corsproxy.io/?"
-        ];
-        
-        for (let proxy of proxies) {
-            try {
-                const target = `https://lichess.org/api/puzzle/${puzzleId}`;
-                const response = await fetch(proxy + encodeURIComponent(target));
-                if (!response.ok) continue;
-                const data = await response.json();
-                // AllOrigins envuelve la respuesta en .contents
-                return typeof data.contents === 'string' ? JSON.parse(data.contents) : data;
-            } catch (e) { console.log("Fallo con proxy:", proxy); }
-        }
-        throw new Error("No se pudo conectar con Lichess");
-    }
-
     async function loadLichessPuzzle() {
-        let url = $('#lichessLink').val().trim();
-        if (!url) return;
-        
+        const url = $('#lichessLink').val().trim();
         const puzzleId = url.split('/').pop();
-        $('#feedback').html('Conectando con Lichess...').removeClass('correct wrong');
+        if(!puzzleId) return;
+
+        $('#feedback').html('Cargando...');
 
         try {
-            const data = await fetchLichess(puzzleId);
-            
-            // 1. Cargar posición base
+            // Usamos el proxy AllOrigins pero con un parámetro para evitar el caché
+            const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://lichess.org/api/puzzle/' + puzzleId)}&_=${Date.now()}`);
+            const json = await response.json();
+            const data = JSON.parse(json.contents);
+
+            // Resetear juego y cargar FEN inicial (antes del puzzle)
             game.load(data.game.fen);
             
-            // 2. Realizar jugada inicial del oponente para plantear el problema
+            // Lichess requiere ejecutar el movimiento inicial del oponente
             const initialMove = data.puzzle.initialMove;
             game.move(initialMove, {sloppy: true});
-            
-            solution = data.puzzle.lines; 
+
+            puzzleMoves = data.puzzle.lines;
             currentStep = 0;
-            
-            // 3. Orientar tablero según a quién le toca jugar
+
+            // Orientar y refrescar
             board.orientation(game.turn() === 'w' ? 'white' : 'black');
-            updateUI();
-            $('#feedback').html('TU TURNO - Encuentra la mejor jugada');
+            board.position(game.fen());
+            updateHistory();
             
+            $('#feedback').html('TU TURNO (' + (game.turn() === 'w' ? 'Blancas' : 'Negras') + ')').removeClass('correct wrong');
         } catch (e) {
-            $('#feedback').html('Error: No se encontró el puzzle o fallo de red.').addClass('wrong');
+            $('#feedback').html('Error de conexión o ID inválido').addClass('wrong');
+            console.error(e);
         }
     }
 
@@ -197,26 +168,26 @@
             showNotation: true,
             onDragStart: onDragStart,
             onDrop: onDrop,
-            onSnapEnd: () => board.position(game.fen()),
+            // Eliminamos onSnapEnd para evitar el refresco redundante que causaba el doble arrastre
             pieceTheme: pieceTheme
         });
-        updateUI();
+        updateHistory();
     }
 
     function loadFen() {
         if (game.load($('#fenInput').val())) {
-            solution = [];
+            puzzleMoves = [];
             board.position(game.fen());
-            updateUI();
-        } else alert("FEN inválido");
+            updateHistory();
+        }
     }
 
     function resetGame() {
         game.reset();
-        solution = [];
+        puzzleMoves = [];
         board.start();
         board.orientation('white');
-        updateUI();
+        updateHistory();
     }
 
     init();
