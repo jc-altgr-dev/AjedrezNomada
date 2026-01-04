@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Studio Pro</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    
+    <style>
+        :root {
+            --light-sq: #dee3e6;
+            --dark-sq: #8ca2ad;
+            --bg-body: #121212;
+            --panel-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg-body);
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1000px;
+            flex-wrap: wrap;
+        }
+
+        /* --- ESTILOS DE TABLERO (Texturas) --- */
+        /* Madera */
+        .theme-wood .white-1e1d7 { background: #d2b48c !important; background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%) !important; }
+        .theme-wood .black-3c85d { background: #8b4513 !important; background-image: linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%) !important; }
+        
+        /* Metal */
+        .theme-metal .white-1e1d7 { background: #bdc3c7 !important; background: linear-gradient(145deg, #bdc3c7, #95a5a6) !important; }
+        .theme-metal .black-3c85d { background: #2c3e50 !important; background: linear-gradient(145deg, #2c3e50, #34495e) !important; border: 1px solid #1a252f; }
+
+        /* Clásico Lichess */
+        .theme-blue .white-1e1d7 { background: #dee3e6 !important; }
+        .theme-blue .black-3c85d { background: #8ca2ad !important; }
+
+        #myBoard { width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 8px solid #333; border-radius: 4px; }
+
+        .side-panel {
+            width: 320px;
+            background: var(--panel-bg);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .status-header {
+            background: #252525;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: #ffce73;
+            border-bottom: 1px solid #333;
+        }
+
+        .history-box {
+            flex-grow: 1;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background: #151515;
+            font-family: 'Courier New', monospace;
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .controls { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+
+        select, input {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #3a3a3a;
+            color: white;
+            transition: 0.3s;
+        }
+
+        button:hover { background: #555; }
+        .btn-accent { background: #2980b9; }
+        .btn-accent:hover { background: #3498db; }
+        .btn-download { background: #27ae60; }
+    </style>
+</head>
+<body class="theme-blue">
+
+    <div class="main-container">
+        <div>
+            <div id="myBoard"></div>
+            <div style="margin-top:15px;">
+                <input type="text" id="fenInput" style="width:100%; box-sizing:border-box;" placeholder="Pegar posición FEN...">
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="status-header" id="status">Turno: Blancas</div>
+            
+            <div class="history-box" id="history">
+                </div>
+
+            <div class="controls">
+                <div class="btn-row">
+                    <select id="boardStyle" onchange="updateBoardStyle()">
+                        <option value="theme-blue">Estilo: Azul</option>
+                        <option value="theme-wood">Estilo: Madera</option>
+                        <option value="theme-metal">Estilo: Metal</option>
+                    </select>
+                    <select id="pieceStyle" onchange="updatePieceStyle()">
+                        <option value="wikipedia">Piezas: Wikipedia</option>
+                        <option value="alpha">Piezas: Alpha</option>
+                        <option value="gothic">Piezas: Gothic</option>
+                    </select>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-accent" onclick="loadFen()">Cargar FEN</button>
+                    <button onclick="board.flip()">Girar</button>
+                </div>
+                
+                <button onclick="resetGame()">Nueva Partida</button>
+                <button class="btn-download" onclick="downloadPGN()">Descargar PGN (.txt)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
+    <script>
+        var board = null;
+        var game = new Chess();
+        var $status = $('#status');
+        var $history = $('#history');
+
+        // Fuentes de piezas fiables (CDN Alternativo)
+        function pieceTheme(piece) {
+            const style = $('#pieceStyle').val();
+            // Wikipedia es el estándar de chessboardjs
+            if (style === 'wikipedia') {
+                return 'https://chessboardjs.com/img/chesspieces/wikipedia/' + piece + '.png';
+            }
+            // Otras piezas desde un repositorio estable en GitHub
+            return 'https://raw.githubusercontent.com/jhlywa/chess.js/master/assets/pieces/' + piece + '.png';
+        }
+
+        function onDragStart (source, piece, position, orientation) {
+            if (game.game_over()) return false;
+            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+                return false;
+            }
+        }
+
+        function onDrop (source, target) {
+            var move = game.move({ from: source, to: target, promotion: 'q' });
+            if (move === null) return 'snapback';
+            updateUI();
+        }
+
+        function onSnapEnd () {
+            board.position(game.fen());
+        }
+
+        function updateUI() {
+            // Estado
+            let status = game.turn() === 'b' ? 'Turno: Negras' : 'Turno: Blancas';
+            if (game.in_checkmate()) status = '¡JAQUE MATE!';
+            else if (game.in_check()) status += ' (Jaque)';
+            $status.html(status);
+
+            // FEN e Historial
+            $('#fenInput').val(game.fen());
+            
+            const history = game.history();
+            $history.empty();
+            for (let i = 0; i < history.length; i += 2) {
+                $history.append(`<div style="color:#666">${Math.floor(i/2) + 1}.</div>`);
+                $history.append(`<div>${history[i]}</div>`);
+                $history.append(`<div>${history[i+1] || ''}</div>`);
+            }
+            $history.scrollTop($history[0].scrollHeight);
+        }
+
+        function updateBoardStyle() {
+            const style = $('#boardStyle').val();
+            $('body').removeClass('theme-blue theme-wood theme-metal').addClass(style);
+        }
+
+        function updatePieceStyle() {
+            const currentPos = game.fen();
+            board.destroy();
+            initBoard();
+            board.position(currentPos);
+        }
+
+        function initBoard() {
+            const config = {
+                draggable: true,
+                position: 'start',
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                onSnapEnd: onSnapEnd,
+                pieceTheme: pieceTheme
+            };
+            board = ChessBoard('myBoard', config);
+        }
+
+        function loadFen() {
+            const val = $('#fenInput').val();
+            if (game.load(val)) {
+                board.position(val);
+                updateUI();
+            } else alert("FEN inválido");
+        }
+
+        function resetGame() {
+            game.reset();
+            board.start();
+            updateUI();
+        }
+
+        function downloadPGN() {
+            const pgn = game.pgn();
+            const blob = new Blob([pgn], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'partida_ajedrez.txt';
+            a.click();
+        }
+
+        // Inicio
+        initBoard();
+        updateUI();
+    </script>
+</body>
+</html>
