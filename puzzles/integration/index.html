@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chess Memory Pro - Final</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chess Memory Pro</title>
     
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,99 +11,100 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
+        :root {
+            --mem-time: 25s; /* RECONFIGURABLE AQUÍ */
+        }
+
         body { 
             font-family: 'Quicksand', sans-serif; 
             background-color: #f1f5f9; 
-            touch-action: manipulation;
-            user-select: none; /* Evita selección de texto */
-            -webkit-user-select: none;
+            /* Margen de seguridad para móviles */
+            padding-top: env(safe-area-inset-top, 20px);
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Bloqueo de menús en imágenes del tablero */
-        #myBoard img {
-            pointer-events: auto;
-            -webkit-touch-callout: none !important; /* Bloquea menú en iOS */
-        }
-
-        #myBoard { width: 100%; border-radius: 0.75rem; overflow: hidden; }
+        #myBoard { width: 100%; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
         
+        /* Desenfoque del 50% */
         .chess-hidden { 
-            filter: blur(8px) opacity(0.4) !important; 
-            transition: filter 0.3s ease;
+            filter: blur(10px) opacity(0.5) !important; 
+            transition: filter 0.5s ease;
             pointer-events: none; 
         }
 
-        /* Resalte de casilla seleccionada */
+        /* Resalte de pieza seleccionada */
         .highlight-sq {
-            box-shadow: inset 0 0 4px 4px rgba(255, 255, 0, 0.8) !important;
+            box-shadow: inset 0 0 5px 5px rgba(255, 215, 0, 0.9) !important;
         }
 
-        /* Reporte: Miniatura de tablero */
-        .mini-board {
-            width: 60px;
-            height: 60px;
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d5/Chess_Board.svg');
-            background-size: cover;
-            border-radius: 4px;
-        }
+        /* Bloqueo de menús contextuales */
+        img { pointer-events: none; -webkit-touch-callout: none; }
 
-        @media (max-width: 768px) {
-            #myBoard { max-width: 90vw; }
-            .screen-padding { padding: 1rem; }
+        .report-img {
+            width: 80px; height: 80px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            object-fit: contain;
+            background: #fff;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center screen-padding">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div id="app" class="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden border-4 border-white">
+    <div id="app" class="w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-4 border-white">
         
-        <div id="screen-start" class="p-8 text-center">
-            <h1 class="text-3xl font-bold text-slate-800 mb-6">Chess Memory Entrenador</h1>
+        <div id="screen-start" class="p-10 text-center">
+            <h1 class="text-4xl font-black text-slate-800 mb-2">Chess Memory</h1>
+            <p class="text-slate-400 mb-10 italic">Entrena tu mente de Gran Maestro</p>
             <div id="level-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8"></div>
         </div>
 
         <div id="screen-game" class="hidden p-4 md:p-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 id="current-lvl-tag" class="text-xl font-bold text-slate-800">Cargando...</h2>
-                <div class="flex items-center gap-3">
-                    <div id="timer" class="text-xl font-mono font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg">00:00</div>
-                    <button onclick="skipPuzzle()" class="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg text-xs font-bold">Saltar</button>
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 id="current-lvl-tag" class="text-2xl font-bold text-slate-800">Nivel</h2>
+                    <span id="session-timer" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total: 00:00</span>
+                </div>
+                <div class="text-right">
+                    <div id="timer" class="text-3xl font-mono font-bold text-indigo-600">00:00</div>
+                    <button onclick="skipPuzzle()" class="text-[10px] font-black text-slate-400 uppercase underline">Saltar Ejercicio</button>
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-6">
+            <div class="flex flex-col lg:flex-row gap-8">
                 <div class="w-full lg:w-3/5">
-                    <div id="myBoard" oncontextmenu="return false;"></div>
-                    <div class="w-full h-2 bg-slate-100 mt-4 rounded-full overflow-hidden">
-                        <div id="visibility-bar" class="h-full bg-indigo-500 w-full"></div>
+                    <div id="myBoard"></div>
+                    <div class="w-full h-3 bg-slate-100 mt-6 rounded-full overflow-hidden">
+                        <div id="visibility-bar" class="h-full bg-indigo-500 w-full transition-all"></div>
                     </div>
-                    <p id="progress-text" class="text-center text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tighter"></p>
                 </div>
 
                 <div class="w-full lg:w-2/5 flex flex-col justify-between">
                     <div>
-                        <button id="btn-hint" onclick="useHint()" disabled class="w-full mb-4 bg-amber-400 text-amber-900 py-4 rounded-xl font-bold shadow-md disabled:opacity-30">
+                        <button id="btn-hint" onclick="useHint()" disabled class="w-full mb-4 bg-amber-400 text-amber-900 py-5 rounded-2xl font-bold shadow-lg disabled:opacity-20 transition-all">
                             👁️ Mostrar y responder (2s)
                         </button>
                         
-                        <div id="feedback-box" class="p-4 rounded-xl border-2 text-sm font-medium min-h-[90px] flex items-center justify-center text-center transition-all duration-300">
-                            <span id="feedback-msg">Cargando ejercicio...</span>
+                        <div id="feedback-box" class="p-6 rounded-[2rem] border-2 text-sm font-semibold min-h-[100px] flex items-center justify-center text-center">
+                            <span id="feedback-msg">Preparando piezas...</span>
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <div class="grid grid-cols-2 gap-2 mb-4">
-                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                                <span class="block text-[9px] text-slate-400 uppercase">Fallos</span>
-                                <span id="fail-count" class="text-lg font-bold text-red-500">0</span>
+                    <div class="mt-6 space-y-4">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-around">
+                            <div class="text-center">
+                                <p class="text-[10px] text-slate-400 uppercase font-black">Fallos</p>
+                                <p id="fail-count" class="text-xl font-bold text-red-500">0</p>
                             </div>
-                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                                <span class="block text-[9px] text-slate-400 uppercase">Progreso</span>
-                                <span id="move-count" class="text-lg font-bold text-indigo-500">0/0</span>
+                            <div class="text-center">
+                                <p class="text-[10px] text-slate-400 uppercase font-black">Progreso</p>
+                                <p id="move-count" class="text-xl font-bold text-indigo-600">0/0</p>
                             </div>
                         </div>
-                        <button id="btn-next" onclick="nextExercise()" class="hidden w-full bg-green-500 text-white py-5 rounded-xl font-bold text-lg shadow-lg">
-                            Siguiente Ejercicio →
+                        <button id="btn-next" onclick="nextExercise()" class="hidden w-full bg-green-500 text-white py-5 rounded-2xl font-bold text-xl shadow-xl hover:bg-green-600">
+                            Siguiente →
                         </button>
                     </div>
                 </div>
@@ -111,26 +112,15 @@
         </div>
 
         <div id="screen-results" class="hidden p-6 md:p-10">
-            <div class="text-center mb-6">
-                <span class="text-5xl">🎓</span>
-                <h2 class="text-2xl font-bold text-slate-800 mt-2">Sesión Completada</h2>
-                <p class="text-slate-400 text-sm italic">"El genio se hace con un 1% de talento y un 99% de trabajo."</p>
-            </div>
+            <h2 class="text-3xl font-black text-center text-slate-800 mb-2">¡Misión Cumplida!</h2>
+            <p id="total-session-time" class="text-center text-slate-400 text-sm mb-8 font-bold"></p>
             
-            <div class="max-h-[400px] overflow-y-auto rounded-2xl border border-slate-100 mb-6">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 sticky top-0">
-                        <tr>
-                            <th class="p-3">Posición</th>
-                            <th class="p-3 text-center">Tiempo</th>
-                            <th class="p-3 text-center">Fallos</th>
-                            <th class="p-3 text-right">Análisis</th>
-                        </tr>
-                    </thead>
+            <div class="max-h-[450px] overflow-y-auto rounded-3xl border border-slate-100 shadow-inner mb-6">
+                <table class="w-full text-sm">
                     <tbody id="report-body" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
-            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">Volver al Inicio</button>
+            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold text-lg shadow-lg">Finalizar Sesión</button>
         </div>
     </div>
 
@@ -139,56 +129,58 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <script>
+        // CONFIGURACIÓN GLOBAL
+        const MEMORIZATION_TIME = 25; // Segundos para memorizar
         const levels = [
-            { id: "A1", label: "400 ELO", color: "bg-green-100 text-green-700 border-green-300" },
-            { id: "A2", label: "800 ELO", color: "bg-blue-100 text-blue-700 border-blue-300" },
-            { id: "B1", label: "1200 ELO", color: "bg-orange-100 text-orange-700 border-orange-300" },
-            { id: "B2", label: "1600 ELO", color: "bg-purple-100 text-purple-700 border-purple-300" },
-            { id: "C1", label: "2000 ELO", color: "bg-red-100 text-red-700 border-red-300" },
-            { id: "C2", label: "2400 ELO", color: "bg-indigo-100 text-indigo-700 border-indigo-300" }
+            { id: "A1", color: "bg-green-50 text-green-700 border-green-200" },
+            { id: "A2", color: "bg-blue-50 text-blue-700 border-blue-200" },
+            { id: "B1", color: "bg-orange-50 text-orange-700 border-orange-200" },
+            { id: "B2", color: "bg-purple-50 text-purple-700 border-purple-200" },
+            { id: "C1", color: "bg-red-50 text-red-700 border-red-200" },
+            { id: "C2", color: "bg-slate-50 text-slate-700 border-slate-200" }
         ];
 
         let board, game = new Chess();
         let puzzles = [], currentIdx = 0, puzzleMoves = [], step = 0;
-        let visibleTime = 15, isHidden = false;
-        let sourceSq = null; // Para Tap-Tap
+        let isHidden = false, sourceSq = null;
         
-        // Stats
-        let startTime, timerInterval, currentFails = 0;
-        let exerciseStats = []; 
+        let startTime, timerInterval;
+        let sessionStart, sessionInterval;
+        let currentFails = 0, exerciseStats = [];
 
         function init() {
             const grid = document.getElementById('level-grid');
             levels.forEach(lvl => {
-                grid.innerHTML += `<button onclick="loadLevel('${lvl.id}')" class="${lvl.color} border-2 p-5 rounded-2xl font-bold hover:scale-105 transition-transform shadow-sm">${lvl.id}<br><span class="text-[10px] opacity-60">${lvl.label}</span></button>`;
+                grid.innerHTML += `<button onclick="loadLevel('${lvl.id}')" class="${lvl.color} border-2 p-6 rounded-3xl font-black text-xl hover:scale-95 transition-all shadow-sm">${lvl.id}</button>`;
             });
-            // Desactivar menú contextual en todo el app
-            document.getElementById('app').oncontextmenu = () => false;
         }
 
         function loadLevel(id) {
             Papa.parse(`${id}/puzzles_selected_${id}.csv`, {
-                download: true, header: true, complete: (res) => {
-                    puzzles = res.data.filter(r => r.FEN); // Validar que tenga datos
+                download: true, header: true, skipEmptyLines: true,
+                complete: (res) => {
+                    puzzles = res.data;
                     startSession(id);
                 }
             });
         }
 
         function startSession(id) {
+            sessionStart = Date.now();
+            sessionInterval = setInterval(updateSessionTimer, 1000);
+            
             document.getElementById('current-lvl-tag').innerText = `Nivel ${id}`;
             document.getElementById('screen-start').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
             
             board = ChessBoard('myBoard', {
-                draggable: true,
-                onDrop: handleMove,
-                onSnapEnd: () => board.position(game.fen()),
+                draggable: false, // Desactivamos drag para forzar tap-tap
                 pieceTheme: (p) => `img/${p}.png`
             });
 
-            // LOGICA TAP-TAP MEJORADA
-            $(document).on('click', '.square-55d63', function() {
+            // GESTIÓN DE CLICS (Tap-Tap)
+            $(document).on('mousedown touchstart', '.square-55d63', function(e) {
+                e.preventDefault();
                 const sq = $(this).data('square');
                 handleTap(sq);
             });
@@ -207,11 +199,10 @@
             board.orientation(game.turn() === 'w' ? 'white' : 'black');
             board.position(game.fen());
             
-            document.getElementById('progress-text').innerText = `EJERCICIO ${currentIdx + 1} DE ${puzzles.length}`;
-            document.getElementById('fail-count').innerText = "0";
             document.getElementById('move-count').innerText = `0 / ${Math.ceil(puzzleMoves.length/2)}`;
+            document.getElementById('fail-count').innerText = "0";
             document.getElementById('btn-next').classList.add('hidden');
-            setFeedback("Memoriza la posición. ¡Tú puedes!", "info");
+            setFeedback("Memoriza la posición. ¡Céntrate en las piezas mayores!", "info");
 
             startTimer();
             startMemoryCycle();
@@ -228,56 +219,52 @@
             bar.style.width = '100%';
 
             setTimeout(() => {
-                bar.style.transition = `width ${visibleTime}s linear`;
+                bar.style.transition = `width ${MEMORIZATION_TIME}s linear`;
                 bar.style.width = '0%';
-            }, 50);
+            }, 100);
 
             setTimeout(() => {
                 boardEl.classList.add('chess-hidden');
                 isHidden = true;
                 document.getElementById('btn-hint').disabled = false;
-                setFeedback("¡Tiempo! Ahora resuelve de memoria.", "info");
-            }, visibleTime * 1000);
+                setFeedback("¡Tiempo! Reproduce la secuencia de memoria.", "info");
+            }, MEMORIZATION_TIME * 1000);
         }
 
         function handleTap(sq) {
             if (!isHidden) return;
 
-            // Si tocamos la misma casilla, deseleccionamos
             if (sourceSq === sq) {
                 removeHighlights();
                 sourceSq = null;
                 return;
             }
 
-            // Si hay una pieza del color que mueve, seleccionamos origen
             const piece = game.get(sq);
             if (piece && piece.color === game.turn()) {
                 removeHighlights();
                 sourceSq = sq;
                 $(`.square-${sq}`).addClass('highlight-sq');
-            } 
-            // Si ya hay origen seleccionado, intentamos el movimiento
-            else if (sourceSq) {
-                handleMove(sourceSq, sq);
+            } else if (sourceSq) {
+                processMove(sourceSq, sq);
                 removeHighlights();
                 sourceSq = null;
             }
         }
 
-        function handleMove(src, tgt) {
+        function processMove(src, tgt) {
             const moveUCI = src + tgt;
             const validMove = puzzleMoves[step];
             const move = game.move({ from: src, to: tgt, promotion: 'q' });
 
-            if (!move) return 'snapback';
+            if (!move) return;
 
             if (moveUCI === validMove || (moveUCI + 'q') === validMove) {
                 step++;
                 document.getElementById('myBoard').classList.remove('chess-hidden');
                 
                 if (step < puzzleMoves.length) {
-                    setFeedback("¡Bien! Sigue así...", "info");
+                    setFeedback("¡Correcto! Espera la respuesta...", "info");
                     setTimeout(() => {
                         game.move(puzzleMoves[step], {sloppy: true});
                         step++;
@@ -292,8 +279,7 @@
                 game.undo();
                 currentFails++;
                 document.getElementById('fail-count').innerText = currentFails;
-                setFeedback(currentFails > 2 ? "¡No te rindas! Analiza el espacio." : "Casi... intenta otro camino.", "fail");
-                return 'snapback';
+                setFeedback("Ese no era el movimiento. ¡Intenta recordar!", "fail");
             }
         }
 
@@ -303,6 +289,7 @@
             
             exerciseStats.push({
                 fen: puzzles[currentIdx].FEN,
+                id: puzzles[currentIdx].PuzzleId,
                 time: timeElapsed,
                 fails: currentFails,
                 status: skipped ? "Saltado" : "OK"
@@ -310,13 +297,12 @@
 
             document.getElementById('myBoard').classList.remove('chess-hidden');
             
-            // Si es el último ejercicio, ir directo al reporte
             if (currentIdx === puzzles.length - 1) {
                 showReport();
             } else {
                 if (!skipped) {
                     document.getElementById('btn-next').classList.remove('hidden');
-                    setFeedback("¡Fantástico! Ejercicio completado.", "info");
+                    setFeedback("¡Excelente visión! ¿Seguimos?", "info");
                 } else {
                     nextExercise();
                 }
@@ -338,50 +324,61 @@
             startTime = Date.now();
             timerInterval = setInterval(() => {
                 const s = Math.floor((Date.now() - startTime) / 1000);
-                document.getElementById('timer').innerText = new Date(s * 1000).toISOString().substr(14, 5);
+                document.getElementById('timer').innerText = formatTime(s);
             }, 1000);
+        }
+
+        function updateSessionTimer() {
+            const s = Math.floor((Date.now() - sessionStart) / 1000);
+            document.getElementById('session-timer').innerText = `Total: ${formatTime(s)}`;
+        }
+
+        function formatTime(s) {
+            return new Date(s * 1000).toISOString().substr(14, 5);
         }
 
         function setFeedback(msg, type) {
             const box = document.getElementById('feedback-box');
             document.getElementById('feedback-msg').innerText = msg;
-            box.className = "p-4 rounded-xl border-2 text-sm font-medium min-h-[90px] flex items-center justify-center text-center transition-all " + 
-                (type === "fail" ? "border-red-200 bg-red-50 text-red-700" : "border-indigo-100 bg-indigo-50 text-indigo-700");
+            box.className = "p-6 rounded-[2rem] border-2 text-sm font-bold min-h-[100px] flex items-center justify-center text-center transition-all " + 
+                (type === "fail" ? "border-red-100 bg-red-50 text-red-600" : "border-indigo-100 bg-indigo-50 text-indigo-700");
         }
 
         function removeHighlights() { $('.square-55d63').removeClass('highlight-sq'); }
 
         function nextExercise() {
             currentIdx++;
-            if (currentIdx < puzzles.length) {
-                loadPuzzle();
-            } else {
-                showReport();
-            }
+            currentIdx < puzzles.length ? loadPuzzle() : showReport();
         }
 
         function skipPuzzle() { finishPuzzle(false, true); }
 
         function showReport() {
+            clearInterval(sessionInterval);
             document.getElementById('screen-game').classList.add('hidden');
             document.getElementById('screen-results').classList.remove('hidden');
+            
+            const totalS = Math.floor((Date.now() - sessionStart) / 1000);
+            document.getElementById('total-session-time').innerText = `Tiempo de sesión: ${formatTime(totalS)}`;
+
             const body = document.getElementById('report-body');
-            body.innerHTML = ""; // Limpiar
+            body.innerHTML = "";
             
             exerciseStats.forEach((s, i) => {
-                const lichessUrl = `https://lichess.org/analysis/standard/${s.fen.replace(/ /g, '_')}`;
+                const lichessLink = `https://lichess.org/training/${s.id}`;
+                const fenImg = `https://lichess1.org/export/fen.png?fen=${encodeURIComponent(s.fen)}&color=white`;
+                
                 body.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-3">
-                            <div class="mini-board border border-slate-200"></div>
-                            <span class="text-[9px] text-slate-400">#${i+1}</span>
+                    <tr class="p-4 flex items-center justify-between">
+                        <td class="flex items-center gap-4">
+                            <img src="${fenImg}" class="report-img shadow-sm" alt="Tablero">
+                            <div>
+                                <p class="font-black text-slate-700">Puzzle #${i+1}</p>
+                                <p class="text-[10px] text-slate-400 font-bold">${s.time} seg | ${s.fails} fallos</p>
+                            </div>
                         </td>
-                        <td class="p-3 text-center font-bold text-slate-600">${s.time}s</td>
-                        <td class="p-3 text-center font-bold ${s.fails > 0 ? 'text-red-400' : 'text-green-400'}">${s.fails}</td>
-                        <td class="p-3 text-right">
-                            <a href="${lichessUrl}" target="_blank" class="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-lg font-bold border border-blue-100">
-                                Lichess ↗
-                            </a>
+                        <td>
+                            <a href="${lichessLink}" target="_blank" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-md">Revisar ↗</a>
                         </td>
                     </tr>`;
             });
