@@ -1,6 +1,11 @@
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-sySPL,r1b1kb1r/pp1p1ppp/1q2p3/1B2N3/P2p1P2/2P5/1P3PPP/R2QK2R b KQkq - 0 11,f7f6 d1h5 g7g6 e5g6 h7g6 h5h8,1456,75,93,4674,advantage long middlegame,https://lichess.org/gA25KrVE/black#22,Indian_Defense Indian_Defense_Other_variations
-Jq3mu,r2q1rk1/ppp2ppp/2np1b2/7b/5B2/2PB1N1P/PPP2PP1/R2QR1K1 w - - 3 13,d3h7 g8h7 f3g5 f6g5 d1h5 g5h6,1478,76,72,81,advantage hangingPiece long opening,https://lichess.org/bBOhqmeb#25,Russian_Game Russian_Game_Other_variations
-FUxuo,8/1B1R2kp/p5p1/1pp5/4N3/5qPb/PP3P1P/6K1 b - - 4 29,g7h6 d7h7 h6h7 e4g5,1501,76,86,89,attraction crushing endgame sacrifice short,https://lichess.org/ECMn8aqk/black#58,
-4aUMc,3r1rk1/7p/R2N2p1/2p1p3/1p1nRP1q/1P1P3P/2PQ2P1/7K w - - 0 29,f4e5 f8f1 h1h2 d4f3 g2f3 f1f2 d2f2 h4f2,1445,75,92,9861,crushing fork middlegame sacrifice veryLong,https://lichess.org/kflmI6h5#57,
-FODIm,r2q4/6k1/4Q1pn/1p1pPr1P/1PbP1P2/P3B1K1/8/2R4R b - - 0 38,f5h5 h1h5 g6h5 f4f5 h6f5 e6f5,1591,76,88,86,crushing long master middlegame quietMove,https://lichess.org/4RLjc6gM/black#76,
+TZqiT,r5Q1/ppp2R1p/3qk3/4N3/8/2B1b3/6PP/7K w - - 6 34,g8a8 d6d1 c3e1 d1e1 f7f1 e1f1,472,93,71,211,endgame long mate mateIn3,https://lichess.org/3FAFUJq5#67,
+0TqWd,3r2k1/p5pp/1p1r1p2/2qPpP2/8/2PQ4/P2R2PP/3R3K b - - 0 25,d6d5 d3d5 d8d5 d2d5 c5a3 d5d8,481,95,100,150,crushing endgame long,https://lichess.org/JHRKzwxs/black#50,
+YKmMN,2q4k/5prp/p2p1Q2/1p1Pp3/1b6/3P1B2/P4PPP/1R4K1 w - - 0 25,b1b4 c8c1 f3d1 c1d1,432,96,87,132,endgame mate mateIn2 short,https://lichess.org/HnxaMs1w#49,
+bHxna,r4rk1/1b5p/p1qb1p2/2p1p1p1/PpP4N/1P1PB3/5PPP/R2Q1RK1 w - - 0 18,h4f5 c6g2,477,95,100,365,kingsideAttack mate mateIn1 middlegame oneMove,https://lichess.org/maDx0vm3#35,Sicilian_Defense Sicilian_Defense_Old_Sicilian
+t8Dc8,r1bq4/ppp2kp1/5n1p/4r3/5B2/2Q5/PP3PPP/RN4K1 w - - 0 17,f4e5 d8d1 c3e1 d1e1,418,110,88,241,kingsideAttack mate mateIn2 middlegame short,https://lichess.org/ZcQCzWnC#33,Scotch_Game Scotch_Game_Scotch_Gambit
+bKmkK,r1br1Q1k/ppp3pp/1bnp4/4P3/3P4/2N5/PPP3PP/R4RK1 b - - 3 17,d8f8 f1f8,399,109,91,1040,backRankMate mate mateIn1 middlegame oneMove,https://lichess.org/dYjRsm1w/black#34,Vienna_Game Vienna_Game_Stanley_Variation
+ceOni,6k1/5p1p/B4p2/1P1bbN2/8/7P/1r3PP1/3R2K1 w - - 3 31,d1d5 b2b1 d5d1 b1d1,470,101,93,1140,endgame mate mateIn2 pillsburysMate short,https://lichess.org/MVv1PeEO#61,
+HCeWj,3R1bk1/5p1p/6p1/1q6/8/2P2QPb/1P3P1P/6K1 w - - 2 29,g3g4 b5f1,482,102,91,275,endgame mate mateIn1 oneMove,https://lichess.org/FVzSFwU6#57,
+adNC4,2r3k1/1R3ppp/4p3/3p4/P5PP/1p2Q3/1P3P2/K1q5 w - - 0 33,e3c1 c8c1,467,90,62,81,endgame mate mateIn1 oneMove,https://lichess.org/uxk9xs0Q#65,
+z7AYs,r4rk1/pb3pp1/1p1p1q1p/3P4/2P5/3BQ3/P4PPP/R3R1K1 b - - 3 19,f8e8 e3e8 a8e8 e1e8,400,109,89,1307,kingsideAttack mate mateIn2 middlegame pillsburysMate short,https://lichess.org/3g9Xq7s5/black#38,French_Defense French_Defense_Normal_Variation

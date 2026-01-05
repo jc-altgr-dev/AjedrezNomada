@@ -1,0 +1,11 @@
+PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
+GqwDV,8/3b1k2/r2Prp2/2P5/3R1K1p/5P1P/1R4P1/8 b - - 2 51,a6c6 b2b7 f7e8 b7b8 c6c8 b8c8 d7c8 c5c6,2450,77,91,2048,crushing endgame pin veryLong,https://lichess.org/TzbklUGE/black#102,
+18wr4,8/P4p2/5P1k/2p1R2p/4BR2/6PK/1r1r4/8 w - - 5 45,g3g4 d2h2 h3g3 h5h4 g3f3 h2h3,2338,88,90,949,endgame long mate mateIn3,https://lichess.org/OFX3B6vf#89,
+CnuQH,8/8/p1k5/1pP5/3K4/P7/8/8 w - - 1 47,d4d3 c6c5 d3c3 a6a5 c3d3 c5d5,2306,76,93,638,crushing defensiveMove endgame long master pawnEndgame quietMove zugzwang,https://lichess.org/msv3uClN#93,
+kYrdz,8/3R2R1/4p1p1/pk4P1/1p2rP2/8/P1p4P/7K w - - 0 35,d7c7 e4c4 c7c4 b5c4 h1g2 a5a4 g7c7 c4d3 h2h4 b4b3,2465,93,85,47,crushing endgame quietMove rookEndgame veryLong,https://lichess.org/j8IudCuK#69,
+JxKmE,2rq1r2/p3b3/1p4k1/3p1p2/3P1P2/P2BP2R/1P4PP/3Q1nK1 b - - 0 26,f1e3 d1h5 g6f6 h3e3 f6g7 e3g3,2306,81,90,229,crushing intermezzo long middlegame,https://lichess.org/jyhbKaQe/black#52,
+KnVau,2k4r/pp3pp1/2p1p2r/4N2q/3PQ3/P1P5/1P2R3/4R1K1 w - - 5 28,g1f2 h5g5 e4g4 h6h2 f2g1 h2h1,2346,98,86,35,advantage clearance exposedKing long middlegame,https://lichess.org/FukA3sQD#55,
+9Cmxu,5rk1/1p3p2/p4R1p/8/4q3/7Q/P1r3PP/3R3K b - - 2 25,e4e2 h3g3 g8h7 d1f1,2484,95,84,41,advantage defensiveMove endgame short,https://lichess.org/rWRW9NjH/black#50,
+JxRP2,8/1p5p/p5p1/P1Pp1k2/3P2P1/5K2/7P/8 b - - 0 36,f5e6 g4g5 e6f5 h2h4 f5e6 f3f4 e6e7 f4e5,2402,99,90,719,crushing endgame master pawnEndgame quietMove veryLong zugzwang,https://lichess.org/qUQ7tM5G/black#72,
+HNBV9,8/5pk1/7p/7P/5PK1/2R5/8/6r1 w - - 8 40,c3g3 g1g3 g4g3 g7f6 g3g4 f6e6,2304,77,87,117,crushing defensiveMove endgame long rookEndgame,https://lichess.org/Pc90M6eH#79,
+6Pw0I,2r3k1/pp4pp/4p3/3q1p2/1P1b2b1/PRrB1NN1/2P2PK1/3Q1R2 w - - 4 22,f1e1 c3b3 c2b3 c8c1,2388,101,90,613,clearance crushing master masterVsMaster middlegame short,https://lichess.org/7p7zU0KG#43,
