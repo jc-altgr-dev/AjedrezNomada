@@ -3,85 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chess Memory Pro - Educativo</title>
+    <title>Chess Memory Pro - Final</title>
     
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Quicksand', sans-serif; background-color: #f1f5f9; touch-action: manipulation; }
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #f1f5f9; 
+            touch-action: manipulation;
+            user-select: none; /* Evita selección de texto */
+            -webkit-user-select: none;
+        }
+
+        /* Bloqueo de menús en imágenes del tablero */
+        #myBoard img {
+            pointer-events: auto;
+            -webkit-touch-callout: none !important; /* Bloquea menú en iOS */
+        }
+
         #myBoard { width: 100%; border-radius: 0.75rem; overflow: hidden; }
         
-        /* Efecto desenfoque mejorado */
         .chess-hidden { 
-            filter: blur(6px) opacity(0.5) !important; 
+            filter: blur(8px) opacity(0.4) !important; 
             transition: filter 0.3s ease;
             pointer-events: none; 
         }
 
-        /* Resaltar casilla seleccionada (Tap-Tap) */
-        .highlight-square { box-shadow: inset 0 0 3px 3px yellow; }
-
-        /* Ajustes para móviles: Evitar scroll */
-        @media (max-width: 768px) {
-            .game-container { flex-direction: column; gap: 1rem; }
-            #myBoard { max-width: 85vw; margin: 0 auto; }
-            .stats-panel { order: 2; width: 100%; }
+        /* Resalte de casilla seleccionada */
+        .highlight-sq {
+            box-shadow: inset 0 0 4px 4px rgba(255, 255, 0, 0.8) !important;
         }
 
-        .bg-A1 { background-color: #dcfce7; color: #166534; border: 3px solid #86efac; }
-        .bg-A2 { background-color: #dbeafe; color: #1e40af; border: 3px solid #93c5fd; }
-        .bg-B1 { background-color: #ffedd5; color: #9a3412; border: 3px solid #fdba74; }
-        .bg-B2 { background-color: #f3e8ff; color: #6b21a8; border: 3px solid #d8b4fe; }
+        /* Reporte: Miniatura de tablero */
+        .mini-board {
+            width: 60px;
+            height: 60px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d5/Chess_Board.svg');
+            background-size: cover;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            #myBoard { max-width: 90vw; }
+            .screen-padding { padding: 1rem; }
+        }
     </style>
 </head>
-<body class="min-h-screen p-2 flex flex-col items-center justify-center">
+<body class="min-h-screen flex flex-col items-center justify-center screen-padding">
 
-    <div id="app" class="w-full max-w-4xl bg-white rounded-[2rem] shadow-xl overflow-hidden">
+    <div id="app" class="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden border-4 border-white">
         
         <div id="screen-start" class="p-8 text-center">
-            <h1 class="text-3xl font-bold text-slate-800 mb-6">Entrenador Chess Memory</h1>
-            <div id="level-grid" class="grid grid-cols-2 gap-4 mb-8"></div>
+            <h1 class="text-3xl font-bold text-slate-800 mb-6">Chess Memory Entrenador</h1>
+            <div id="level-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8"></div>
         </div>
 
         <div id="screen-game" class="hidden p-4 md:p-8">
             <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h2 id="current-lvl-tag" class="text-xl font-bold text-slate-800">Nivel</h2>
-                    <p id="progress-text" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ejercicios</p>
-                </div>
-                <div class="flex gap-4 items-center">
-                    <div id="timer" class="text-2xl font-mono font-bold text-indigo-600">00:00</div>
-                    <button onclick="skipPuzzle()" class="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg text-xs font-bold hover:bg-slate-200">Saltar</button>
+                <h2 id="current-lvl-tag" class="text-xl font-bold text-slate-800">Cargando...</h2>
+                <div class="flex items-center gap-3">
+                    <div id="timer" class="text-xl font-mono font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg">00:00</div>
+                    <button onclick="skipPuzzle()" class="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg text-xs font-bold">Saltar</button>
                 </div>
             </div>
 
             <div class="flex flex-col lg:flex-row gap-6">
-                <div class="w-full lg:w-2/3">
-                    <div id="myBoard" class="mx-auto"></div>
+                <div class="w-full lg:w-3/5">
+                    <div id="myBoard" oncontextmenu="return false;"></div>
                     <div class="w-full h-2 bg-slate-100 mt-4 rounded-full overflow-hidden">
-                        <div id="visibility-bar" class="h-full bg-indigo-500 transition-all"></div>
+                        <div id="visibility-bar" class="h-full bg-indigo-500 w-full"></div>
                     </div>
+                    <p id="progress-text" class="text-center text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tighter"></p>
                 </div>
 
-                <div class="w-full lg:w-1/3 flex flex-col justify-between">
+                <div class="w-full lg:w-2/5 flex flex-col justify-between">
                     <div>
-                        <button id="btn-hint" onclick="useHint()" disabled class="w-full mb-3 bg-amber-400 text-amber-900 py-3 rounded-xl font-bold shadow-md disabled:opacity-30 flex items-center justify-center gap-2">
+                        <button id="btn-hint" onclick="useHint()" disabled class="w-full mb-4 bg-amber-400 text-amber-900 py-4 rounded-xl font-bold shadow-md disabled:opacity-30">
                             👁️ Mostrar y responder (2s)
                         </button>
                         
-                        <div id="feedback-box" class="p-4 rounded-xl border-2 text-sm font-medium min-h-[80px] flex items-center justify-center text-center mb-4">
-                            <span id="feedback-msg">Memoriza la posición de las piezas...</span>
+                        <div id="feedback-box" class="p-4 rounded-xl border-2 text-sm font-medium min-h-[90px] flex items-center justify-center text-center transition-all duration-300">
+                            <span id="feedback-msg">Cargando ejercicio...</span>
                         </div>
                     </div>
 
-                    <div id="action-area" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-2 text-center text-[10px] font-bold uppercase">
-                            <div class="bg-slate-50 p-2 rounded-lg">Fallos: <span id="fail-count" class="text-red-500 text-sm">0</span></div>
-                            <div class="bg-slate-50 p-2 rounded-lg">Movs: <span id="move-count" class="text-blue-500 text-sm">0/0</span></div>
+                    <div class="mt-4">
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                                <span class="block text-[9px] text-slate-400 uppercase">Fallos</span>
+                                <span id="fail-count" class="text-lg font-bold text-red-500">0</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                                <span class="block text-[9px] text-slate-400 uppercase">Progreso</span>
+                                <span id="move-count" class="text-lg font-bold text-indigo-500">0/0</span>
+                            </div>
                         </div>
-                        <button id="btn-next" onclick="nextExercise()" class="hidden w-full bg-green-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-600 transition-all">
+                        <button id="btn-next" onclick="nextExercise()" class="hidden w-full bg-green-500 text-white py-5 rounded-xl font-bold text-lg shadow-lg">
                             Siguiente Ejercicio →
                         </button>
                     </div>
@@ -89,60 +110,66 @@
             </div>
         </div>
 
-        <div id="screen-results" class="hidden p-8">
-            <h2 class="text-2xl font-bold text-center mb-6">Reporte de Entrenamiento</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left border-collapse">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="p-2">#</th>
-                            <th class="p-2">Tiempo</th>
-                            <th class="p-2">Seg/Jugada</th>
-                            <th class="p-2">Fallos</th>
-                            <th class="p-2">Estado</th>
+        <div id="screen-results" class="hidden p-6 md:p-10">
+            <div class="text-center mb-6">
+                <span class="text-5xl">🎓</span>
+                <h2 class="text-2xl font-bold text-slate-800 mt-2">Sesión Completada</h2>
+                <p class="text-slate-400 text-sm italic">"El genio se hace con un 1% de talento y un 99% de trabajo."</p>
+            </div>
+            
+            <div class="max-h-[400px] overflow-y-auto rounded-2xl border border-slate-100 mb-6">
+                <table class="w-full text-xs text-left">
+                    <thead class="bg-slate-50 sticky top-0">
+                        <tr>
+                            <th class="p-3">Posición</th>
+                            <th class="p-3 text-center">Tiempo</th>
+                            <th class="p-3 text-center">Fallos</th>
+                            <th class="p-3 text-right">Análisis</th>
                         </tr>
                     </thead>
-                    <tbody id="report-body"></tbody>
+                    <tbody id="report-body" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
-            <button onclick="location.reload()" class="w-full mt-8 bg-slate-900 text-white py-4 rounded-xl font-bold">Reiniciar</button>
+            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">Volver al Inicio</button>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <script>
         const levels = [
-            { id: "A1", color: "bg-A1", label: "Novato (400)" },
-            { id: "A2", color: "bg-A2", label: "Aprendiz (800)" },
-            { id: "B1", color: "bg-B1", label: "Intermedio (1200)" },
-            { id: "B2", color: "bg-B2", label: "Avanzado (1600)" }
+            { id: "A1", label: "400 ELO", color: "bg-green-100 text-green-700 border-green-300" },
+            { id: "A2", label: "800 ELO", color: "bg-blue-100 text-blue-700 border-blue-300" },
+            { id: "B1", label: "1200 ELO", color: "bg-orange-100 text-orange-700 border-orange-300" },
+            { id: "B2", label: "1600 ELO", color: "bg-purple-100 text-purple-700 border-purple-300" },
+            { id: "C1", label: "2000 ELO", color: "bg-red-100 text-red-700 border-red-300" },
+            { id: "C2", label: "2400 ELO", color: "bg-indigo-100 text-indigo-700 border-indigo-300" }
         ];
 
         let board, game = new Chess();
         let puzzles = [], currentIdx = 0, puzzleMoves = [], step = 0;
-        let visibleTime = 15;
-        let isHidden = false, sourceSq = null;
+        let visibleTime = 15, isHidden = false;
+        let sourceSq = null; // Para Tap-Tap
         
         // Stats
-        let startTime, timerInterval;
+        let startTime, timerInterval, currentFails = 0;
         let exerciseStats = []; 
-        let currentFails = 0, currentMoveTimeStart;
 
         function init() {
             const grid = document.getElementById('level-grid');
             levels.forEach(lvl => {
-                grid.innerHTML += `<button onclick="loadLevel('${lvl.id}')" class="${lvl.color} p-4 rounded-2xl font-bold shadow-sm">${lvl.label}</button>`;
+                grid.innerHTML += `<button onclick="loadLevel('${lvl.id}')" class="${lvl.color} border-2 p-5 rounded-2xl font-bold hover:scale-105 transition-transform shadow-sm">${lvl.id}<br><span class="text-[10px] opacity-60">${lvl.label}</span></button>`;
             });
+            // Desactivar menú contextual en todo el app
+            document.getElementById('app').oncontextmenu = () => false;
         }
 
         function loadLevel(id) {
             Papa.parse(`${id}/puzzles_selected_${id}.csv`, {
                 download: true, header: true, complete: (res) => {
-                    puzzles = res.data;
+                    puzzles = res.data.filter(r => r.FEN); // Validar que tenga datos
                     startSession(id);
                 }
             });
@@ -160,10 +187,10 @@
                 pieceTheme: (p) => `img/${p}.png`
             });
 
-            // Soporte para Tap-Tap
-            $('#myBoard').on('click', '.square-55d63', function() {
-                const square = $(this).data('square');
-                handleSquareClick(square);
+            // LOGICA TAP-TAP MEJORADA
+            $(document).on('click', '.square-55d63', function() {
+                const sq = $(this).data('square');
+                handleTap(sq);
             });
 
             loadPuzzle();
@@ -177,16 +204,14 @@
 
             const first = puzzleMoves.shift();
             game.move(first, {sloppy: true});
-            
             board.orientation(game.turn() === 'w' ? 'white' : 'black');
             board.position(game.fen());
             
-            document.getElementById('progress-text').innerText = `Ejercicio ${currentIdx + 1}/${puzzles.length}`;
+            document.getElementById('progress-text').innerText = `EJERCICIO ${currentIdx + 1} DE ${puzzles.length}`;
             document.getElementById('fail-count').innerText = "0";
             document.getElementById('move-count').innerText = `0 / ${Math.ceil(puzzleMoves.length/2)}`;
             document.getElementById('btn-next').classList.add('hidden');
-            document.getElementById('feedback-box').className = "p-4 rounded-xl border-2 border-slate-200 text-slate-600";
-            setFeedback("Memoriza con calma. Mira bien los caballos y alfiles.");
+            setFeedback("Memoriza la posición. ¡Tú puedes!", "info");
 
             startTimer();
             startMemoryCycle();
@@ -195,10 +220,10 @@
         function startMemoryCycle() {
             const bar = document.getElementById('visibility-bar');
             const boardEl = document.getElementById('myBoard');
-            
             isHidden = false;
             boardEl.classList.remove('chess-hidden');
             document.getElementById('btn-hint').disabled = true;
+            
             bar.style.transition = 'none';
             bar.style.width = '100%';
 
@@ -211,31 +236,32 @@
                 boardEl.classList.add('chess-hidden');
                 isHidden = true;
                 document.getElementById('btn-hint').disabled = false;
-                setFeedback("¡Ahora de memoria! Tu mente es capaz.");
-                currentMoveTimeStart = Date.now();
+                setFeedback("¡Tiempo! Ahora resuelve de memoria.", "info");
             }, visibleTime * 1000);
         }
 
-        function handleSquareClick(sq) {
+        function handleTap(sq) {
             if (!isHidden) return;
-            
-            // Si ya hay origen, intentar mover
-            if (sourceSq) {
-                if (sourceSq === sq) {
-                    removeHighlights();
-                    sourceSq = null;
-                } else {
-                    handleMove(sourceSq, sq);
-                    removeHighlights();
-                    sourceSq = null;
-                }
-            } else {
-                // Seleccionar pieza
-                const piece = game.get(sq);
-                if (piece && piece.color === game.turn()) {
-                    sourceSq = sq;
-                    $(`#myBoard .square-${sq}`).addClass('highlight-square');
-                }
+
+            // Si tocamos la misma casilla, deseleccionamos
+            if (sourceSq === sq) {
+                removeHighlights();
+                sourceSq = null;
+                return;
+            }
+
+            // Si hay una pieza del color que mueve, seleccionamos origen
+            const piece = game.get(sq);
+            if (piece && piece.color === game.turn()) {
+                removeHighlights();
+                sourceSq = sq;
+                $(`.square-${sq}`).addClass('highlight-sq');
+            } 
+            // Si ya hay origen seleccionado, intentamos el movimiento
+            else if (sourceSq) {
+                handleMove(sourceSq, sq);
+                removeHighlights();
+                sourceSq = null;
             }
         }
 
@@ -249,9 +275,9 @@
             if (moveUCI === validMove || (moveUCI + 'q') === validMove) {
                 step++;
                 document.getElementById('myBoard').classList.remove('chess-hidden');
-                setFeedback("¡Exacto! Tienes una visión excelente.");
                 
                 if (step < puzzleMoves.length) {
+                    setFeedback("¡Bien! Sigue así...", "info");
                     setTimeout(() => {
                         game.move(puzzleMoves[step], {sloppy: true});
                         step++;
@@ -266,7 +292,7 @@
                 game.undo();
                 currentFails++;
                 document.getElementById('fail-count').innerText = currentFails;
-                setFeedback(getEncouragement(currentFails), "fail");
+                setFeedback(currentFails > 2 ? "¡No te rindas! Analiza el espacio." : "Casi... intenta otro camino.", "fail");
                 return 'snapback';
             }
         }
@@ -274,21 +300,26 @@
         function finishPuzzle(success, skipped = false) {
             clearInterval(timerInterval);
             const timeElapsed = Math.floor((Date.now() - startTime) / 1000);
-            const movesCount = Math.ceil(puzzleMoves.length/2);
             
             exerciseStats.push({
+                fen: puzzles[currentIdx].FEN,
                 time: timeElapsed,
                 fails: currentFails,
-                moves: movesCount,
-                status: skipped ? "Saltado" : "Completado"
+                status: skipped ? "Saltado" : "OK"
             });
 
             document.getElementById('myBoard').classList.remove('chess-hidden');
-            if (!skipped) {
-                document.getElementById('btn-next').classList.remove('hidden');
-                setFeedback("¡Ejercicio superado! ¿Listo para el siguiente?");
+            
+            // Si es el último ejercicio, ir directo al reporte
+            if (currentIdx === puzzles.length - 1) {
+                showReport();
             } else {
-                nextExercise();
+                if (!skipped) {
+                    document.getElementById('btn-next').classList.remove('hidden');
+                    setFeedback("¡Fantástico! Ejercicio completado.", "info");
+                } else {
+                    nextExercise();
+                }
             }
         }
 
@@ -296,7 +327,10 @@
             const b = document.getElementById('myBoard');
             b.classList.remove('chess-hidden');
             document.getElementById('btn-hint').disabled = true;
-            setTimeout(() => { if(isHidden) b.classList.add('chess-hidden'); document.getElementById('btn-hint').disabled = false; }, 2000);
+            setTimeout(() => { 
+                if(isHidden) b.classList.add('chess-hidden'); 
+                document.getElementById('btn-hint').disabled = false; 
+            }, 2000);
         }
 
         function startTimer() {
@@ -308,24 +342,22 @@
             }, 1000);
         }
 
-        function getEncouragement(fails) {
-            if (fails === 1) return "¡Casi! Respira y vuelve a intentarlo.";
-            if (fails === 2) return "No pasa nada, fíjate bien en la última pieza que moviste.";
-            return "¡El ajedrez es difícil, pero tú eres más fuerte! Sigue intentando.";
-        }
-
-        function setFeedback(msg, type = "info") {
+        function setFeedback(msg, type) {
             const box = document.getElementById('feedback-box');
             document.getElementById('feedback-msg').innerText = msg;
-            box.className = "p-4 rounded-xl border-2 text-sm font-medium min-h-[80px] flex items-center justify-center text-center mb-4 " + 
+            box.className = "p-4 rounded-xl border-2 text-sm font-medium min-h-[90px] flex items-center justify-center text-center transition-all " + 
                 (type === "fail" ? "border-red-200 bg-red-50 text-red-700" : "border-indigo-100 bg-indigo-50 text-indigo-700");
         }
 
-        function removeHighlights() { $('#myBoard .square-55d63').removeClass('highlight-square'); }
+        function removeHighlights() { $('.square-55d63').removeClass('highlight-sq'); }
 
         function nextExercise() {
             currentIdx++;
-            currentIdx < puzzles.length ? loadPuzzle() : showReport();
+            if (currentIdx < puzzles.length) {
+                loadPuzzle();
+            } else {
+                showReport();
+            }
         }
 
         function skipPuzzle() { finishPuzzle(false, true); }
@@ -334,15 +366,23 @@
             document.getElementById('screen-game').classList.add('hidden');
             document.getElementById('screen-results').classList.remove('hidden');
             const body = document.getElementById('report-body');
+            body.innerHTML = ""; // Limpiar
+            
             exerciseStats.forEach((s, i) => {
-                const avg = (s.time / s.moves).toFixed(1);
+                const lichessUrl = `https://lichess.org/analysis/standard/${s.fen.replace(/ /g, '_')}`;
                 body.innerHTML += `
-                    <tr class="border-b">
-                        <td class="p-2">${i+1}</td>
-                        <td class="p-2">${s.time}s</td>
-                        <td class="p-2">${avg}s</td>
-                        <td class="p-2">${s.fails}</td>
-                        <td class="p-2 font-bold ${s.status === 'Saltado' ? 'text-orange-500' : 'text-green-600'}">${s.status}</td>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3">
+                            <div class="mini-board border border-slate-200"></div>
+                            <span class="text-[9px] text-slate-400">#${i+1}</span>
+                        </td>
+                        <td class="p-3 text-center font-bold text-slate-600">${s.time}s</td>
+                        <td class="p-3 text-center font-bold ${s.fails > 0 ? 'text-red-400' : 'text-green-400'}">${s.fails}</td>
+                        <td class="p-3 text-right">
+                            <a href="${lichessUrl}" target="_blank" class="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-lg font-bold border border-blue-100">
+                                Lichess ↗
+                            </a>
+                        </td>
                     </tr>`;
             });
         }
