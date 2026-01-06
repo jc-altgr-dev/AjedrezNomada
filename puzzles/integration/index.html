@@ -162,7 +162,8 @@
             { id: "B1", color: "bg-orange-100 text-orange-700 border-orange-300" },
             { id: "B2", color: "bg-purple-100 text-purple-700 border-purple-300" },
             { id: "C1", color: "bg-red-100 text-red-700 border-red-300" },
-            { id: "C2", color: "bg-indigo-100 text-indigo-700 border-indigo-300" }
+            { id: "C2", color: "bg-indigo-100 text-indigo-700 border-indigo-300" },
+            { id: "Insane", color: "bg-indigo-100 text-indigo-700 border-indigo-300" }
         ];
 
         let board, game = new Chess();
@@ -361,11 +362,11 @@
             document.getElementById('myBoard').classList.remove('blind-active');
             setFeedback(success ? "¡Excelente trabajo!" : "A por el siguiente...", success ? "info" : "fail");
             
-            // AUTO-AVANCE tras 1.5 segundos
+            // AUTO-AVANCE tras 1.0 segundos
             setTimeout(() => {
                 currentIdx++;
                 currentIdx < puzzles.length ? loadPuzzle() : showReport();
-            }, 1500);
+            }, 1000);
         }
 
         function skipPuzzle() { finishPuzzle(false); }

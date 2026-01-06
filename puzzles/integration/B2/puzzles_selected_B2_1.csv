@@ -1,0 +1,11 @@
+PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
+F1Zcd,2b1r1k1/qp3pp1/3p1bnp/BPn5/3NP3/1N3P2/3Q2PP/R4B1K w - - 1 24,a5c7 c5b3 d4b3 f6a1,1582,77,99,682,advantage middlegame short,https://lichess.org/y3UsaQyt#47,
+WiCXv,2r1r1k1/1p1b2p1/pq2ppQp/3p4/Pn6/1P2PN2/1B3PPP/2R2RK1 b - - 3 23,c8c1 b2f6 c1f1 g1f1 e8e7 f6e7,1586,76,93,986,advantage long middlegame pin,https://lichess.org/F1zEGZo1/black#46,
+OcNcX,2r3k1/5pp1/2N2n1p/rp1p4/3PnP2/q2QP2P/4N1P1/2R2RK1 w - - 0 27,c6a5 a3d3 c1c8 g8h7,1513,75,79,339,crushing middlegame short,https://lichess.org/no9dc9TN#53,
+9bPoE,5r1k/1b1n2p1/p1n3BP/1p3p1Q/2pq1B1P/2N1R3/PPP5/6K1 b - - 0 27,d4f4 h6g7 h8g7 h5h7 g7f6 c3d5,1546,78,93,1377,advancedPawn attraction cornerMate discoveredCheck doubleCheck kingsideAttack long mate mateIn3 middlegame,https://lichess.org/Ra9tWicH/black#54,
+gpAg1,n4rk1/p4p2/1p5p/6p1/4p1qP/2R1QbP1/PP3P1K/6R1 b - - 1 28,g5h4 g3h4 g4g1 h2g1,1629,74,89,388,crushing middlegame pin short,https://lichess.org/Xzw805bH/black#56,
+0nrB4,8/1p6/6p1/P1kb1p1p/7P/1B2P1P1/4K3/8 w - - 0 43,b3d5 c5d5 e2d3 d5c5 e3e4 f5e4,1695,86,0,31,crushing endgame long,https://lichess.org/UBpHPUnx#85,
+tKALB,8/1p3Qbk/p2r4/7R/P3p1Pp/7P/1Pq2B1K/8 b - - 8 37,d6h6 h5h6 h7h6 f7h5,1596,161,70,13,attraction endgame mate mateIn2 pin short,https://lichess.org/7vsSA452/black#74,
+eaepj,4r3/1p6/p2p2kp/6p1/3N4/1B2rPP1/5K1P/R7 b - - 3 39,e3d3 b3c2 g6f6 c2d3,1536,75,94,13037,crushing endgame pin short,https://lichess.org/hOZrXjqI/black#78,
+8lXgR,r2q3r/ppp2kp1/2n5/7p/1b1pN1b1/3Q4/PPP1NPPP/R1B1K2R w KQ - 2 13,c2c3 d4c3 d3c4 g4e6 c4e6 f7e6,1589,76,86,336,advantage long middlegame,https://lichess.org/w35o0P1Q#25,Four_Knights_Game Four_Knights_Game_Italian_Variation
+FM6Ey,rr4k1/6pp/5n2/1NpP1p2/4p3/4P3/P2R1PPP/2KR4 w - - 1 25,d5d6 b8b5 d6d7 a8d8,1601,76,93,2999,crushing endgame hangingPiece short,https://lichess.org/O6xu2N3f#49,
