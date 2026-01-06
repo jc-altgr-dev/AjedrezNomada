@@ -1,0 +1,11 @@
+PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
+Y7An3,3r3k/6pp/p1p5/4Pp2/p4P2/8/PP3qPP/5R1K w - - 0 27,f1f2 d8d1 f2f1 d1f1,405,100,100,320,backRankMate endgame mate mateIn2 rookEndgame short,https://lichess.org/pbdoMhNC#53,
+YAwMS,5Nk1/p6p/2Q5/5q1b/2P5/2P5/6PP/R4q1K w - - 0 31,a1f1 f5f1,401,95,68,119,endgame mate mateIn1 oneMove,https://lichess.org/d6oANKNg#61,
+o9CuR,r2r2k1/pp2ppbp/2n3p1/1B2P3/6R1/2p2N2/PP3PPP/R1B3K1 w - - 0 14,b5c6 d8d1 f3e1 d1e1,437,97,100,428,backRankMate master mate mateIn2 middlegame short,https://lichess.org/uqxMZOtI#27,Sicilian_Defense Sicilian_Defense_Nyezhmetdinov-Rossolimo_Attack
+M0qgN,1k3b1r/pp4p1/4r2p/2pN2p1/8/3K1PP1/P5P1/2R1R3 b - - 1 26,e6d6 e1e8 d6d8 e8d8,400,108,86,1098,endgame mate mateIn2 queensideAttack short,https://lichess.org/IddJDKZ8/black#52,
+gKnoh,3r2k1/p3pp1p/6p1/2B5/4B3/1P3P1b/P4P1P/R2r2K1 w - - 7 22,a1d1 d8d1,399,123,83,369,endgame master mate mateIn1 oneMove pillsburysMate,https://lichess.org/2vzuSdEe#43,
+miFl4,2kr1b1r/ppp1pNp1/2n5/7p/2P5/8/PP2qPPP/R1B1R1K1 w - - 0 14,e1e2 d8d1 e2e1 d1e1,400,114,77,583,backRankMate mate mateIn2 middlegame short,https://lichess.org/6sdQf8Fy#27,Scandinavian_Defense Scandinavian_Defense_Modern_Variation
+ikfVt,1rk5/Q3qppp/2p1p3/3p4/3P4/2P5/P1P2PPP/6K1 w - - 2 21,a7e7 b8b1,444,97,85,143,backRankMate endgame mate mateIn1 oneMove queenRookEndgame,https://lichess.org/M0JzUpvN#41,
+ZPpq6,rn3rk1/pbp3pp/1p1pp3/5pq1/3P4/3BP2P/PPP2PPB/R2Q1RK1 w - - 2 15,f1e1 g5g2,407,94,100,306,kingsideAttack mate mateIn1 middlegame oneMove,https://lichess.org/HUTcFcBi#29,Dutch_Defense Dutch_Defense_Other_variations
+xzyR1,r1bk1Qnr/pppp3p/2n5/3N4/1bBqP3/3Pp3/PPP3PP/R4RK1 b - - 2 12,b4f8 f1f8,420,104,96,378,mate mateIn1 middlegame oneMove,https://lichess.org/6HZSpak0/black#24,Vienna_Gambit_with_Max_Lange_Defense Vienna_Gambit_with_Max_Lange_Defense_Hamppe-Muzio_Gambit
+wHC4m,5rk1/ppp2rp1/3p4/4b2Q/8/2N4P/PP4P1/4R2K w - - 5 28,c3e4 f7f1 e1f1 f8f1,421,100,100,221,endgame mate mateIn2 pillsburysMate short,https://lichess.org/09OGOZnL#55,

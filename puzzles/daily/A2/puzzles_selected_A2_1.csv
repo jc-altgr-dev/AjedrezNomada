@@ -1,0 +1,11 @@
+PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
+RoqRZ,1k1rr3/ppp2p2/6p1/6p1/8/1NP2B1P/PP3PP1/R5K1 w - - 0 22,a1d1 d8d1 f3d1 e8e1 g1h2 e1d1,849,80,100,211,advantage endgame fork long,https://lichess.org/BJaciiq8#43,
+JvQP6,r2qr1k1/pp2bRpp/2p1b3/4B3/3Pp3/1P6/P1P2QPN/5RK1 b - - 0 22,e6f7 f2f7 g8h8 f7g7,889,81,96,253,kingsideAttack mate mateIn2 middlegame short,https://lichess.org/7jrJJBxy/black#44,
+FxOk0,8/6p1/3n1p1p/p2k4/P1p2PPP/4KP2/2B5/8 b - - 0 34,d6b7 c2e4 d5c5 e4b7,846,108,89,545,advantage endgame short skewer,https://lichess.org/rtFmANKz/black#68,
+xM1Gm,2Q5/3rkp2/p1n1p2p/1p2P3/1P3P2/P6n/6PP/2R3qK w - - 11 38,c1g1 h3f2,896,108,90,427,endgame mate mateIn1 oneMove smotheredMate,https://lichess.org/zsTLvOo8#75,
+h8i1t,r2q1k1r/1b3p2/p2N1bp1/1p1p3p/2pB4/3n1QP1/PP3PBP/R3R1K1 b - - 1 20,f6d4 f3f7,735,89,100,296,master mate mateIn1 middlegame oneMove,https://lichess.org/cEccIDGc/black#40,
+bAwz1,r3r1k1/1pq2ppp/p7/3p2N1/2PQp1n1/8/PP3PPP/R4RK1 w - - 0 21,c4d5 c7h2,792,115,96,318,kingsideAttack mate mateIn1 middlegame oneMove,https://lichess.org/xWDGPQVf#41,
+cB7dU,2kb2rr/ppp4q/2P1b3/1P2p3/P3Np2/3P4/5QBP/3R1R1K w - - 1 30,f2a7 h7h2,726,80,100,92,kingsideAttack mate mateIn1 middlegame oneMove,https://lichess.org/tCrDtcX8#59,
+vez4r,6r1/2N4k/1p1p2nb/3Pp2q/pP2Ppn1/P4R2/4QBP1/5BK1 w - - 1 43,c7e6 h5h2,782,76,100,494,master mate mateIn1 middlegame oneMove,https://lichess.org/S1S0Vg8X#85,
+ONhX8,8/2b5/2p5/1kPp3p/3Pp1pP/2K1P1P1/5B2/8 w - - 3 55,f2e1 c7a5 c3c2 a5e1,888,81,91,88,bishopEndgame crushing endgame master short skewer,https://lichess.org/V4sYc4RS#109,
+ql26a,3r2k1/1pq2pp1/p5p1/2np4/2P3P1/4RN1P/PP2QPK1/8 b - - 2 27,d5d4 e3e8 d8e8 e2e8 g8h7 f3g5,700,80,97,654,crushing endgame kingsideAttack long,https://lichess.org/FKTEYbhU/black#54,
