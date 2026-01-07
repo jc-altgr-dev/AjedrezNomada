@@ -1,5 +1,5 @@
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-rqt3E,rnbqr1k1/pp3p1p/2p3p1/3P4/8/2Q2N1P/PB2BPP1/R5K1 b - - 0 17,e8e2 c3h8,494,105,89,170,mate mateIn1 middlegame oneMove,https://lichess.org/RAehyIuy/black#34,Scandinavian_Defense Scandinavian_Defense_Icelandic-Palme_Gambit
+TZqiT,r5Q1/ppp2R1p/3qk3/4N3/8/2B1b3/6PP/7K w - - 6 34,g8a8 d6d1 c3e1 d1e1 f7f1 e1f1,472,93,71,211,endgame long mate mateIn3,https://lichess.org/3FAFUJq5#67,
 qDqXf,3r1k1r/5ppp/p4b2/1p2R3/1B6/7P/PP3PP1/4R1K1 b - - 4 21,f8g8 e5e8 d8e8 e1e8,486,106,85,563,backRankMate endgame mate mateIn2 short,https://lichess.org/2SpbEQvt/black#42,
 s82R6,7k/6pp/r4b2/3B1p2/5P2/3K4/r5PP/1R6 b - - 1 36,a2f2 b1b8 f6d8 b8d8,437,114,85,861,backRankMate endgame mate mateIn2 short,https://lichess.org/WzGIhhYs/black#72,
 GYVD5,4r1k1/pq4pp/4b3/5p2/2p2B2/2P4P/P2Q2P1/3R3K b - - 2 22,e6d5 d2d5 b7d5 d1d5,492,88,92,105,advantage endgame short,https://lichess.org/bcPimeIW/black#44,
