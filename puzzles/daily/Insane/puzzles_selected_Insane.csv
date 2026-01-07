@@ -1,11 +1,11 @@
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-a1A4Q,8/8/1K5p/8/5pk1/5N2/8/8 w - - 3 54,f3e5 g4g3 b6c5 f4f3 e5c4 g3f2 c5d4 f2e2,2747,106,87,95,crushing defensiveMove endgame knightEndgame veryLong,https://lichess.org/sy7YRdDz#107,
-LjtVZ,8/3k4/3Pp2K/pp6/7P/2Pn4/8/2B5 w - - 2 40,c1a3 b5b4 c3b4 a5b4 a3b4 d3b4 h4h5 b4c6 h6g6 c6e5 g6g7 e5g4,2712,88,92,811,crushing defensiveMove endgame quietMove trappedPiece veryLong,https://lichess.org/eEZTxtgA#79,
-ZK0vI,8/p7/4kp2/2pp1rpp/2P2P2/1P2K1PP/P7/2R5 b - - 0 39,d5d4 e3f3 h5h4 f3g4 h4g3 c1e1 f5e5 f4e5,2745,93,87,341,crushing defensiveMove endgame rookEndgame veryLong,https://lichess.org/XgVOH8dg/black#78,
-WM5ji,3r1r1k/6pp/1p2N3/pP6/P2P2qn/4P1P1/Q4PKP/1RR5 w - - 5 27,g2f1 g4h3 f1e1 h4f3 e1e2 f3d4 e3d4 d8e8 c1c6 f8f2 e2f2 h3h2 f2f3 h2a2,2834,99,91,2304,attraction crushing middlegame pin sacrifice skewer veryLong,https://lichess.org/ANd3J2UX#53,
-3H6MF,2b1r1k1/5pbp/pr1p2p1/2pPP3/R4n1q/2N1B2P/1P4P1/3QRBK1 b - - 1 23,g7e5 e3f4 e5d4 d1d4,2795,90,76,101,advantage master masterVsMaster middlegame short,https://lichess.org/LRrWxTkO/black#46,
-E7hqV,r4r2/pp3p1k/3p2p1/2p1pPPp/2P1P3/3P2Q1/Pq6/3B1R1K b - - 1 23,f8h8 g3h3 h8g8 d1h5 h7g7 f5g6,2724,100,88,357,crushing endgame long,https://lichess.org/WIN7Df2F/black#46,
-LqJmx,6k1/6p1/2Q5/5q1p/1P6/P2p2K1/6PP/8 w - - 0 47,c6c4 g8f8 c4d4 h5h4 d4h4 f5e5,2728,106,87,303,crushing defensiveMove endgame exposedKing long queenEndgame,https://lichess.org/beTXOYNo#93,
-JJ0om,r1bq3k/ppp1br2/4p1B1/3nP3/2pP3P/P1N5/1P3PP1/n1BQK2R b K - 0 15,a1c2 g6c2 d8g8 c3d5 e6d5 d1h5 f7h7 c2h7 g8h7 h5e8,2793,112,88,819,crushing exposedKing hangingPiece kingsideAttack middlegame veryLong,https://lichess.org/bJD5z90j/black#30,Indian_Defense Indian_Defense_Anti-Nimzo-Indian
-nOubc,rn1q2k1/4b1pp/p2p4/2pN1r2/1p4P1/8/PPPQ1P1P/2KR3R b - - 0 16,f5e5 d5e7 d8e7 f2f4 e5e2 d2d5 e7e6 d5a8 e6a2 a8d5 a2d5 d1d5,2731,101,87,149,advantage fork middlegame pin veryLong,https://lichess.org/xNUA4pwB/black#32,Philidor_Defense Philidor_Defense_Exchange_Variation
-YIRiA,6k1/1pq3p1/p3p1p1/2PpP3/3P1R2/P6P/4bQPK/2r5 b - - 5 31,c1c2 f4f8 g8h7 f8e8 c7d7 f2f8 d7e8 f8e8,2749,109,88,222,advantage clearance endgame veryLong,https://lichess.org/kLHvrAAk/black#62,
+rKowd,8/5p2/4p2p/1p2P1p1/pK1P4/P3kP2/6PP/8 b - - 3 35,e3d4 b4b5 d4e5 b5a4 e5d4 a4b3,2739,108,87,536,advantage defensiveMove endgame long pawnEndgame,https://lichess.org/AIuVy3Op/black#70,
+D77fs,3r3k/p6p/1p6/2p5/3pq3/2P5/PP1QR1P1/6K1 b - - 1 36,e4d5 d2f4 d4c3 f4f6 h8g8 e2e3 d5d1 g1h2 d1h5 e3h3 d8f8 f6c3,2763,94,69,65,advantage endgame master veryLong,https://lichess.org/Tnkelszk/black#72,
+uji54,7R/4k3/1p4P1/5B2/2ppPp2/1n3P2/1P2K3/6r1 w - - 5 42,h8b8 d4d3 e2f2 b3c5 e4e5 d3d2 f5c2 g1g6 f2e2 g6g2,2814,109,88,1346,advancedPawn crushing endgame veryLong,https://lichess.org/nsZeC5kd#83,
+BEq1a,4r1k1/2p2pp1/3pqb1p/8/Q3P3/3P2R1/6PP/B6K b - - 8 28,d6d5 a1f6 e8b8 f6d4 b8b1 d4g1,2752,109,90,887,advantage endgame long pin,https://lichess.org/kpnWqB2q/black#56,
+fHrAG,1r6/2p4r/1p2Q1pk/p1q1p3/2PpPpPP/3P1P2/4K1B1/1R6 b - - 2 46,h7g7 g4g5 h6h7 h4h5 g6h5 e6h6 h7g8 g2h3,2751,89,95,285,advantage defensiveMove endgame veryLong,https://lichess.org/Hzql15S3/black#92,
+nclPS,2k3rr/p4p2/2pqb3/3p1Pp1/2pP3p/2P1P1P1/P3B1P1/1R2QRK1 b - - 0 21,h4g3 f5e6 h8h4 e2g4,2792,115,90,1751,advantage defensiveMove master middlegame sacrifice short,https://lichess.org/rbsqtNk1/black#42,
+iMQxr,r4b1r/pp3kp1/2b1p2p/2p1PP1Q/3pN3/3P4/qP1B2PP/n3R1K1 b - - 1 17,f7g8 e4f6 g7f6 h5g6 f8g7 e5f6 h8h7 f6f7,2741,88,94,254,advancedPawn advantage intermezzo kingsideAttack middlegame sacrifice veryLong,https://lichess.org/TLquI2CD/black#34,Scandinavian_Defense Scandinavian_Defense_Other_variations
+aWR5C,8/8/Bp1n4/3pk3/1P6/3P4/3K4/8 w - - 10 54,d2c3 b6b5 c3d2 e5d4 d2e2 d4c3 e2e3 d5d4,2750,113,88,206,crushing endgame quietMove veryLong zugzwang,https://lichess.org/y97MWH3Z#107,
+aIhVd,r6r/4pkb1/1q4p1/1pp4P/1p2pBQ1/P3P3/2P2P2/3RK2R b K - 1 19,b4a3 d1d6 b6d6 f4d6 h8h5 h1g1,2774,111,84,191,crushing defensiveMove long middlegame,https://lichess.org/eBIcCqeK/black#38,East_Indian_Defense East_Indian_Defense_Other_variations
+bHLqA,8/7p/5p2/2P1pP1P/1P1bP3/3k1P2/6r1/1K1B3R w - - 1 42,c5c6 g2b2 b1c1 b2a2 d1e2 d3c3,2786,123,90,761,crushing endgame long quietMove,https://lichess.org/To5MMzF8#83,
