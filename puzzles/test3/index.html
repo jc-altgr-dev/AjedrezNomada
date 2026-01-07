@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chess Training - Analytics Pro</title>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); }
+        body { font-family: 'Outfit', sans-serif; background-color: #f1f5f9; padding: var(--safe-top) 1rem var(--safe-bottom); user-select: none; }
+        
+        #myBoard { width: 100%; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2); }
+        .highlight-sq { box-shadow: inset 0 0 3px 5px #fbbf24 !important; }
+        
+        /* Estilos Dashboard */
+        .stat-card { background: white; padding: 1rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; }
+        .report-gif { width: 80px; height: 80px; border-radius: 10px; border: 2px solid #f1f5f9; cursor: pointer; transition: transform 0.2s; }
+        .report-gif:hover { transform: scale(1.05); }
+        
+        /* Ocultar barra de scroll pero permitir funcionamiento */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <div id="app" class="w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[80vh] flex flex-col">
+        
+        <div class="p-6 bg-slate-900 text-white flex justify-between items-center">
+            <div>
+                <h1 id="main-title" class="text-xl font-extrabold tracking-tight">Chess Training</h1>
+                <p id="sub-title" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Selecciona Nivel</p>
+            </div>
+            <div id="game-timer" class="hidden text-2xl font-mono font-bold text-amber-400">00:00</div>
+        </div>
+
+        <div id="screen-levels" class="p-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
+            </div>
+
+        <div id="screen-game" class="hidden p-4 md:p-8 flex-1">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <div class="w-full lg:w-[55%]">
+                    <div id="myBoard"></div>
+                </div>
+
+                <div class="w-full lg:w-[45%] flex flex-col justify-between">
+                    <div id="feedback-box" class="p-8 rounded-[2rem] border-2 border-slate-100 bg-slate-50 text-center flex flex-col items-center justify-center min-h-[150px]">
+                        <p id="feedback-msg" class="text-lg font-bold text-slate-700 leading-tight">Analiza la posición y encuentra el mejor movimiento.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-6">
+                        <div class="stat-card text-center">
+                            <span class="text-[10px] font-black text-slate-400 uppercase">Intentos</span>
+                            <p id="ui-attempts" class="text-2xl font-black text-slate-800">1</p>
+                        </div>
+                        <div class="stat-card text-center">
+                            <span class="text-[10px] font-black text-slate-400 uppercase">Progreso</span>
+                            <p id="ui-steps" class="text-2xl font-black text-indigo-600">0/0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-report" class="hidden p-6 overflow-y-auto no-scrollbar">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="stat-card">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Tiempo Total</span>
+                    <p id="res-total-time" class="text-xl font-black text-slate-800">00:00</p>
+                </div>
+                <div class="stat-card">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Efectividad</span>
+                    <p id="res-accuracy" class="text-xl font-black text-green-600">0%</p>
+                </div>
+                <div class="stat-card">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Promedio/Ej</span>
+                    <p id="res-avg" class="text-xl font-black text-indigo-600">0s</p>
+                </div>
+                <div class="stat-card">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">A la primera</span>
+                    <p id="res-perfect" class="text-xl font-black text-amber-500">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-[2rem] border border-slate-100 mb-8 h-[250px]">
+                <canvas id="timeChart"></canvas>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="filter-failed" onchange="renderReportList()" class="w-4 h-4">
+                    <label for="filter-failed" class="text-xs font-bold text-slate-600 uppercase">Fallidos (>1 int)</label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="filter-slow" onchange="renderReportList()" class="w-4 h-4">
+                    <label for="filter-slow" class="text-xs font-bold text-slate-600 uppercase">Lentos</label>
+                    <input type="number" id="slow-limit" value="20" onchange="renderReportList()" class="w-12 text-center text-xs font-bold border rounded p-1">
+                    <span class="text-[10px] font-bold text-slate-400">s</span>
+                </div>
+            </div>
+
+            <div id="report-list" class="space-y-3">
+                </div>
+
+            <button onclick="location.reload()" class="w-full mt-10 bg-slate-900 text-white py-5 rounded-3xl font-black text-lg shadow-xl mb-4">Nueva Sesión</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <script>
+        const levels = [
+            { id: "A1", color: "bg-green-100 text-green-700" },
+            { id: "A2", color: "bg-blue-100 text-blue-700" },
+            { id: "B1", color: "bg-orange-100 text-orange-700" },
+            { id: "B2", color: "bg-purple-100 text-purple-700" },
+            { id: "C1", color: "bg-red-100 text-red-700" },
+            { id: "C2", color: "bg-indigo-100 text-indigo-700" },
+            { id: "Insane", color: "bg-indigo-100 text-indigo-700" }
+        ];
+
+        let board, game = new Chess();
+        let puzzles = [], currentIdx = 0, moves = [], step = 0;
+        let timerStart, timerInt, stats = [], sessionTime = 0;
+        let puzzleAttempts = 1, sourceSq = null;
+
+        function init() {
+            const grid = document.getElementById('screen-levels');
+            levels.forEach(lvl => {
+                grid.innerHTML += `<button onclick="startLevel('${lvl.id}')" class="${lvl.color} p-10 rounded-[2.5rem] font-black text-3xl shadow-sm hover:scale-95 transition-all active:scale-90">${lvl.id}</button>`;
+            });
+        }
+
+        function startLevel(id) {
+            document.getElementById('screen-levels').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('game-timer').classList.remove('hidden');
+            document.getElementById('sub-title').innerText = `Nivel ${id}`;
+            
+            Papa.parse(`${id}/puzzles_selected_${id}.csv`, {
+                download: true, header: true, skipEmptyLines: true,
+                complete: (res) => { puzzles = res.data.filter(p => p.FEN); loadPuzzle(); }
+            });
+        }
+
+        function loadPuzzle() {
+            const p = puzzles[currentIdx];
+            game.load(p.FEN);
+            moves = p.Moves.split(' ');
+            step = 0; puzzleAttempts = 1;
+            
+            const introMove = moves.shift();
+            game.move(introMove, {sloppy: true});
+            
+            board = ChessBoard('myBoard', {
+                draggable: true,
+                onDrop: handleMove,
+                onSnapEnd: () => board.position(game.fen()),
+                pieceTheme: (p) => `img/${p}.png`
+            });
+
+            board.orientation(game.turn() === 'w' ? 'white' : 'black');
+            board.position(game.fen());
+            
+            updateUI();
+            startPuzzleTimer();
+            setFeedback("Tu turno. Busca la mejor respuesta.", "info");
+
+            // Reforzar Tap-Tap en móvil eliminando retraso de 300ms
+            $('.square-55d63').on('touchstart mousedown', function(e) {
+                e.preventDefault();
+                handleTap($(this).data('square'));
+            });
+        }
+
+        function handleTap(sq) {
+            if (sourceSq === sq) { removeHighlights(); sourceSq = null; return; }
+            const piece = game.get(sq);
+            if (piece && piece.color === game.turn()) {
+                removeHighlights();
+                sourceSq = sq;
+                $(`.square-${sq}`).addClass('highlight-sq');
+            } else if (sourceSq) {
+                const moveResult = handleMove(sourceSq, sq);
+                if (moveResult !== 'snapback') board.position(game.fen());
+                removeHighlights();
+                sourceSq = null;
+            }
+        }
+
+        function handleMove(src, tgt) {
+            const uci = src + tgt;
+            const valid = moves[step];
+            const move = game.move({ from: src, to: tgt, promotion: 'q' });
+
+            if (!move) return 'snapback';
+
+            if (uci === valid || (uci + 'q') === valid) {
+                step++;
+                if (step < moves.length) {
+                    setTimeout(() => {
+                        game.move(moves[step], {sloppy: true});
+                        step++;
+                        board.position(game.fen());
+                        updateUI();
+                    }, 400);
+                } else {
+                    finishPuzzle(true);
+                }
+            } else {
+                game.undo();
+                puzzleAttempts++;
+                document.getElementById('ui-attempts').innerText = puzzleAttempts;
+                setFeedback("No es la jugada correcta. ¡Sigue intentando!", "fail");
+                return 'snapback';
+            }
+        }
+
+        function finishPuzzle(success) {
+            const timeElapsed = Math.floor((Date.now() - timerStart) / 1000);
+            sessionTime += timeElapsed;
+            
+            stats.push({
+                id: puzzles[currentIdx].PuzzleId,
+                fen: puzzles[currentIdx].FEN,
+                time: timeElapsed,
+                attempts: puzzleAttempts,
+                lastMove: moves[moves.length-1] || moves[0],
+                orientation: board.orientation(),
+                success: success
+            });
+
+            setFeedback(success ? "¡Perfecto! Analizando siguiente..." : "A por el próximo...", "info");
+            
+            setTimeout(() => {
+                currentIdx++;
+                currentIdx < puzzles.length ? loadPuzzle() : showDashboard();
+            }, 1200);
+        }
+
+        function startPuzzleTimer() {
+            clearInterval(timerInt);
+            timerStart = Date.now();
+            timerInt = setInterval(() => {
+                const s = Math.floor((Date.now() - timerStart) / 1000);
+                document.getElementById('game-timer').innerText = new Date(s * 1000).toISOString().substr(14, 5);
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('ui-attempts').innerText = puzzleAttempts;
+            document.getElementById('ui-steps').innerText = `${Math.ceil(step/2)} / ${Math.ceil(moves.length/2)}`;
+        }
+
+        function setFeedback(m, t) {
+            const b = document.getElementById('feedback-box');
+            document.getElementById('feedback-msg').innerText = m;
+            b.className = `p-8 rounded-[2.5rem] border-2 text-center flex flex-col items-center justify-center min-h-[150px] transition-all ${t==='fail'?'border-red-100 bg-red-50 text-red-600':'border-slate-100 bg-slate-50 text-slate-700'}`;
+        }
+
+        function removeHighlights() { $('.square-55d63').removeClass('highlight-sq'); }
+        function skipPuzzle() { finishPuzzle(false); }
+
+        // --- DASHBOARD ---
+        function showDashboard() {
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-report').classList.remove('hidden');
+            document.getElementById('game-timer').classList.add('hidden');
+            document.getElementById('sub-title').innerText = "Dashboard de Sesión";
+
+            const perfects = stats.filter(s => s.attempts === 1).length;
+            const avgTime = Math.round(stats.reduce((a,b) => a + b.time, 0) / stats.length);
+
+            document.getElementById('res-total-time').innerText = new Date(sessionTime * 1000).toISOString().substr(14, 5);
+            document.getElementById('res-accuracy').innerText = Math.round((perfects/stats.length)*100) + "%";
+            document.getElementById('res-avg').innerText = avgTime + "s";
+            document.getElementById('res-perfect').innerText = perfects;
+
+            renderChart();
+            renderReportList();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: stats.map((_, i) => i + 1),
+                    datasets: [{
+                        label: 'Segundos',
+                        data: stats.map(s => s.time),
+                        backgroundColor: stats.map(s => s.attempts > 1 ? '#fecaca' : '#c7d2fe'),
+                        borderRadius: 10
+                    }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function renderReportList() {
+            const list = document.getElementById('report-list');
+            const onlyFailed = document.getElementById('filter-failed').checked;
+            const onlySlow = document.getElementById('filter-slow').checked;
+            const slowLimit = parseInt(document.getElementById('slow-limit').value);
+
+            list.innerHTML = "";
+            
+            stats.forEach((s, i) => {
+                const isFailed = s.attempts > 1;
+                const isSlow = s.time > slowLimit;
+
+                if (onlyFailed && !isFailed) return;
+                if (onlySlow && !isSlow) return;
+
+                const gif = `https://lichess1.org/export/fen.gif?fen=${encodeURIComponent(s.fen)}&color=${s.orientation}&lastMove=${s.lastMove}&variant=standard&theme=newspaper&piece=cardinal`;
+                
+                list.innerHTML += `
+                    <div class="stat-card flex items-center justify-between p-4">
+                        <div class="flex items-center gap-4">
+                            <a href="https://lichess.org/training/${s.id}" target="_blank">
+                                <img src="${gif}" class="report-gif shadow-sm">
+                            </a>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full ${isFailed ? 'bg-red-500' : 'bg-green-500'}"></span>
+                                    <p class="font-black text-slate-800">Puzzle #${i+1}</p>
+                                </div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${s.time}s • ${s.attempts} intentos</p>
+                            </div>
+                        </div>
+                        <div class="text-xl">${isFailed ? '❌' : '✅'}</div>
+                    </div>`;
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
