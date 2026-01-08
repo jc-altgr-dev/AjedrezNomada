@@ -1,11 +1,11 @@
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-rKowd,8/5p2/4p2p/1p2P1p1/pK1P4/P3kP2/6PP/8 b - - 3 35,e3d4 b4b5 d4e5 b5a4 e5d4 a4b3,2739,108,87,536,advantage defensiveMove endgame long pawnEndgame,https://lichess.org/AIuVy3Op/black#70,
-D77fs,3r3k/p6p/1p6/2p5/3pq3/2P5/PP1QR1P1/6K1 b - - 1 36,e4d5 d2f4 d4c3 f4f6 h8g8 e2e3 d5d1 g1h2 d1h5 e3h3 d8f8 f6c3,2763,94,69,65,advantage endgame master veryLong,https://lichess.org/Tnkelszk/black#72,
-uji54,7R/4k3/1p4P1/5B2/2ppPp2/1n3P2/1P2K3/6r1 w - - 5 42,h8b8 d4d3 e2f2 b3c5 e4e5 d3d2 f5c2 g1g6 f2e2 g6g2,2814,109,88,1346,advancedPawn crushing endgame veryLong,https://lichess.org/nsZeC5kd#83,
-BEq1a,4r1k1/2p2pp1/3pqb1p/8/Q3P3/3P2R1/6PP/B6K b - - 8 28,d6d5 a1f6 e8b8 f6d4 b8b1 d4g1,2752,109,90,887,advantage endgame long pin,https://lichess.org/kpnWqB2q/black#56,
-fHrAG,1r6/2p4r/1p2Q1pk/p1q1p3/2PpPpPP/3P1P2/4K1B1/1R6 b - - 2 46,h7g7 g4g5 h6h7 h4h5 g6h5 e6h6 h7g8 g2h3,2751,89,95,285,advantage defensiveMove endgame veryLong,https://lichess.org/Hzql15S3/black#92,
-nclPS,2k3rr/p4p2/2pqb3/3p1Pp1/2pP3p/2P1P1P1/P3B1P1/1R2QRK1 b - - 0 21,h4g3 f5e6 h8h4 e2g4,2792,115,90,1751,advantage defensiveMove master middlegame sacrifice short,https://lichess.org/rbsqtNk1/black#42,
-iMQxr,r4b1r/pp3kp1/2b1p2p/2p1PP1Q/3pN3/3P4/qP1B2PP/n3R1K1 b - - 1 17,f7g8 e4f6 g7f6 h5g6 f8g7 e5f6 h8h7 f6f7,2741,88,94,254,advancedPawn advantage intermezzo kingsideAttack middlegame sacrifice veryLong,https://lichess.org/TLquI2CD/black#34,Scandinavian_Defense Scandinavian_Defense_Other_variations
-aWR5C,8/8/Bp1n4/3pk3/1P6/3P4/3K4/8 w - - 10 54,d2c3 b6b5 c3d2 e5d4 d2e2 d4c3 e2e3 d5d4,2750,113,88,206,crushing endgame quietMove veryLong zugzwang,https://lichess.org/y97MWH3Z#107,
-aIhVd,r6r/4pkb1/1q4p1/1pp4P/1p2pBQ1/P3P3/2P2P2/3RK2R b K - 1 19,b4a3 d1d6 b6d6 f4d6 h8h5 h1g1,2774,111,84,191,crushing defensiveMove long middlegame,https://lichess.org/eBIcCqeK/black#38,East_Indian_Defense East_Indian_Defense_Other_variations
-bHLqA,8/7p/5p2/2P1pP1P/1P1bP3/3k1P2/6r1/1K1B3R w - - 1 42,c5c6 g2b2 b1c1 b2a2 d1e2 d3c3,2786,123,90,761,crushing endgame long quietMove,https://lichess.org/To5MMzF8#83,
+67ytl,8/p1RP1pnk/1q4pp/2Q5/1p3P2/6P1/PP1r2KP/2R5 w - - 3 36,g2h3 b6e6 f4f5 e6e2 f5g6 h7g6,2748,107,87,789,advantage endgame long master,https://lichess.org/qwvD8QVz#71,
+K5DI1,8/2Qb1rkp/2p3p1/2P1p1q1/P7/4P3/4BPPP/5RK1 w - - 3 31,a4a5 d7g4 h2h4 f7c7 h4g5 g4e2,2726,89,85,189,advantage discoveredAttack endgame long,https://lichess.org/dWRgSQiq#61,
+sPZRx,2k4r/ppp3pp/7r/7q/3P1Pp1/2N5/PPP3P1/R2Q1RK1 w - - 1 17,c3e2 h5h2 g1f2 h6h3 a2a4 h3f3 f2e1 h2g2,2744,105,90,891,clearance crushing deflection kingsideAttack middlegame pin quietMove veryLong,https://lichess.org/5eeyehl5#33,Scandinavian_Defense Scandinavian_Defense_Modern_Variation
+oxHCY,6r1/1q1k4/2n1p3/3pPrPQ/8/B6P/6P1/2R4K b - - 0 32,f5g5 h5f7 d7c8 f7e6 c8b8 c1a1 g8d8 a3d6,2788,115,89,1908,advantage deflection middlegame quietMove veryLong,https://lichess.org/3kIid77n/black#64,
+yrQuL,r4r2/1b1p1p2/ppn2k2/4Pq2/P7/1NP3QR/2P3PP/R5K1 b - - 0 23,f6e6 a1f1 f8g8 h3h6 e6e7 f1f5 g8g3 h2g3,2712,106,91,982,crushing exposedKing middlegame veryLong,https://lichess.org/mFtDvvlo/black#46,
+AcHgA,r4B1k/3b4/2p1pR2/pp2P2q/2pPQPrn/P1P5/2K5/7R b - - 13 33,g4g2 c2c1 g2e2 h1h4 h5h4 e4e2 a8f8 f6f8,2753,87,87,206,crushing defensiveMove deflection middlegame pin veryLong,https://lichess.org/T0e6c8Do/black#66,
+bxaWL,2r5/5k2/3P1p2/3K1Ppp/1B6/1p6/1P5P/8 b - - 2 39,f7e8 d5e6 c8c6 b4e1 c6c5 d6d7 e8d8 e6d6 c5b5 d6c6 b5f5 e1c3,2843,113,84,856,advancedPawn crushing endgame exposedKing quietMove veryLong,https://lichess.org/rASTBFpa/black#78,
+oAfNC,r1b3k1/3p1ppp/3Q1n2/p3N3/4PK2/1pqB1P1P/2n3P1/3R3R w - - 0 24,d3c4 c3e3 f4f5 c8b7,2752,119,88,376,advantage middlegame short,https://lichess.org/fBiWb4Up#47,
+S7yl9,r5r1/p3q1p1/1n1k1b2/2pPp3/8/3QB1R1/PP4PP/5R1K b - - 2 28,e5e4 d3b5 a8c8 b2b4,2776,108,80,356,advantage master middlegame short,https://lichess.org/u1i4GXgR/black#56,
+6iMvw,2kr1r2/ppp3Q1/2q2p1p/n7/5P2/3B3P/PPP3P1/4RR1K w - - 0 20,e1e7 f8g8 f1d1 d8f8 e7f7 f8e8,2776,107,90,111,advantage clearance defensiveMove long middlegame quietMove,https://lichess.org/7XXV7Isn#39,
