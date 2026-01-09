@@ -3,149 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chess Memory Pro - Elite</title>
+    <title>Chess Training Pro - Insane Edition</title>
     
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { 
-            --safe-top: env(safe-area-inset-top, 20px); 
-            --safe-bottom: env(safe-area-inset-bottom, 20px); 
-        }
+        :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); }
+        body { font-family: 'Outfit', sans-serif; background-color: #f1f5f9; padding: var(--safe-top) 0.5rem var(--safe-bottom); user-select: none; }
         
-        body { 
-            font-family: 'Quicksand', sans-serif; 
-            background-color: #f8fafc; 
-            padding: var(--safe-top) 1rem var(--safe-bottom); 
-            user-select: none; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        #myBoard { width: 100%; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3); }
+        .highlight-sq { box-shadow: inset 0 0 3px 5px #fbbf24 !important; }
         
-        #myBoard { 
-            width: 100%; 
-            border-radius: 1.5rem; 
-            overflow: hidden; 
-            touch-action: none; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
+        .stat-card { background: white; padding: 1rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; }
+        .report-gif { width: 75px; height: 75px; border-radius: 10px; border: 2px solid #f1f5f9; }
         
-        /* Modo Ciego: Desenfoque controlado */
-        .blind-active { 
-            filter: blur(12px) opacity(0.4) !important; 
-            pointer-events: none !important; 
-            transition: all 0.5s ease; 
-        }
-        
-        /* Resalte para Tap-Tap */
-        .highlight-sq { 
-            box-shadow: inset 0 0 5px 5px gold !important; 
-        }
-        
-        /* Evitar menús contextuales en móvil */
-        img { -webkit-touch-callout: none; pointer-events: none; }
-        .chessboard-63f28 img { pointer-events: auto; }
-
-        .report-gif { 
-            width: 90px; 
-            height: 90px; 
-            border-radius: 12px; 
-            border: 2px solid #e2e8f0; 
-            background: #fff; 
+        /* Ajuste para rejilla de niveles */
+        .level-btn {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 80px; padding: 1rem; border-radius: 1.5rem;
+            font-weight: 800; transition: all 0.2s; text-align: center;
+            line-height: 1; overflow: hidden; word-break: break-word;
         }
 
-        .btn-lvl {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .btn-lvl:active { transform: scale(0.9); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center">
+<body class="min-h-screen flex flex-col items-center">
 
-    <div id="app" class="w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden border-4 border-white">
+    <div id="app" class="w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[85vh] flex flex-col">
         
-        <div id="screen-levels" class="p-8 text-center">
-            <h1 class="text-3xl font-black text-slate-800 mb-2">Chess Memory</h1>
-            <p class="text-slate-400 mb-8 italic">Entrena tu visión de Gran Maestro</p>
-            <div id="level-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                </div>
+        <div class="p-5 bg-slate-900 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-extrabold tracking-tight leading-none">Chess Training</h1>
+                <p id="sub-title" class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Selecciona Nivel</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="game-timer" class="hidden text-xl font-mono font-bold text-amber-400">00:00</div>
+                <button id="btn-skip" onclick="skipPuzzle()" class="hidden bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter transition-colors">Saltar</button>
+            </div>
         </div>
 
-        <div id="screen-mode" class="hidden p-8 text-center">
-            <h2 class="text-xl font-bold mb-8">¿Cómo quieres entrenar hoy?</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button onclick="setMode('normal')" class="p-8 rounded-[2.5rem] bg-indigo-50 border-4 border-indigo-100 hover:bg-indigo-100">
-                    <span class="text-4xl block mb-2">👁️</span>
-                    <span class="font-bold text-indigo-700 text-xl">Modo Normal</span>
-                    <p class="text-xs text-indigo-400 mt-2">Tablero siempre visible.<br>Entrenamiento de cálculo.</p>
-                </button>
-                <button onclick="setMode('blind')" class="p-8 rounded-[2.5rem] bg-slate-900 border-4 border-slate-700 hover:bg-slate-800 transition-all">
-                    <span class="text-4xl block mb-2">🙈</span>
-                    <span class="font-bold text-white text-xl">Modo Ciego</span>
-                    <p class="text-xs text-slate-400 mt-2">Memoriza y resuelve.<br>Máximo 5 pistas.</p>
-                </button>
-            </div>
-            <button onclick="location.reload()" class="mt-8 text-slate-400 underline font-bold">Volver atrás</button>
-        </div>
-
-        <div id="screen-game" class="hidden p-4 md:p-8">
-            <div class="flex justify-between items-center mb-4">
-                <div class="leading-tight">
-                    <h2 id="tag-lvl" class="text-2xl font-black text-slate-800 uppercase">A1</h2>
-                    <p id="tag-mode" class="text-[10px] font-bold text-indigo-500 tracking-widest uppercase"></p>
-                </div>
-                <div class="text-right">
-                    <div id="timer" class="text-3xl font-mono font-bold text-slate-600">00:00</div>
-                    <button onclick="skipPuzzle()" class="text-[10px] font-black text-slate-400 uppercase underline">Saltar Ejercicio</button>
-                </div>
+        <div id="screen-levels" class="p-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-8">
-                <div class="w-full lg:w-3/5">
+        <div id="screen-game" class="hidden p-4 flex-1">
+            <div class="flex flex-col lg:row gap-6">
+                <div class="w-full lg:w-[55%] mx-auto">
                     <div id="myBoard"></div>
-                    <div id="mem-container" class="w-full h-3 bg-slate-100 mt-6 rounded-full overflow-hidden">
-                        <div id="visibility-bar" class="h-full bg-indigo-500 w-full transition-all"></div>
-                    </div>
                 </div>
 
-                <div class="w-full lg:w-2/5 flex flex-col justify-between">
-                    <div>
-                        <button id="btn-reveal" onclick="triggerReveal()" class="hidden w-full mb-4 bg-amber-400 text-amber-900 py-5 rounded-[1.5rem] font-black shadow-lg disabled:opacity-30">
-                            MOSTRAR Y RESPONDER (<span id="reveal-count">5</span>)
-                        </button>
-                        
-                        <div id="feedback-box" class="p-6 rounded-[2rem] border-2 text-sm font-bold min-h-[100px] flex items-center justify-center text-center transition-all duration-300">
-                            <span id="feedback-msg">Preparando piezas...</span>
-                        </div>
+                <div class="w-full lg:w-[45%] flex flex-col justify-between">
+                    <div id="feedback-box" class="p-6 rounded-[2rem] border-2 border-slate-100 bg-slate-50 text-center flex items-center justify-center min-h-[120px]">
+                        <p id="feedback-msg" class="text-base font-bold text-slate-700 leading-snug">Analiza y encuentra la mejor jugada.</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 mt-6">
-                        <div class="bg-slate-50 p-4 rounded-2xl text-center border">
-                            <span class="text-[9px] font-black text-slate-400 block uppercase">Fallos</span>
-                            <span id="ui-fails" class="text-xl font-black text-red-500">0</span>
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <div class="stat-card text-center py-3">
+                            <span class="text-[9px] font-black text-slate-400 uppercase">Intentos</span>
+                            <p id="ui-attempts" class="text-xl font-black text-slate-800">1</p>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl text-center border">
-                            <span class="text-[9px] font-black text-slate-400 block uppercase">Progreso</span>
-                            <span id="ui-steps" class="text-xl font-black text-indigo-600">0/0</span>
+                        <div class="stat-card text-center py-3">
+                            <span class="text-[9px] font-black text-slate-400 uppercase">Progreso</span>
+                            <p id="ui-steps" class="text-xl font-black text-indigo-600">0/0</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="screen-report" class="hidden p-6 md:p-10">
-            <h2 class="text-3xl font-black text-center mb-2 text-slate-800">¡Sesión Terminada!</h2>
-            <p class="text-center text-slate-400 text-sm mb-8 font-bold">Aquí tienes tu progreso de hoy:</p>
-            
-            <div class="max-h-[450px] overflow-y-auto rounded-[2rem] border border-slate-100 shadow-inner mb-6">
-                <table class="w-full text-sm">
-                    <tbody id="report-body" class="divide-y divide-slate-50">
-                        </tbody>
-                </table>
+        <div id="screen-report" class="hidden p-6 overflow-y-auto no-scrollbar">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                <div class="stat-card p-3">
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">Tiempo Total</span>
+                    <p id="res-total-time" class="text-lg font-black text-slate-800">00:00</p>
+                </div>
+                <div class="stat-card p-3">
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">A la primera</span>
+                    <p id="res-perfect" class="text-lg font-black text-amber-500">0</p>
+                </div>
+                <div class="stat-card p-3">
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">Promedio</span>
+                    <p id="res-avg" class="text-lg font-black text-indigo-600">0s</p>
+                </div>
+                <div class="stat-card p-3">
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">Efectividad</span>
+                    <p id="res-accuracy" class="text-lg font-black text-green-600">0%</p>
+                </div>
             </div>
-            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-lg shadow-xl">Finalizar Entrenamiento</button>
+
+            <div class="bg-white p-2 rounded-[1.5rem] border border-slate-100 mb-6 h-[200px]">
+                <canvas id="timeChart"></canvas>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="flex items-center gap-2"><input type="checkbox" id="filter-failed" onchange="renderReportList()"><label class="text-[10px] font-bold text-slate-600 uppercase">Fallidos</label></div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="filter-slow" onchange="renderReportList()"><label class="text-[10px] font-bold text-slate-600 uppercase">Lentos</label>
+                    <input type="number" id="slow-limit" value="20" onchange="renderReportList()" class="w-8 text-[10px] font-bold border rounded p-1">
+                </div>
+            </div>
+
+            <div id="report-list" class="space-y-2"></div>
+            <button onclick="location.reload()" class="w-full mt-6 bg-slate-900 text-white py-4 rounded-2xl font-black shadow-xl">Reiniciar</button>
         </div>
     </div>
 
@@ -154,266 +117,232 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <script>
-        // CONFIGURACIÓN
-        const MEM_TIME = 25; 
         const levels = [
-            { id: "A1", color: "bg-green-100 text-green-700 border-green-300" },
-            { id: "A2", color: "bg-blue-100 text-blue-700 border-blue-300" },
-            { id: "B1", color: "bg-orange-100 text-orange-700 border-orange-300" },
-            { id: "B2", color: "bg-purple-100 text-purple-700 border-purple-300" },
-            { id: "C1", color: "bg-red-100 text-red-700 border-red-300" },
-            { id: "C2", color: "bg-indigo-100 text-indigo-700 border-indigo-300" },
-            { id: "Insane", color: "bg-indigo-100 text-indigo-700 border-indigo-300" }
+            { id: "A1", color: "bg-green-100 text-green-700 border-green-200" },
+            { id: "A2", color: "bg-blue-100 text-blue-700 border-blue-200" },
+            { id: "B1", color: "bg-orange-100 text-orange-700 border-orange-200" },
+            { id: "B2", color: "bg-purple-100 text-purple-700 border-purple-200" },
+            { id: "C1", color: "bg-red-100 text-red-700 border-red-200" },
+            { id: "C2", color: "bg-indigo-100 text-indigo-700 border-indigo-200" },
+            { id: "Insane", color: "bg-slate-800 text-slate-100 border-slate-900" }
         ];
 
         let board, game = new Chess();
         let puzzles = [], currentIdx = 0, moves = [], step = 0;
-        let mode = 'normal', isHidden = false, selectedFolder = "";
-        let timerStart, timerInt, fails = 0, stats = [], lastOppMove = "", revealsLeft = 5;
-        let sourceSq = null;
+        let timerStart, timerInt, stats = [], sessionTime = 0;
+        let puzzleAttempts = 1, sourceSq = null;
 
         function init() {
-            const grid = document.getElementById('level-grid');
+            const grid = document.getElementById('screen-levels');
             levels.forEach(lvl => {
-                grid.innerHTML += `
-                    <button onclick="pickLevel('${lvl.id}')" 
-                        class="${lvl.color} btn-lvl border-2 p-8 rounded-[2rem] font-black text-2xl shadow-sm">
-                        ${lvl.id}
-                    </button>`;
+                grid.innerHTML += `<button onclick="startLevel('${lvl.id}')" class="${lvl.color} level-btn shadow-sm text-lg sm:text-2xl">${lvl.id}</button>`;
             });
         }
 
-        function pickLevel(id) {
-            selectedFolder = id;
+        function startLevel(id) {
             document.getElementById('screen-levels').classList.add('hidden');
-            document.getElementById('screen-mode').classList.remove('hidden');
-        }
-
-        function setMode(m) {
-            mode = m;
-            document.getElementById('screen-mode').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
-            document.getElementById('tag-lvl').innerText = selectedFolder;
-            document.getElementById('tag-mode').innerText = mode === 'blind' ? 'Modo Ciego 🔥' : 'Modo Normal 🧠';
+            document.getElementById('game-timer').classList.remove('hidden');
+            document.getElementById('btn-skip').classList.remove('hidden');
+            document.getElementById('sub-title').innerText = `Entrenando Nivel ${id}`;
             
-            if(mode === 'blind') document.getElementById('btn-reveal').classList.remove('hidden');
-
-            Papa.parse(`${selectedFolder}/puzzles_selected_${selectedFolder}.csv`, {
+            Papa.parse(`${id}/puzzles_selected_${id}.csv`, {
                 download: true, header: true, skipEmptyLines: true,
                 complete: (res) => { 
                     puzzles = res.data.filter(p => p.FEN); 
-                    startSession(); 
+                    if(puzzles.length === 0) { alert("Error: No se encontraron ejercicios en este nivel."); location.reload(); }
+                    loadPuzzle(); 
                 }
             });
-        }
-
-        function startSession() {
-            board = ChessBoard('myBoard', {
-                draggable: true,
-                onDrop: handleDrag,
-                onSnapEnd: () => board.position(game.fen()),
-                pieceTheme: (p) => `img/${p}.png`
-            });
-
-            // Tap-Tap Handler (Click/Touch instantáneo)
-            $(document).on('touchstart mousedown', '.square-55d63', function(e) {
-                const sq = $(this).data('square');
-                handleTap(sq);
-            });
-
-            loadPuzzle();
         }
 
         function loadPuzzle() {
             const p = puzzles[currentIdx];
             game.load(p.FEN);
             moves = p.Moves.split(' ');
-            step = 0; fails = 0; revealsLeft = 5;
-            document.getElementById('reveal-count').innerText = revealsLeft;
-
-            lastOppMove = moves.shift();
-            game.move(lastOppMove, {sloppy: true});
+            step = 0; puzzleAttempts = 1;
             
+            const introMove = moves.shift();
+            game.move(introMove, {sloppy: true});
+            
+            board = ChessBoard('myBoard', {
+                draggable: true,
+                onDrop: handleMove,
+                onSnapEnd: () => board.position(game.fen()),
+                pieceTheme: (p) => `img/${p}.png`
+            });
+
             board.orientation(game.turn() === 'w' ? 'white' : 'black');
             board.position(game.fen());
-            updateUI();
-
-            if(mode === 'blind') {
-                document.getElementById('mem-container').classList.remove('hidden');
-                startMemoryPhase();
-            } else {
-                document.getElementById('mem-container').classList.add('hidden');
-                document.getElementById('myBoard').classList.remove('blind-active');
-                document.getElementById('btn-reveal').disabled = true;
-                isHidden = false;
-                setFeedback("Busca el mejor movimiento.", "info");
-            }
-            startTimer();
-        }
-
-        function startMemoryPhase() {
-            const bar = document.getElementById('visibility-bar');
-            const boardEl = document.getElementById('myBoard');
-            isHidden = false;
-            boardEl.classList.remove('blind-active');
-            document.getElementById('btn-reveal').disabled = true;
             
-            setFeedback(`Memoriza la posición...`, "info");
-            bar.style.transition = 'none'; bar.style.width = '100%';
+            updateUI();
+            startPuzzleTimer();
+            setFeedback("Tu turno. Encuentra la jugada ganadora.", "info");
 
-            setTimeout(() => {
-                bar.style.transition = `width ${MEM_TIME}s linear`;
-                bar.style.width = '0%';
-            }, 100);
-
-            setTimeout(() => {
-                boardEl.classList.add('blind-active');
-                isHidden = true;
-                document.getElementById('btn-reveal').disabled = false;
-                setFeedback("¡Modo Ciego activado!", "info");
-            }, MEM_TIME * 1000);
+            $('.square-55d63').on('touchstart mousedown', function(e) {
+                e.preventDefault();
+                handleTap($(this).data('square'));
+            });
         }
 
         function handleTap(sq) {
-            if (mode === 'blind' && isHidden) return;
             if (sourceSq === sq) { removeHighlights(); sourceSq = null; return; }
-
             const piece = game.get(sq);
             if (piece && piece.color === game.turn()) {
-                removeHighlights(); 
+                removeHighlights();
                 sourceSq = sq;
                 $(`.square-${sq}`).addClass('highlight-sq');
             } else if (sourceSq) {
-                executeMove(sourceSq, sq);
-                removeHighlights(); 
+                const moveResult = handleMove(sourceSq, sq);
+                if (moveResult !== 'snapback') board.position(game.fen());
+                removeHighlights();
                 sourceSq = null;
             }
         }
 
-        function handleDrag(src, tgt) {
-            if (mode === 'blind' && isHidden) return 'snapback';
-            const res = executeMove(src, tgt);
-            return res ? undefined : 'snapback';
-        }
-
-        function executeMove(src, tgt) {
-            const moveUCI = src + tgt;
+        function handleMove(src, tgt) {
+            const uci = src + tgt;
             const valid = moves[step];
+            
+            // Intentar el movimiento
             const move = game.move({ from: src, to: tgt, promotion: 'q' });
+            if (!move) return 'snapback';
 
-            if (!move) return false;
+            // REGLA DE ORO: Si es mate, es correcto siempre.
+            const leadsToCheckmate = game.in_checkmate();
+            const isExpected = (uci === valid || (uci + 'q') === valid);
 
-            if (moveUCI === valid || (moveUCI + 'q') === valid) {
+            if (isExpected || leadsToCheckmate) {
                 step++;
-                board.position(game.fen());
+                // Si es mate pero no era la jugada esperada, terminamos el puzzle igual
+                if (leadsToCheckmate) {
+                    finishPuzzle(true);
+                    return;
+                }
+                
                 if (step < moves.length) {
-                    setFeedback("¡Bien! Sigue...", "info");
                     setTimeout(() => {
                         game.move(moves[step], {sloppy: true});
                         step++;
                         board.position(game.fen());
                         updateUI();
-                        if(isHidden) document.getElementById('myBoard').classList.add('blind-active');
-                    }, 500);
+                    }, 400);
                 } else {
                     finishPuzzle(true);
                 }
-                return true;
             } else {
-                game.undo(); 
-                fails++;
-                document.getElementById('ui-fails').innerText = fails;
-                setFeedback("Casi, intenta otra vez.", "fail");
-                return false;
+                game.undo();
+                puzzleAttempts++;
+                document.getElementById('ui-attempts').innerText = puzzleAttempts;
+                setFeedback("No es la mejor jugada. ¡Busca otra opción!", "fail");
+                return 'snapback';
             }
-        }
-
-        function triggerReveal() {
-            if (revealsLeft <= 0) return;
-            revealsLeft--;
-            document.getElementById('reveal-count').innerText = revealsLeft;
-            
-            const b = document.getElementById('myBoard');
-            b.classList.remove('blind-active');
-            isHidden = false;
-            document.getElementById('btn-reveal').disabled = true;
-            
-            setTimeout(() => {
-                if (mode === 'blind' && step < moves.length) {
-                    b.classList.add('blind-active');
-                    isHidden = true;
-                    document.getElementById('btn-reveal').disabled = false;
-                    if (revealsLeft === 0 && isHidden) {
-                        setFeedback("Lo intentaremos más tarde.", "fail");
-                        setTimeout(() => skipPuzzle(), 2000);
-                    }
-                }
-            }, 2000);
         }
 
         function finishPuzzle(success) {
             clearInterval(timerInt);
+            const timeElapsed = Math.floor((Date.now() - timerStart) / 1000);
+            sessionTime += timeElapsed;
+            
             stats.push({
-                fen: puzzles[currentIdx].FEN, id: puzzles[currentIdx].PuzzleId,
-                fails: fails, time: document.getElementById('timer').innerText,
-                lastMove: lastOppMove, orientation: board.orientation(), success: success
+                id: puzzles[currentIdx].PuzzleId,
+                fen: puzzles[currentIdx].FEN,
+                time: timeElapsed,
+                attempts: puzzleAttempts,
+                lastMove: moves[moves.length-1] || moves[0],
+                orientation: board.orientation(),
+                success: success
             });
 
-            document.getElementById('myBoard').classList.remove('blind-active');
-            setFeedback(success ? "¡Excelente trabajo!" : "A por el siguiente...", success ? "info" : "fail");
+            setFeedback(success ? "¡Excelente!" : "Saltado.", success ? "info" : "fail");
             
-            // AUTO-AVANCE tras 1.0 segundos
             setTimeout(() => {
                 currentIdx++;
-                currentIdx < puzzles.length ? loadPuzzle() : showReport();
-            }, 1000);
+                currentIdx < puzzles.length ? loadPuzzle() : showDashboard();
+            }, 1200);
         }
 
-        function skipPuzzle() { finishPuzzle(false); }
-
-        function startTimer() {
+        function startPuzzleTimer() {
             clearInterval(timerInt);
             timerStart = Date.now();
             timerInt = setInterval(() => {
                 const s = Math.floor((Date.now() - timerStart) / 1000);
-                document.getElementById('timer').innerText = new Date(s * 1000).toISOString().substr(14, 5);
+                document.getElementById('game-timer').innerText = new Date(s * 1000).toISOString().substr(14, 5);
             }, 1000);
         }
 
         function updateUI() {
+            document.getElementById('ui-attempts').innerText = puzzleAttempts;
             document.getElementById('ui-steps').innerText = `${Math.ceil(step/2)} / ${Math.ceil(moves.length/2)}`;
         }
 
         function setFeedback(m, t) {
             const b = document.getElementById('feedback-box');
             document.getElementById('feedback-msg').innerText = m;
-            b.className = `p-6 rounded-[2rem] border-2 text-sm font-bold min-h-[100px] flex items-center justify-center text-center transition-all ${t==='fail'?'border-red-100 bg-red-50 text-red-600':'border-indigo-100 bg-indigo-50 text-indigo-700'}`;
+            b.className = `p-6 rounded-[2rem] border-2 text-center flex items-center justify-center min-h-[120px] transition-all ${t==='fail'?'border-red-100 bg-red-50 text-red-600':'border-slate-100 bg-slate-50 text-slate-700'}`;
         }
 
         function removeHighlights() { $('.square-55d63').removeClass('highlight-sq'); }
+        function skipPuzzle() { finishPuzzle(false); }
 
-        function showReport() {
+        function showDashboard() {
             document.getElementById('screen-game').classList.add('hidden');
             document.getElementById('screen-report').classList.remove('hidden');
-            const b = document.getElementById('report-body');
-            b.innerHTML = "";
+            document.getElementById('game-timer').classList.add('hidden');
+            document.getElementById('btn-skip').classList.add('hidden');
 
+            const perfects = stats.filter(s => s.attempts === 1 && s.success).length;
+            const avgTime = Math.round(stats.reduce((a,b) => a + b.time, 0) / stats.length);
+
+            document.getElementById('res-total-time').innerText = new Date(sessionTime * 1000).toISOString().substr(14, 5);
+            document.getElementById('res-accuracy').innerText = Math.round((perfects/stats.length)*100) + "%";
+            document.getElementById('res-avg').innerText = avgTime + "s";
+            document.getElementById('res-perfect').innerText = perfects;
+
+            renderChart();
+            renderReportList();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: stats.map((_, i) => i + 1),
+                    datasets: [{
+                        label: 'Segundos',
+                        data: stats.map(s => s.time),
+                        backgroundColor: stats.map(s => !s.success ? '#94a3b8' : (s.attempts > 1 ? '#fecaca' : '#c7d2fe')),
+                        borderRadius: 8
+                    }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function renderReportList() {
+            const list = document.getElementById('report-list');
+            const onlyFailed = document.getElementById('filter-failed').checked;
+            const onlySlow = document.getElementById('filter-slow').checked;
+            const slowLimit = parseInt(document.getElementById('slow-limit').value);
+            list.innerHTML = "";
+            
             stats.forEach((s, i) => {
-                const gifUrl = `https://lichess1.org/export/fen.gif?fen=${encodeURIComponent(s.fen)}&color=${s.orientation}&lastMove=${s.lastMove}&variant=standard&theme=newspaper&piece=cardinal`;
-                
-                b.innerHTML += `
-                    <tr class="p-4 flex items-center justify-between">
-                        <td class="flex items-center gap-4">
-                            <img src="${gifUrl}" class="report-gif" alt="Tablero">
+                if (onlyFailed && s.attempts <= 1) return;
+                if (onlySlow && s.time <= slowLimit) return;
+
+                const gif = `https://lichess1.org/export/fen.gif?fen=${encodeURIComponent(s.fen)}&color=${s.orientation}&lastMove=${s.lastMove}&variant=standard&theme=newspaper&piece=cardinal`;
+                list.innerHTML += `
+                    <div class="stat-card flex items-center justify-between p-3">
+                        <div class="flex items-center gap-3">
+                            <a href="https://lichess.org/training/${s.id}" target="_blank"><img src="${gif}" class="report-gif"></a>
                             <div>
-                                <p class="font-black text-slate-800">Ejercicio #${i+1} ${s.success ? '✅' : '❌'}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${s.time} | ${s.fails} Fallos</p>
+                                <p class="font-black text-slate-800 text-sm">#${i+1}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${s.time}s • ${s.attempts} Int</p>
                             </div>
-                        </td>
-                        <td>
-                            <a href="https://lichess.org/training/${s.id}" target="_blank" class="bg-indigo-600 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-md">Revisar</a>
-                        </td>
-                    </tr>`;
+                        </div>
+                        <div class="text-lg">${!s.success ? '⏭️' : (s.attempts > 1 ? '❌' : '✅')}</div>
+                    </div>`;
             });
         }
 
