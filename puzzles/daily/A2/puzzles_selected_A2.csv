@@ -1,11 +1,11 @@
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-odtiF,3rr3/pb5k/1p2pppp/3qP3/P2N1P2/2P1Q1R1/1P4PP/R5K1 w - - 0 26,g3h3 d5g2,803,82,86,281,kingsideAttack master mate mateIn1 middlegame oneMove,https://lichess.org/Hvaj7U4v#51,
-QU8SZ,rr4k1/1p3p1Q/2q1nBp1/p1p1P3/P1PpR3/3P3P/2P3P1/5RK1 b - - 0 33,g8h7 e4h4 h7g8 h4h8,834,139,82,7,master mate mateIn2 middlegame operaMate short,https://lichess.org/RjdcHIbw/black#66,
-R1SXX,4rrk1/ppq3b1/2p2p2/5Qpp/2P3n1/2N1B3/PP3PPP/3R1RK1 w - - 2 23,d1d7 c7h2,845,126,100,17,kingsideAttack mate mateIn1 middlegame oneMove,https://lichess.org/7PyFh7Fi#45,
-HLIlI,6k1/pp3r2/3p4/1PbN1Pn1/8/7P/5PK1/5R2 b - - 0 33,f7f5 d5e7 g8f7 e7f5,765,78,100,300,advantage endgame fork short,https://lichess.org/qAfVqhJO/black#66,
-C0lLG,r4rk1/pbqp2p1/1p2p2p/2pP1n2/2P1N1n1/2PB4/P1Q2PPP/1RB2RK1 w - - 1 18,h2h3 c7h2,829,82,73,184,mate mateIn1 middlegame oneMove,https://lichess.org/E3A1t71j#35,Nimzo-Indian_Defense Nimzo-Indian_Defense_Classical_Variation
-lsUkw,8/2R1k3/4B1p1/3Pp2p/4P2P/4r3/r1p1N3/4K3 b - - 5 41,e7f6 c7f7,735,100,76,50,endgame mate mateIn1 oneMove operaMate,https://lichess.org/t9pzsMld/black#82,
-h06Yw,8/3rb1k1/1pp3p1/5qp1/5p2/2P4Q/PP3PPP/3R2K1 w - - 0 32,d1d7 f5b1 d7d1 b1d1,868,102,92,1345,backRankMate endgame mate mateIn2 short,https://lichess.org/HF0owe5f#63,
-eDVwx,4kb2/5p2/4pK1P/pn1pP3/1p1P2N1/1P2P3/P7/8 b - - 0 48,f8h6 g4h6 b5c3 h6f7,898,104,91,1581,attackingF2F7 crushing endgame hangingPiece short,https://lichess.org/xoWTOz6l/black#96,
-9DUNu,1k3r2/1p4R1/4pbp1/pPPp4/3P4/P5P1/1K6/5R2 w - - 0 34,g7g6 f6d4 b2c2 f8f1,813,83,65,101,endgame,https://lichess.org/HtnypZPe#67,
-zn8yo,1R3bk1/4pp1p/6p1/p7/P7/2q1BNP1/5P1P/6K1 b - - 0 25,g8g7 e3d4 c3d4 f3d4,852,96,94,719,advantage endgame fork short,https://lichess.org/6Xy6VN4j/black#50,
+9nzdI,r3kbnr/ppp1qppp/2n5/5b2/2Pp4/1P1P1PP1/PB2Q2P/RN2KBNR b KQkq - 0 9,f5d3 e2e7 g8e7 f1d3,748,93,88,506,advantage discoveredAttack opening short,https://lichess.org/VMy7e5ei/black#18,Hungarian_Opening Hungarian_Opening_Other_variations
+KthzM,r3r1k1/ppp3p1/2bq4/4R2Q/5pP1/2PP1P2/PP5P/4R1K1 b - - 12 27,d6d3 e5e8 c6e8 e1e8 a8e8 h5e8,868,80,88,159,crushing kingsideAttack long middlegame,https://lichess.org/311oIXnI/black#54,
+tM1kI,4r1k1/p5p1/2p4p/3q4/4N1Q1/2B1K3/1P4P1/8 b - - 1 33,c6c5 g4g7,896,77,82,130,endgame master masterVsMaster mate mateIn1 oneMove,https://lichess.org/PNkILJ3r/black#66,
+v8Vyf,8/3K2k1/r2PPbp1/pp5p/8/7B/P7/8 b - - 3 44,g7f8 e6e7 f6e7 d6e7 f8g7 e7e8q,812,113,93,754,advancedPawn crushing endgame exposedKing long promotion,https://lichess.org/DoSKwCpF/black#88,
+EZah3,8/8/7P/8/8/1p4PK/1kq3Q1/8 b - - 0 83,c2g2 h3g2 b2a2 h6h7,759,79,95,150,advancedPawn crushing endgame short,https://lichess.org/ve4uTuX7/black#166,
+1Lwag,4q3/5p1p/kr3Pp1/pp1Q4/8/PP5P/5KP1/8 b - - 0 51,e8e6 d5a8,855,83,100,59,endgame mate mateIn1 oneMove,https://lichess.org/x8bqNn7f/black#102,
+pNxNR,2kr2n1/pp1n1q1r/2pb1ppp/Q2p4/N2Pp1PP/4B3/PPP1NP2/1K1R3R b - - 1 17,c8b8 a5d8,732,81,85,193,hangingPiece master mate mateIn1 middlegame oneMove queensideAttack,https://lichess.org/59Jfqx3c/black#34,Caro-Kann_Defense Caro-Kann_Defense_Advance_Variation
+m9Eya,2b3k1/5ppp/3p1q1N/2p5/1pP1P1Q1/1PbPB2P/6P1/6K1 b - - 6 32,g8f8 g4c8 f6d8 c8d8,812,95,100,42,endgame hangingPiece mate mateIn2 short,https://lichess.org/pBtPQE6K/black#64,
+eZSDY,r6k/p4p1p/1p1R1p2/1Pp2N2/P3b3/4P3/5PrP/3R1K2 b - - 1 30,g2h2 d6d8 a8d8 d1d8,795,81,100,69,endgame mate mateIn2 short,https://lichess.org/jbQaoX63/black#60,
+eYV0N,r1bnr1k1/1p3p1p/2pb2p1/p7/P2BR3/6Q1/6PP/5R1K b - - 0 30,d6g3 e4e8,756,95,94,118,hangingPiece master mate mateIn1 middlegame oneMove pillsburysMate,https://lichess.org/9eX4AqJY/black#60,
