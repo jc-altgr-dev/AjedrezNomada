@@ -1,11 +1,11 @@
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-9nzdI,r3kbnr/ppp1qppp/2n5/5b2/2Pp4/1P1P1PP1/PB2Q2P/RN2KBNR b KQkq - 0 9,f5d3 e2e7 g8e7 f1d3,748,93,88,506,advantage discoveredAttack opening short,https://lichess.org/VMy7e5ei/black#18,Hungarian_Opening Hungarian_Opening_Other_variations
-KthzM,r3r1k1/ppp3p1/2bq4/4R2Q/5pP1/2PP1P2/PP5P/4R1K1 b - - 12 27,d6d3 e5e8 c6e8 e1e8 a8e8 h5e8,868,80,88,159,crushing kingsideAttack long middlegame,https://lichess.org/311oIXnI/black#54,
-tM1kI,4r1k1/p5p1/2p4p/3q4/4N1Q1/2B1K3/1P4P1/8 b - - 1 33,c6c5 g4g7,896,77,82,130,endgame master masterVsMaster mate mateIn1 oneMove,https://lichess.org/PNkILJ3r/black#66,
-v8Vyf,8/3K2k1/r2PPbp1/pp5p/8/7B/P7/8 b - - 3 44,g7f8 e6e7 f6e7 d6e7 f8g7 e7e8q,812,113,93,754,advancedPawn crushing endgame exposedKing long promotion,https://lichess.org/DoSKwCpF/black#88,
-EZah3,8/8/7P/8/8/1p4PK/1kq3Q1/8 b - - 0 83,c2g2 h3g2 b2a2 h6h7,759,79,95,150,advancedPawn crushing endgame short,https://lichess.org/ve4uTuX7/black#166,
-1Lwag,4q3/5p1p/kr3Pp1/pp1Q4/8/PP5P/5KP1/8 b - - 0 51,e8e6 d5a8,855,83,100,59,endgame mate mateIn1 oneMove,https://lichess.org/x8bqNn7f/black#102,
-pNxNR,2kr2n1/pp1n1q1r/2pb1ppp/Q2p4/N2Pp1PP/4B3/PPP1NP2/1K1R3R b - - 1 17,c8b8 a5d8,732,81,85,193,hangingPiece master mate mateIn1 middlegame oneMove queensideAttack,https://lichess.org/59Jfqx3c/black#34,Caro-Kann_Defense Caro-Kann_Defense_Advance_Variation
-m9Eya,2b3k1/5ppp/3p1q1N/2p5/1pP1P1Q1/1PbPB2P/6P1/6K1 b - - 6 32,g8f8 g4c8 f6d8 c8d8,812,95,100,42,endgame hangingPiece mate mateIn2 short,https://lichess.org/pBtPQE6K/black#64,
-eZSDY,r6k/p4p1p/1p1R1p2/1Pp2N2/P3b3/4P3/5PrP/3R1K2 b - - 1 30,g2h2 d6d8 a8d8 d1d8,795,81,100,69,endgame mate mateIn2 short,https://lichess.org/jbQaoX63/black#60,
-eYV0N,r1bnr1k1/1p3p1p/2pb2p1/p7/P2BR3/6Q1/6PP/5R1K b - - 0 30,d6g3 e4e8,756,95,94,118,hangingPiece master mate mateIn1 middlegame oneMove pillsburysMate,https://lichess.org/9eX4AqJY/black#60,
+uSiOL,2r5/1B2rpb1/1p1k1q1p/2p1pPp1/PpPpQ1P1/1P1K1P1P/4R3/7R b - - 14 38,c8c7 e4d5,806,86,92,296,mate mateIn1 middlegame oneMove,https://lichess.org/ATGWwnH1/black#76,
+yqibQ,7k/6p1/2B4p/p4p2/P4P2/1r3P2/5PK1/8 b - - 0 39,h8g8 c6d5 g8f8 d5b3,714,81,79,227,advantage endgame fork short,https://lichess.org/sSKR6SMa/black#78,
+aMI64,r2qk1nr/ppp2pbp/2n3p1/4P3/6b1/4PN2/PPPNB1PP/R1BQK2R b KQkq - 2 8,c6e5 f3e5 g7e5 e2g4,900,86,91,1567,advantage capturingDefender discoveredAttack opening short,https://lichess.org/aIityvaE/black#16,Modern_Defense Modern_Defense_Other_variations
+lqYLR,r1b1qrk1/ppp2p1p/5P2/5PQ1/2pP1n2/8/PPP2P1P/R4RK1 b - - 2 18,g8h8 g5g7,838,107,100,36,mate mateIn1 middlegame oneMove,https://lichess.org/igCLbmUF/black#36,Four_Knights_Game Four_Knights_Game_Halloween_Gambit
+MrWj2,3b4/5ppk/p6p/5N2/2p5/2P3B1/Pr3PPP/3R2K1 w - - 0 29,d1d8 b2b1 d8d1 b1d1,861,120,0,17,backRankMate endgame mate mateIn2 short,https://lichess.org/KvJxJ1aL#57,
+eoqYb,6k1/1r3p1p/4pPp1/3p4/3P4/RP3N1P/4bPP1/6K1 b - - 0 31,e2f3 a3a8 b7b8 a8b8,719,111,94,464,endgame mate mateIn2 short,https://lichess.org/swt03yKZ/black#62,
+nbNiH,2r2rk1/pp3ppp/1q2p3/4nbNQ/3P4/1NP5/PP4PP/R4RK1 b - - 1 18,e5g6 h5h7,717,80,100,145,kingsideAttack mate mateIn1 middlegame oneMove,https://lichess.org/MVTNLCR7/black#36,Queens_Pawn_Game Queens_Pawn_Game_Other_variations
+NOqKE,2r5/p2n1p1k/5Pp1/1p5p/3PN2P/1Pr5/PK1R4/6R1 b - - 5 29,c3h3 e4g5 h7g8 g5h3,824,97,90,439,crushing endgame fork short,https://lichess.org/llkpET8m/black#58,
+5dlZu,rr4k1/p1p2ppp/2Q5/3P4/3P4/1P2P3/P2KBn1q/R7 b - - 3 23,b8b6 c6a8 b6b8 a8b8,853,103,93,1721,backRankMate hangingPiece mate mateIn2 middlegame short,https://lichess.org/ewyFfjWp/black#46,
+haaem,5rk1/pp4p1/3q4/2p5/2P2Pp1/2B2RQ1/PP6/6K1 b - - 0 28,g4f3 g3g7,803,101,96,247,endgame mate mateIn1 oneMove,https://lichess.org/9J7qU6Kv/black#56,
