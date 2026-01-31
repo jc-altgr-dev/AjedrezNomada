@@ -2,14 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Chess Simple</title>
+    <title>Chess Trainer - Modo Simple</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        #board { width: 400px; }
-        .controls { width: 400px; margin-top: 15px; text-align: center; }
-        .nav { display: flex; justify-content: space-between; margin: 10px 0; }
-        .search { margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; background: #2c3e50; color: white; padding: 20px; }
+        #board { width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .controls { width: 400px; margin-top: 20px; background: #34495e; padding: 20px; border-radius: 8px; text-align: center; }
+        .nav { display: flex; justify-content: space-between; margin: 15px 0; }
+        .status-msg { margin: 10px 0; min-height: 1.2em; color: #f1c40f; font-weight: bold; }
+        button { padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; background: #27ae60; color: white; font-weight: bold; }
+        button:hover { background: #2ecc71; }
+        input { padding: 7px; border-radius: 4px; border: none; width: 60px; }
+        .search { margin-top: 15px; border-top: 1px solid #5d6d7e; padding-top: 15px; }
     </style>
 </head>
 <body>
@@ -17,29 +21,23 @@
     <div id="board"></div>
 
     <div class="controls">
-        <div id="status"><b>Cargando...</b></div>
+        <div id="problem-title" style="font-size: 1.2em; margin-bottom: 5px;"></div>
+        <div id="status" class="status-msg">Tu turno</div>
         
         <div class="nav">
             <button onclick="changeProb(-1)">◀ Anterior</button>
             <button onclick="changeProb(1)">Siguiente ▶</button>
         </div>
 
-        <div>
-            <label>Piezas:</label>
-            <select id="pieceStyle" onchange="render()">
-                <option value="local">Locales (Carpeta img)</option>
-                <option value="wikipedia">Wikipedia (Online)</option>
-            </select>
-        </div>
-
         <div class="search">
-            <input type="number" id="searchId" placeholder="ID...">
-            <button onclick="search()">Buscar ID</button>
+            <input type="number" id="searchId" placeholder="ID">
+            <button onclick="search()">Buscar Problema</button>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
     <script>
         const data = { "problems": [
@@ -53,37 +51,89 @@
 
         let index = 0;
         let board = null;
+        let game = new Chess();
+        let solutionMoves = [];
+        let currentMoveIndex = 0;
 
-        function getStyle(piece) {
-            if (document.getElementById('pieceStyle').value === 'wikipedia') {
-                const wiki = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
-                return 'https://upload.wikimedia.org/wikipedia/commons/' + wiki[piece];
+        function getWikiPiece(piece) {
+            const wiki = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
+            return 'https://upload.wikimedia.org/wikipedia/commons/' + wiki[piece];
+        }
+
+        function onDragStart(source, piece) {
+            if (game.game_over()) return false;
+            // Solo permitir mover las piezas del color que toca
+            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+                return false;
             }
-            return 'img/chesspieces/wikipedia/' + piece + '.png'; 
+        }
+
+        function onDrop(source, target) {
+            const moveStr = `${source}-${target}`;
+            const expectedMove = solutionMoves[currentMoveIndex];
+
+            // Validar si es el movimiento correcto según el JSON
+            if (moveStr !== expectedMove) {
+                document.getElementById('status').innerText = "¡Movimiento incorrecto! Intenta de nuevo.";
+                return 'snapback';
+            }
+
+            // Ejecutar movimiento en la lógica
+            game.move({ from: source, to: target, promotion: 'q' });
+            currentMoveIndex++;
+            document.getElementById('status').innerText = "¡Correcto!";
+
+            // Si quedan movimientos (respuesta de la máquina)
+            if (currentMoveIndex < solutionMoves.length) {
+                setTimeout(makeReplyMove, 500);
+            } else {
+                document.getElementById('status').innerText = "¡Excelente! Problema resuelto.";
+                setTimeout(() => changeProb(1), 1500);
+            }
+        }
+
+        function makeReplyMove() {
+            const moveParts = solutionMoves[currentMoveIndex].split('-');
+            game.move({ from: moveParts[0], to: moveParts[1], promotion: 'q' });
+            board.position(game.fen());
+            currentMoveIndex++;
         }
 
         function render() {
             const p = data.problems[index];
-            document.getElementById('status').innerHTML = `<b>ID: ${p.problemid}</b><br>${p.type}`;
+            game.load(p.fen);
+            solutionMoves = p.moves.split(';');
+            currentMoveIndex = 0;
+
+            document.getElementById('problem-title').innerText = `Problema #${p.problemid} (${p.type})`;
+            document.getElementById('status').innerText = "Tu turno: " + p.first;
             
             if (board) board.destroy();
             board = Chessboard('board', {
                 position: p.fen,
                 draggable: true,
-                pieceTheme: getStyle,
-                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black'
+                pieceTheme: getWikiPiece,
+                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black',
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                onSnapEnd: () => board.position(game.fen())
             });
         }
 
         function changeProb(d) {
-            index = Math.max(0, Math.min(data.problems.length - 1, index + d));
-            render();
+            let nextIdx = index + d;
+            if (nextIdx >= 0 && nextIdx < data.problems.length) {
+                index = nextIdx;
+                render();
+            }
         }
 
         function search() {
             const id = parseInt(document.getElementById('searchId').value);
             const found = data.problems.findIndex(p => p.problemid === id);
             if (found !== -1) { index = found; render(); }
+            else { alert("ID no encontrado"); }
         }
 
         render();
