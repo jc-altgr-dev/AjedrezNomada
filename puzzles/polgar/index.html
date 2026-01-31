@@ -3,42 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chess Trainer Final</title>
+    <title>Chess Trainer - Edición Libro</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
         body { 
-            font-family: sans-serif; display: flex; flex-direction: column; align-items: center; 
+            font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; 
             background: #2c3e50; color: white; margin: 0; padding: 10px;
             touch-action: manipulation;
         }
-        #board { 
-            width: 90vw; max-width: 400px; 
-            touch-action: none; 
+        #board { width: 92vw; max-width: 400px; touch-action: none; margin-bottom: 10px; }
+        .info-box { 
+            width: 92vw; max-width: 400px; background: #34495e; padding: 15px; 
+            border-radius: 8px; text-align: center; box-sizing: border-box; border-bottom: 4px solid #27ae60;
         }
-        .controls { width: 90vw; max-width: 400px; margin-top: 15px; background: #34495e; padding: 15px; border-radius: 8px; text-align: center; box-sizing: border-box; }
-        .nav { display: flex; justify-content: space-between; margin: 15px 0; gap: 10px; }
+        .book-section { color: #bdc3c7; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .exercise-title { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; color: #f1c40f; }
+        .turn-msg { font-size: 1em; margin-bottom: 15px; background: #2c3e50; padding: 5px; border-radius: 4px; }
+        
+        .nav-buttons { display: flex; justify-content: space-between; gap: 10px; }
         button { flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 4px; background: #27ae60; color: white; font-weight: bold; font-size: 16px; }
-        input { padding: 10px; border-radius: 4px; border: none; width: 80px; text-align: center; font-size: 16px; color: black;}
-        .status-msg { margin-bottom: 10px; font-weight: bold; color: #f1c40f; min-height: 1.2em; }
-        /* Resaltado de casilla seleccionada */
-        .highlight { box-shadow: inset 0 0 3px 3px #f1c40f !important; }
+        button:active { background: #1e8449; }
+        
+        .search-area { margin-top: 15px; padding-top: 15px; border-top: 1px solid #5d6d7e; display: flex; gap: 8px; justify-content: center; }
+        input { padding: 10px; border-radius: 4px; border: none; width: 70px; text-align: center; font-size: 16px; }
+
+        /* Resaltado para el Tap */
+        .highlight-tap { box-shadow: inset 0 0 3px 3px #f1c40f !important; }
     </style>
 </head>
 <body>
 
     <div id="board"></div>
 
-    <div class="controls">
-        <div id="status" class="status-msg">Cargando...</div>
+    <div class="info-box">
+        <div id="book-section" class="book-section">Cargando...</div>
+        <div id="exercise-title" class="exercise-title">Ejercicio #--</div>
+        <div id="status" class="turn-msg">Esperando...</div>
         
-        <div class="nav">
-            <button onclick="changeProb(-1)">◀ Ant.</button>
-            <button onclick="changeProb(1)">Sig. ▶</button>
+        <div class="nav-buttons">
+            <button onclick="changeProb(-1)">◀ ANTERIOR</button>
+            <button onclick="changeProb(1)">SIGUIENTE ▶</button>
         </div>
 
-        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; border-top: 1px solid #555; padding-top: 15px;">
-            <input type="number" id="searchId" placeholder="ID">
-            <button onclick="search()" style="flex: none;">Buscar</button>
+        <div class="search-area">
+            <input type="number" id="searchId" placeholder="ID #">
+            <button onclick="search()" style="flex: none; padding: 10px 20px;">IR</button>
         </div>
     </div>
 
@@ -47,125 +56,126 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
     <script>
-        const data = { "problems": [
-            {"problemid":1,"first":"White to Move","type":"Mate in One","fen":"3q1rk1/5pbp/5Qp1/8/8/2B5/5PPP/6K1 w - - 0 1","moves":"f6-g7"},
-            {"problemid":2,"first":"White to Move","type":"Mate in One","fen":"2r2rk1/2q2p1p/6pQ/4P1N1/8/8/PPP5/2KR4 w - - 0 1","moves":"h6-h7"},
-            {"problemid":3,"first":"White to Move","type":"Mate in One","fen":"r2q1rk1/pp1p1p1p/5PpQ/8/4N3/8/PP3PPP/R5K1 w - - 0 1","moves":"h6-g7"},
-            {"problemid":4460,"first":"Black to Move","type":"Mate in Three","fen":"r1b2r1k/pp4pB/6Q1/3p2N1/2n5/1N2P1P1/PP3q1P/2R4K b - - 0 1","moves":"f2-f1;c1-f1;f8-f1;h1-g2;c4-e3"},
-            {"problemid":4461,"first":"Black to Move","type":"Mate in Three","fen":"6rr/1b2k3/p2pp3/1p2bP1P/6P1/1PNB3K/1PP5/3R1R2 b - - 0 1","moves":"h8-h5;g4-h5;b7-g2;h3-h4;e5-f6"},
-            {"problemid":4462,"first":"Black to Move","type":"Mate in Three","fen":"r1b4k/ppn3pp/8/3p4/P2PP2q/1Q2BP2/NP2nNK1/2R2R2 b - - 0 1","moves":"c8-h3;f2-h3;h4-g3;g2-h1;g3-h3"}
-        ]};
+        // Datos organizados consecutivamente según la imagen del libro
+        const problems = [
+            {"id":1, "cat":"Mate in one", "sub":"Simple", "turn":"White to Move", "fen":"3q1rk1/5pbp/5Qp1/8/8/2B5/5PPP/6K1 w - - 0 1", "moves":"f6-g7"},
+            {"id":2, "cat":"Mate in one", "sub":"Simple", "turn":"White to Move", "fen":"2r2rk1/2q2p1p/6pQ/4P1N1/8/8/PPP5/2KR4 w - - 0 1", "moves":"h6-h7"},
+            {"id":307, "cat":"Mate in two", "sub":"White to move", "turn":"White to Move", "fen":"r2q1rk1/pp1p1p1p/5PpQ/8/4N3/8/PP3PPP/R5K1 w - - 0 1", "moves":"h6-g7"},
+            {"id":451, "cat":"Mate in two", "sub":"Combinations", "turn":"White to Move", "fen":"5r1k/pp4pp/2p5/2Pb4/1P1P4/P5qP/4QRP1/7K w - - 0 1", "moves":"f2-f8;d5-g8;e2-e8"},
+            {"id":4460, "cat":"Mate in three", "sub":"Combinations", "turn":"Black to Move", "fen":"r1b2r1k/pp4pB/6Q1/3p2N1/2n5/1N2P1P1/PP3q1P/2R4K b - - 0 1", "moves":"f2-f1;c1-f1;f8-f1;h1-g2;c4-e3"},
+            {"id":4461, "cat":"Mate in three", "sub":"Combinations", "turn":"Black to Move", "fen":"6rr/1b2k3/p2pp3/1p2bP1P/6P1/1PNB3K/1PP5/3R1R2 b - - 0 1", "moves":"h8-h5;g4-h5;b7-g2;h3-h4;e5-f6"},
+            {"id":4462, "cat":"Mate in three", "sub":"Combinations", "turn":"Black to Move", "fen":"r1b4k/ppn3pp/8/3p4/P2PP2q/1Q2BP2/NP2nNK1/2R2R2 b - - 0 1", "moves":"c8-h3;f2-h3;h4-g3;g2-h1;g3-h3"}
+        ];
 
-        let index = 0;
+        let currentIndex = 0;
         let board = null;
         let game = new Chess();
-        let solutionMoves = [];
-        let currentMoveIndex = 0;
-        let sourceSquare = null;
+        let solution = [];
+        let moveStep = 0;
+        let selectedSquare = null;
 
-        function getWikiPiece(piece) {
-            const wiki = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
-            return 'https://upload.wikimedia.org/wikipedia/commons/' + wiki[piece];
-        }
-
-        // Eliminar resaltados
-        function removeHighlights() {
-            $('#board .square-55d6').removeClass('highlight');
-        }
-
-        // Añadir resaltado
-        function addHighlight(square) {
-            $('#board .square-' + square).addClass('highlight');
+        function getWikiPiece(p) {
+            const map = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
+            return 'https://upload.wikimedia.org/wikipedia/commons/' + map[p];
         }
 
         function onDrop(source, target) {
-            removeHighlights();
-            const moveStr = `${source}-${target}`;
-            const expected = solutionMoves[currentMoveIndex];
-
-            if (moveStr === expected) {
+            const moveTry = `${source}-${target}`;
+            if (moveTry === solution[moveStep]) {
                 game.move({ from: source, to: target, promotion: 'q' });
-                currentMoveIndex++;
-                document.getElementById('status').innerText = "¡Correcto!";
-                
-                if (currentMoveIndex < solutionMoves.length) {
-                    setTimeout(makeReplyMove, 600);
+                moveStep++;
+                updateStatus("¡Correcto!");
+                if (moveStep < solution.length) {
+                    setTimeout(opponentMove, 600);
                 } else {
-                    document.getElementById('status').innerText = "¡Resuelto!";
+                    updateStatus("¡Mate! Siguiente...");
                     setTimeout(() => changeProb(1), 1200);
                 }
             } else {
-                document.getElementById('status').innerText = "Incorrecto, intenta de nuevo";
+                updateStatus("Intenta de nuevo...");
                 return 'snapback';
             }
         }
 
-        // Soporte para clics (Tap-Tap) además de arrastrar
-        function onSquareClick(square) {
-            const piece = game.get(square);
+        function opponentMove() {
+            const [f, t] = solution[moveStep].split('-');
+            game.move({ from: f, to: t, promotion: 'q' });
+            board.position(game.fen());
+            moveStep++;
+        }
 
-            // Si no hay nada seleccionado y toca una pieza de su color
-            if (sourceSquare === null) {
-                if (piece && piece.color === game.turn()) {
-                    sourceSquare = square;
-                    addHighlight(square);
-                }
-            } else {
-                // Si ya había algo seleccionado, intentamos mover
-                const move = onDrop(sourceSquare, square);
-                if (move !== 'snapback') {
+        function handleSquareClick(sq) {
+            const piece = game.get(sq);
+            
+            // Si tocamos la misma casilla, deseleccionamos
+            if (selectedSquare === sq) {
+                clearHighlights();
+                selectedSquare = null;
+                return;
+            }
+
+            // Si hay una pieza del color que mueve, seleccionamos
+            if (piece && piece.color === game.turn()) {
+                clearHighlights();
+                selectedSquare = sq;
+                $(`#board .square-${sq}`).addClass('highlight-tap');
+            } 
+            // Si ya hay algo seleccionado y tocamos otra casilla, intentamos mover
+            else if (selectedSquare) {
+                const moveResult = onDrop(selectedSquare, sq);
+                if (moveResult !== 'snapback') {
                     board.position(game.fen());
                 }
-                sourceSquare = null;
-                removeHighlights();
+                clearHighlights();
+                selectedSquare = null;
             }
         }
 
-        function makeReplyMove() {
-            const [from, to] = solutionMoves[currentMoveIndex].split('-');
-            game.move({ from, to, promotion: 'q' });
-            board.position(game.fen());
-            currentMoveIndex++;
+        function clearHighlights() {
+            $('#board .square-55d6').removeClass('highlight-tap');
+        }
+
+        function updateStatus(msg) {
+            document.getElementById('status').innerText = msg;
         }
 
         function render() {
-            const p = data.problems[index];
+            const p = problems[currentIndex];
             game.load(p.fen);
-            solutionMoves = p.moves.split(';');
-            currentMoveIndex = 0;
-            sourceSquare = null;
+            solution = p.moves.split(';');
+            moveStep = 0;
+            selectedSquare = null;
 
-            document.getElementById('status').innerText = "Mueven " + (p.first.includes('White') ? 'Blancas' : 'Negras');
+            document.getElementById('book-section').innerText = `${p.cat} | ${p.sub}`;
+            document.getElementById('exercise-title').innerText = `Ejercicio #${p.id}`;
+            updateStatus(p.turn);
             
             if (board) board.destroy();
             board = Chessboard('board', {
                 position: p.fen,
                 draggable: true,
                 pieceTheme: getWikiPiece,
-                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black',
+                orientation: p.turn.includes('White') ? 'white' : 'black',
                 onDrop: onDrop,
                 onSnapEnd: () => board.position(game.fen())
             });
 
-            // Vincular evento de clic a las casillas
+            // Re-vincular eventos de click para móvil
             $('#board').on('click', '.square-55d6', function() {
-                const square = $(this).attr('data-square');
-                onSquareClick(square);
+                handleSquareClick($(this).attr('data-square'));
             });
         }
 
         function changeProb(d) {
-            let nextIdx = index + d;
-            if (nextIdx >= 0 && nextIdx < data.problems.length) {
-                index = nextIdx;
-                render();
-            }
+            currentIndex = (currentIndex + d + problems.length) % problems.length;
+            render();
         }
 
         function search() {
             const id = parseInt(document.getElementById('searchId').value);
-            const found = data.problems.findIndex(p => p.problemid === id);
-            if (found !== -1) { index = found; render(); }
+            const idx = problems.findIndex(p => p.id === id);
+            if (idx !== -1) { currentIndex = idx; render(); }
+            else { alert("ID no encontrado en la lista actual"); }
         }
 
         render();
