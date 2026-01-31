@@ -2,326 +2,123 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Polgar Master Pro</title>
-    
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Chess Problems Simple</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    
     <style>
-        :root { --safe-top: env(safe-area-inset-top, 20px); }
-        body { font-family: 'Outfit', sans-serif; background: #f0f2f5; padding-top: var(--safe-top); user-select: none; overflow-x: hidden; }
-        #myBoard { width: 100%; max-width: 500px; margin: 0 auto; border-radius: 0.75rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .vibrant-header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
-        .highlight-sq { box-shadow: inset 0 0 3px 3px #fbbf24 !important; }
-        .level-btn { transition: all 0.2s; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
-        .level-btn:active { transform: scale(0.96); }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f0f0; }
+        #board { width: 400px; margin: 20px 0; }
+        .controls { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 400px; }
+        .nav-buttons { display: flex; justify-content: space-between; margin: 10px 0; }
+        .info { margin-bottom: 10px; font-weight: bold; text-align: center; }
+        select, input, button { padding: 5px; cursor: pointer; }
+        .search-box { margin-top: 10px; display: flex; gap: 5px; border-top: 1px solid #eee; pt: 10px; }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-    <div id="app" class="max-w-4xl mx-auto bg-white min-h-screen shadow-2xl flex flex-col">
+    <div id="board"></div>
+
+    <div class="controls">
+        <div id="problem-info" class="info">Cargando...</div>
         
-        <header class="vibrant-header p-5 text-white shadow-md">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-black italic tracking-tighter">POLGAR MASTER</h1>
-                    <p id="sub-title" class="text-[10px] font-bold opacity-60 uppercase">Libro de los 5334 Problemas</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div id="game-timer" class="hidden bg-white/10 px-3 py-1 rounded-lg font-mono text-sm">00:00</div>
-                    <button id="btn-exit" onclick="showDashboard()" class="hidden bg-red-500 hover:bg-red-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Finalizar</button>
-                </div>
-            </div>
-        </header>
-
-        <div id="screen-levels" class="p-6 flex-1 space-y-6">
-            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Buscador por ID</label>
-                <div class="flex gap-2">
-                    <input type="number" id="search-id" placeholder="Ej: 1500" class="flex-1 p-3 rounded-xl border-2 border-white shadow-sm outline-none focus:border-indigo-500 font-bold">
-                    <button onclick="quickSearch()" class="bg-indigo-600 text-white px-6 rounded-xl font-bold">IR</button>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between px-2">
-                <span class="text-[10px] font-black text-slate-400 uppercase">Estilo de piezas</span>
-                <select id="piece-style" class="text-sm font-bold bg-transparent outline-none cursor-pointer">
-                    <option value="wikipedia">📖 Wikipedia (Estándar)</option>
-                    <option value="local">📁 Local (Carpeta img/)</option>
-                </select>
-            </div>
-
-            <div class="grid grid-cols-1 gap-3">
-                <button onclick="loadPolgarRange(1, 306, 'Mate en 1')" class="level-btn bg-emerald-500 text-white p-5 rounded-2xl text-left">
-                    <span class="text-lg font-black block">Capítulo 1: Mate en 1</span>
-                    <span class="text-xs opacity-80">Problemas 1 - 306</span>
-                </button>
-                <button onclick="loadPolgarRange(307, 3718, 'Mate en 2')" class="level-btn bg-indigo-500 text-white p-5 rounded-2xl text-left">
-                    <span class="text-lg font-black block">Capítulo 2: Mate en 2</span>
-                    <span class="text-xs opacity-80">Problemas 307 - 3718</span>
-                </button>
-                <button onclick="loadPolgarRange(3719, 4462, 'Mate en 3')" class="level-btn bg-fuchsia-500 text-white p-5 rounded-2xl text-left">
-                    <span class="text-lg font-black block">Capítulo 3: Mate en 3</span>
-                    <span class="text-xs opacity-80">Problemas 3719 - 4462</span>
-                </button>
-            </div>
+        <div class="nav-buttons">
+            <button onclick="prevProblem()">◀ Anterior</button>
+            <button onclick="nextProblem()">Siguiente ▶</button>
         </div>
 
-        <div id="screen-game" class="hidden p-4 flex-1 flex flex-col items-center">
-            <div id="myBoard" class="mb-6"></div>
-            
-            <div class="w-full max-w-[500px] space-y-4">
-                <div id="feedback" class="py-4 px-6 bg-slate-100 rounded-2xl text-center font-bold text-slate-600 italic">
-                    Analiza y juega...
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-slate-50 p-3 rounded-xl text-center">
-                        <span class="text-[9px] font-black uppercase text-slate-400">Intentos</span>
-                        <p id="ui-attempts" class="text-xl font-black">1</p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl text-center">
-                        <span class="text-[9px] font-black uppercase text-slate-400">Restantes</span>
-                        <p id="ui-progress" class="text-xl font-black text-indigo-600">0</p>
-                    </div>
-                </div>
-
-                <button onclick="skipPuzzle()" class="w-full py-3 text-slate-400 font-bold text-xs uppercase tracking-widest">Saltar Problema</button>
-            </div>
+        <div style="margin: 10px 0;">
+            <label>Piezas:</label>
+            <select id="pieceStyle" onchange="changeTheme()">
+                <option value="local">Locales (Estándar)</option>
+                <option value="wikipedia">Wikipedia</option>
+            </select>
         </div>
 
-        <div id="screen-report" class="hidden p-6 flex-1 bg-slate-50 overflow-y-auto">
-            <div id="pdf-content" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <h2 class="text-2xl font-black mb-1">Sesión Finalizada</h2>
-                <p id="res-date" class="text-[10px] font-bold text-indigo-500 uppercase mb-6"></p>
-
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-bold text-slate-400 uppercase text-center">Precisión</p>
-                        <p id="res-accuracy" class="text-2xl font-black text-center text-indigo-600">0%</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-bold text-slate-400 uppercase text-center">T. Medio</p>
-                        <p id="res-avg-time" class="text-2xl font-black text-center text-slate-800">0s</p>
-                    </div>
-                </div>
-
-                <div id="report-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
-            </div>
-
-            <div class="flex flex-col gap-2 mt-6">
-                <button onclick="downloadPDF()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black">Descargar Reporte PDF</button>
-                <button onclick="location.reload()" class="w-full py-4 font-bold text-slate-400">Volver al Inicio</button>
-            </div>
+        <div class="search-box">
+            <input type="number" id="searchId" placeholder="ID del problema...">
+            <button onclick="searchById()">Buscar</button>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
     <script>
+        const data = {
+            "problems": [
+                {"problemid":1,"first":"White to Move","type":"Mate in One","fen":"3q1rk1/5pbp/5Qp1/8/8/2B5/5PPP/6K1 w - - 0 1","moves":"f6-g7"},
+                {"problemid":2,"first":"White to Move","type":"Mate in One","fen":"2r2rk1/2q2p1p/6pQ/4P1N1/8/8/PPP5/2KR4 w - - 0 1","moves":"h6-h7"},
+                {"problemid":3,"first":"White to Move","type":"Mate in One","fen":"r2q1rk1/pp1p1p1p/5PpQ/8/4N3/8/PP3PPP/R5K1 w - - 0 1","moves":"h6-g7"},
+                {"problemid":4460,"first":"Black to Move","type":"Mate in Three","fen":"r1b2r1k/pp4pB/6Q1/3p2N1/2n5/1N2P1P1/PP3q1P/2R4K b - - 0 1","moves":"f2-f1;c1-f1;f8-f1;h1-g2;c4-e3"},
+                {"problemid":4461,"first":"Black to Move","type":"Mate in Three","fen":"6rr/1b2k3/p2pp3/1p2bP1P/6P1/1PNB3K/1PP5/3R1R2 b - - 0 1","moves":"h8-h5;g4-h5;b7-g2;h3-h4;e5-f6"},
+                {"problemid":4462,"first":"Black to Move","type":"Mate in Three","fen":"r1b4k/ppn3pp/8/3p4/P2PP2q/1Q2BP2/NP2nNK1/2R2R2 b - - 0 1","moves":"c8-h3;f2-h3;h4-g3;g2-h1;g3-h3"}
+            ]
+        };
+
+        let currentIndex = 0;
         let board = null;
-        let game = new Chess();
-        let puzzles = [], currentIdx = 0, moves = [], step = 0;
-        let timerStart, timerInt, stats = [], sessionStartTime;
-        let puzzleAttempts = 1;
 
-        // --- GESTIÓN DE PIEZAS ---
-        function getPieceTheme(piece) {
-            const style = document.getElementById('piece-style').value;
-            if (style === 'local') return `img/${piece}.png`;
-            return `https://chessboardjs.com/img/chesspieces/wikipedia/${piece}.png`;
-        }
-
-        // --- CARGA DE DATOS ---
-        async function quickSearch() {
-            const id = parseInt(document.getElementById('search-id').value);
-            if(id) loadPolgarRange(id, 4462, `Búsqueda: #${id}`);
-        }
-
-        async function loadPolgarRange(start, end, label) {
-            try {
-                const response = await fetch('puzzles.json');
-                const data = await response.json();
-                const rawList = Array.isArray(data) ? data : (data.problems || []);
-                
-                puzzles = rawList.filter(p => {
-                    const pid = parseInt(p.problemid || p.ID);
-                    return pid >= start && pid <= end;
-                });
-
-                if (puzzles.length === 0) return alert("No se encontraron problemas.");
-
-                document.getElementById('screen-levels').classList.add('hidden');
-                document.getElementById('screen-game').classList.remove('hidden');
-                document.getElementById('btn-exit').classList.remove('hidden');
-                document.getElementById('game-timer').classList.remove('hidden');
-                document.getElementById('sub-title').innerText = label;
-
-                currentIdx = 0;
-                sessionStartTime = Date.now();
-                loadPuzzle();
-            } catch (e) {
-                alert("Error cargando el archivo puzzles.json");
+        // Configuración de temas de piezas
+        function pieceTheme(piece) {
+            const style = document.getElementById('pieceStyle').value;
+            if (style === 'wikipedia') {
+                const map = {
+                    'wP': '0/04', 'wN': '2/28', 'wB': 'b/b8', 'wR': '7/72', 'wQ': '5/59', 'wK': '4/42',
+                    'bP': 'c/c7', 'bN': 'f/f0', 'bB': '9/98', 'bR': 'f/ff', 'bQ': '4/47', 'bK': 'f/f0'
+                };
+                // Nota: Wikipedia usa una estructura de carpetas compleja, esta es la forma simplificada de las URLs comunes:
+                return `https://upload.wikimedia.org/wikipedia/commons/${map[piece]}/${piece}.png`;
             }
+            // Por defecto: Local/Chesboardjs CDN
+            return 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/img/chesspieces/wikipedia/' + piece + '.png';
         }
 
-        function loadPuzzle() {
-            const p = puzzles[currentIdx];
-            game.load(p.FEN || p.fen);
+        function loadProblem(index) {
+            currentIndex = index;
+            const p = data.problems[currentIndex];
             
-            // Limpiar movimientos: quitar guiones y espacios
-            const rawMoves = (p.moves || p.move).replace(/[-\s]/g, '');
-            moves = rawMoves.match(/.{1,4}/g);
-            
-            step = 0;
-            puzzleAttempts = 1;
+            document.getElementById('problem-info').innerText = 
+                `ID: ${p.problemid} - ${p.type} (${p.first})`;
 
-            if (board) board.destroy();
-            
-            board = ChessBoard('myBoard', {
+            const config = {
+                position: p.fen,
                 draggable: true,
-                position: game.fen(),
-                orientation: game.turn() === 'w' ? 'white' : 'black',
-                pieceTheme: getPieceTheme,
-                onDragStart: onDragStart,
-                onDrop: onDrop,
-                onSnapEnd: onSnapEnd
-            });
-
-            updateUI();
-            startTimer();
-            setFeedback("Tu turno", "info");
-        }
-
-        // --- LÓGICA DE MOVIMIENTO (RECUPERADA Y LIMPIA) ---
-        function onDragStart (source, piece, position, orientation) {
-            if (game.game_over()) return false;
-            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-                return false;
-            }
-        }
-
-        function onDrop (source, target) {
-            const moveUCI = source + target;
-            const expectedMove = moves[step];
-
-            // 1. Intentar el movimiento en el motor
-            const move = game.move({
-                from: source,
-                to: target,
-                promotion: 'q' // Simplificamos a dama siempre
-            });
-
-            // 2. Si el movimiento es ilegal según las reglas de ajedrez
-            if (move === null) return 'snapback';
-
-            // 3. Verificar si es el movimiento correcto de la solución de Polgar
-            // (Comparamos los primeros 4 caracteres para ignorar promociones si fuera necesario)
-            if (moveUCI !== expectedMove.substring(0,4) && !game.in_checkmate()) {
-                game.undo();
-                puzzleAttempts++;
-                document.getElementById('ui-attempts').innerText = puzzleAttempts;
-                setFeedback("No es la mejor jugada", "fail");
-                return 'snapback';
-            }
-
-            // 4. Movimiento correcto
-            step++;
+                pieceTheme: pieceTheme
+            };
             
-            if (game.in_checkmate() || step >= moves.length) {
-                completePuzzle(true);
+            if (board) board.destroy();
+            board = Chessboard('board', config);
+            
+            // Orientar el tablero según quién mueve
+            board.orientation(p.first.toLowerCase().includes('white') ? 'white' : 'black');
+        }
+
+        function nextProblem() {
+            if (currentIndex < data.problems.length - 1) loadProblem(currentIndex + 1);
+        }
+
+        function prevProblem() {
+            if (currentIndex > 0) loadProblem(currentIndex - 1);
+        }
+
+        function searchById() {
+            const id = parseInt(document.getElementById('searchId').value);
+            const foundIndex = data.problems.findIndex(p => p.problemid === id);
+            if (foundIndex !== -1) {
+                loadProblem(foundIndex);
             } else {
-                // Respuesta de la "máquina" (siguiente movimiento en el JSON)
-                setTimeout(() => {
-                    game.move(moves[step], {sloppy: true});
-                    step++;
-                    board.position(game.fen());
-                    if (game.in_checkmate()) completePuzzle(true);
-                }, 500);
+                alert("Problema no encontrado");
             }
         }
 
-        function onSnapEnd () {
-            board.position(game.fen());
+        function changeTheme() {
+            loadProblem(currentIndex);
         }
 
-        // --- UTILIDADES ---
-        function completePuzzle(success) {
-            clearInterval(timerInt);
-            const timeTaken = Math.floor((Date.now() - timerStart) / 1000);
-            
-            stats.push({
-                id: puzzles[currentIdx].problemid || puzzles[currentIdx].ID,
-                time: timeTaken,
-                attempts: puzzleAttempts,
-                success: success
-            });
+        // Inicio inicial
+        loadProblem(0);
 
-            setFeedback(success ? "¡Correcto!" : "Saltado", "info");
-            
-            setTimeout(() => {
-                currentIdx++;
-                if (currentIdx < puzzles.length) loadPuzzle();
-                else showDashboard();
-            }, 1000);
-        }
-
-        function startTimer() {
-            clearInterval(timerInt);
-            timerStart = Date.now();
-            timerInt = setInterval(() => {
-                const s = Math.floor((Date.now() - timerStart) / 1000);
-                document.getElementById('game-timer').innerText = new Date(s * 1000).toISOString().substr(14, 5);
-            }, 1000);
-        }
-
-        function updateUI() {
-            document.getElementById('ui-attempts').innerText = puzzleAttempts;
-            document.getElementById('ui-progress').innerText = puzzles.length - currentIdx - 1;
-        }
-
-        function setFeedback(msg, type) {
-            const f = document.getElementById('feedback');
-            f.innerText = msg;
-            f.className = `py-4 px-6 rounded-2xl text-center font-bold italic transition-all ${type==='fail' ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-600'}`;
-        }
-
-        function skipPuzzle() { completePuzzle(false); }
-
-        function showDashboard() {
-            clearInterval(timerInt);
-            document.getElementById('screen-game').classList.add('hidden');
-            document.getElementById('screen-report').classList.remove('hidden');
-            document.getElementById('btn-exit').classList.add('hidden');
-            document.getElementById('game-timer').classList.add('hidden');
-
-            const perfects = stats.filter(s => s.attempts === 1 && s.success).length;
-            const avgTime = stats.length ? Math.round(stats.reduce((a,b)=>a+b.time, 0)/stats.length) : 0;
-
-            document.getElementById('res-date').innerText = new Date().toLocaleDateString();
-            document.getElementById('res-accuracy').innerText = stats.length ? Math.round((perfects/stats.length)*100) + "%" : "0%";
-            document.getElementById('res-avg-time').innerText = avgTime + "s";
-
-            document.getElementById('report-list').innerHTML = stats.map(s => `
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 text-[11px]">
-                    <span class="font-black text-slate-400">#${s.id}</span>
-                    <span class="font-bold">${s.time}s</span>
-                    <span>${s.success ? (s.attempts === 1 ? '💎' : '✅') : '❌'}</span>
-                </div>
-            `).join('');
-        }
-
-        function downloadPDF() {
-            const element = document.getElementById('pdf-content');
-            html2pdf().from(element).save('Reporte_Polgar.pdf');
-        }
     </script>
 </body>
 </html>
