@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chess Trainer Pro</title>
+    <title>Polgar Chess Trainer</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; 
             background: #1a1a1a; color: #eee; margin: 0; padding: 10px; touch-action: manipulation;
         }
-        #board { width: 95vw; max-width: 450px; touch-action: none; margin-bottom: 10px; border: 2px solid #333; }
+        #board { width: 95vw; max-width: 450px; margin-bottom: 10px; border: 2px solid #333; }
         .info-box { 
             width: 95vw; max-width: 450px; background: #2d2d2d; padding: 20px; 
             border-radius: 12px; text-align: center; box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         .book-section { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 4px; }
-        .exercise-title { font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: #4CAF50; }
-        .turn-msg { font-size: 1.1em; margin-bottom: 20px; padding: 10px; border-radius: 6px; background: #222; border-left: 4px solid #4CAF50; }
+        .exercise-title { font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: #f1c40f; }
+        .turn-msg { font-size: 1.1em; margin-bottom: 20px; padding: 10px; border-radius: 6px; background: #222; border-left: 4px solid #f1c40f; }
         .nav-buttons { display: flex; justify-content: space-between; gap: 10px; }
-        button { flex: 1; padding: 15px; cursor: pointer; border: none; border-radius: 6px; background: #444; color: white; font-weight: bold; font-size: 14px; transition: 0.2s; }
-        button:active { transform: scale(0.95); background: #555; }
-        .btn-next { background: #2e7d32; }
-        .search-area { margin-top: 20px; display: flex; gap: 10px; align-items: center; }
-        input { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #444; background: #1a1a1a; color: white; text-align: center; }
-        .highlight-sq { box-shadow: inset 0 0 5px 5px rgba(255, 235, 59, 0.7) !important; }
+        button { flex: 1; padding: 15px; cursor: pointer; border: none; border-radius: 6px; background: #444; color: white; font-weight: bold; font-size: 14px; }
+        .btn-next { background: #27ae60; }
+        .highlight-sq { box-shadow: inset 0 0 3px 3px rgba(241, 196, 15, 0.8) !important; }
+        
+        /* Ajuste para que los toques no seleccionen texto */
+        .square-55d63 { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body>
@@ -33,18 +33,13 @@
     <div id="board"></div>
 
     <div class="info-box">
-        <div id="book-section" class="book-section">Libro de Polgar</div>
+        <div id="book-section" class="book-section">Cargando Sección...</div>
         <div id="exercise-title" class="exercise-title">Ejercicio #--</div>
-        <div id="status" class="turn-msg">Cargando...</div>
+        <div id="status" class="turn-msg">Preparando...</div>
         
         <div class="nav-buttons">
             <button onclick="changeProb(-1)">ANTERIOR</button>
             <button class="btn-next" onclick="changeProb(1)">SIGUIENTE</button>
-        </div>
-
-        <div class="search-area">
-            <input type="number" id="searchId" placeholder="Buscar Ejercicio #">
-            <button onclick="search()" style="background: #1565c0;">IR</button>
         </div>
     </div>
 
@@ -53,90 +48,90 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
     <script>
-        // AQUÍ PEGA TU JSON COMPLETO
+        // Aquí puedes pegar tu JSON completo. He respetado los nombres de tus campos.
         const data = { "problems": [
-            {"problemid":1,"first":"White to Move","type":"Mate in One","fen":"3q1rk1/5pbp/5Qp1/8/8/2B5/5PPP/6K1 w - - 0 1","moves":"f6-g7"},
-            {"problemid":2,"first":"White to Move","type":"Mate in One","fen":"2r2rk1/2q2p1p/6pQ/4P1N1/8/8/PPP5/2KR4 w - - 0 1","moves":"h6-h7"},
-            {"problemid":3,"first":"White to Move","type":"Mate in One","fen":"r2q1rk1/pp1p1p1p/5PpQ/8/4N3/8/PP3PPP/R5K1 w - - 0 1","moves":"h6-g7"},
-            {"problemid":4460,"first":"Black to Move","type":"Mate in Three","fen":"r1b2r1k/pp4pB/6Q1/3p2N1/2n5/1N2P1P1/PP3q1P/2R4K b - - 0 1","moves":"f2-f1;c1-f1;f8-f1;h1-g2;c4-e3"},
-            {"problemid":4461,"first":"Black to Move","type":"Mate in Three","fen":"6rr/1b2k3/p2pp3/1p2bP1P/6P1/1PNB3K/1PP5/3R1R2 b - - 0 1","moves":"h8-h5;g4-h5;b7-g2;h3-h4;e5-f6"},
-            {"problemid":4462,"first":"Black to Move","type":"Mate in Three","fen":"r1b4k/ppn3pp/8/3p4/P2PP2q/1Q2BP2/NP2nNK1/2R2R2 b - - 0 1","moves":"c8-h3;f2-h3;h4-g3;g2-h1;g3-h3"}
+            {"problemid":1,"first":"White to Move","type":"Mate in One, Simple","fen":"3q1rk1/5pbp/5Qp1/8/8/2B5/5PPP/6K1 w - - 0 1","moves":"f6-g7"},
+            {"problemid":2,"first":"White to Move","type":"Mate in One, Simple","fen":"2r2rk1/2q2p1p/6pQ/4P1N1/8/8/PPP5/2KR4 w - - 0 1","moves":"h6-h7"},
+            {"problemid":307,"first":"White to Move","type":"Mate in Two, Simple","fen":"r2q1rk1/pp1p1p1p/5PpQ/8/4N3/8/PP3PPP/R5K1 w - - 0 1","moves":"h6-g7"},
+            {"problemid":451,"first":"White to Move","type":"Mate in Two, Combination","fen":"5r1k/pp4pp/2p5/2Pb4/1P1P4/P5qP/4QRP1/7K w - - 0 1","moves":"f2-f8;d5-g8;e2-e8"}
         ]};
 
-        let index = 0;
-        let board = null;
-        let game = new Chess();
-        let selectedSq = null;
-        let solutionMoves = [];
-        let moveIndex = 0;
+        let currentIdx = 0;
+        let board, game = new Chess();
+        let solutionMoves = [], moveStep = 0;
+        let sourceSq = null;
 
         function getWikiPiece(p) {
             const m = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
             return 'https://upload.wikimedia.org/wikipedia/commons/' + m[p];
         }
 
-        function onDrop(source, target) {
-            const move = game.move({ from: source, to: target, promotion: 'q' });
-            
-            if (move === null) return 'snapback'; // Movimiento ilegal por reglas de ajedrez
+        function handleMove(src, tgt) {
+            const move = game.move({ from: src, to: tgt, promotion: 'q' });
+            if (!move) return 'snapback';
 
-            // Validar si es la jugada del JSON O si es mate (flexibilidad)
-            const moveStr = `${source}-${target}`;
-            const isJsonMove = (moveStr === solutionMoves[moveIndex]);
-            const givesMate = game.in_checkmate();
+            const uci = `${src}-${tgt}`;
+            const isCorrect = (uci === solutionMoves[moveStep]);
+            const isMate = game.in_checkmate();
 
-            if (isJsonMove || givesMate) {
-                moveIndex++;
-                if (givesMate || moveIndex >= solutionMoves.length) {
-                    document.getElementById('status').innerText = "¡MATE LOGRADO!";
+            // REGLA: Es correcto si es el movimiento del libro O si diste mate (aunque sea otra jugada)
+            if (isCorrect || isMate) {
+                moveStep++;
+                if (isMate || moveStep >= solutionMoves.length) {
+                    document.getElementById('status').innerText = "¡EXCELENTE! MATE.";
                     setTimeout(() => changeProb(1), 1000);
                 } else {
-                    document.getElementById('status').innerText = "¡Bien! Sigue...";
+                    document.getElementById('status').innerText = "Jugada correcta...";
                     setTimeout(makeReply, 500);
                 }
             } else {
                 game.undo();
-                document.getElementById('status').innerText = "No es la mejor jugada...";
+                document.getElementById('status').innerText = "Intenta otra jugada...";
                 return 'snapback';
             }
         }
 
         function makeReply() {
-            const [f, t] = solutionMoves[moveIndex].split('-');
+            const reply = solutionMoves[moveStep];
+            const [f, t] = reply.split('-');
             game.move({ from: f, to: t, promotion: 'q' });
             board.position(game.fen());
-            moveIndex++;
+            moveStep++;
         }
 
-        // Tap-Tap mejorado para móvil
-        function handleSquare(sq) {
-            const piece = game.get(sq);
+        // Lógica Tap Tap heredada de tu script funcional
+        function handleTap(sq) {
+            if (sourceSq === sq) { 
+                removeHighlights(); 
+                sourceSq = null; 
+                return; 
+            }
             
-            if (selectedSq === null) {
-                if (piece && piece.color === game.turn()) {
-                    selectedSq = sq;
-                    $('.square-55d6').removeClass('highlight-sq');
-                    $('.square-' + sq).addClass('highlight-sq');
-                }
-            } else {
-                const source = selectedSq;
-                const target = sq;
-                selectedSq = null;
-                $('.square-55d6').removeClass('highlight-sq');
-
-                const result = onDrop(source, target);
-                if (result !== 'snapback') {
+            const piece = game.get(sq);
+            if (piece && piece.color === game.turn()) {
+                removeHighlights();
+                sourceSq = sq;
+                $(`.square-${sq}`).addClass('highlight-sq');
+            } else if (sourceSq) {
+                const moveResult = handleMove(sourceSq, sq);
+                if (moveResult !== 'snapback') {
                     board.position(game.fen());
                 }
+                removeHighlights();
+                sourceSq = null;
             }
         }
 
+        function removeHighlights() {
+            $('.square-55d63').removeClass('highlight-sq');
+        }
+
         function render() {
-            const p = data.problems[index];
+            const p = data.problems[currentIdx];
             game.load(p.fen);
             solutionMoves = p.moves.split(';');
-            moveIndex = 0;
-            selectedSq = null;
+            moveStep = 0;
+            sourceSq = null;
 
             document.getElementById('exercise-title').innerText = `Ejercicio #${p.problemid}`;
             document.getElementById('book-section').innerText = p.type;
@@ -146,31 +141,29 @@
             board = Chessboard('board', {
                 position: p.fen,
                 draggable: true,
+                onDrop: handleMove,
+                onSnapEnd: () => board.position(game.fen()),
                 pieceTheme: getWikiPiece,
-                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black',
-                onDrop: onDrop,
-                onSnapEnd: () => board.position(game.fen())
+                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black'
             });
 
-            // Evento nativo para Tap en móvil y Click en PC
-            $('#board').off('click').on('click', '.square-55d6', function() {
-                handleSquare($(this).data('square'));
+            // VINCULACIÓN DIRECTA PARA MÓVIL (Tap Tap)
+            // Usamos mousedown y touchstart como en tu script funcional
+            $('.square-55d63').on('touchstart mousedown', function(e) {
+                e.preventDefault();
+                const sq = $(this).data('square');
+                handleTap(sq);
             });
         }
 
         function changeProb(d) {
-            index += d;
-            if (index >= data.problems.length) index = 0;
-            if (index < 0) index = data.problems.length - 1;
+            currentIdx += d;
+            if (currentIdx >= data.problems.length) currentIdx = 0;
+            if (currentIdx < 0) currentIdx = data.problems.length - 1;
             render();
         }
 
-        function search() {
-            const val = parseInt(document.getElementById('searchId').value);
-            const found = data.problems.findIndex(p => p.problemid === val);
-            if (found !== -1) { index = found; render(); }
-        }
-
+        // Iniciar
         render();
     </script>
 </body>
