@@ -2,18 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Chess Trainer - Modo Simple</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chess Trainer Mobile</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; background: #2c3e50; color: white; padding: 20px; }
-        #board { width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .controls { width: 400px; margin-top: 20px; background: #34495e; padding: 20px; border-radius: 8px; text-align: center; }
-        .nav { display: flex; justify-content: space-between; margin: 15px 0; }
-        .status-msg { margin: 10px 0; min-height: 1.2em; color: #f1c40f; font-weight: bold; }
-        button { padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; background: #27ae60; color: white; font-weight: bold; }
-        button:hover { background: #2ecc71; }
-        input { padding: 7px; border-radius: 4px; border: none; width: 60px; }
-        .search { margin-top: 15px; border-top: 1px solid #5d6d7e; padding-top: 15px; }
+        body { 
+            font-family: sans-serif; display: flex; flex-direction: column; align-items: center; 
+            background: #2c3e50; color: white; margin: 0; padding: 10px;
+            touch-action: manipulation; /* Optimiza toques generales */
+        }
+        /* CRÍTICO: Evita que el scroll interfiera con el tablero */
+        #board { 
+            width: 90vw; max-width: 400px; 
+            touch-action: none; 
+            -webkit-user-select: none;
+        }
+        .controls { width: 90vw; max-width: 400px; margin-top: 15px; background: #34495e; padding: 15px; border-radius: 8px; text-align: center; box-sizing: border-box; }
+        .nav { display: flex; justify-content: space-between; margin: 15px 0; gap: 10px; }
+        button { flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 4px; background: #27ae60; color: white; font-weight: bold; font-size: 16px; }
+        input { padding: 10px; border-radius: 4px; border: none; width: 80px; text-align: center; font-size: 16px; }
+        .highlight-square { box-shadow: inset 0 0 3px 3px yellow; }
     </style>
 </head>
 <body>
@@ -21,17 +29,16 @@
     <div id="board"></div>
 
     <div class="controls">
-        <div id="problem-title" style="font-size: 1.2em; margin-bottom: 5px;"></div>
-        <div id="status" class="status-msg">Tu turno</div>
+        <div id="status" style="margin-bottom: 10px; font-weight: bold; color: #f1c40f;">Cargando...</div>
         
         <div class="nav">
-            <button onclick="changeProb(-1)">◀ Anterior</button>
-            <button onclick="changeProb(1)">Siguiente ▶</button>
+            <button onclick="changeProb(-1)">◀ Ant.</button>
+            <button onclick="changeProb(1)">Sig. ▶</button>
         </div>
 
-        <div class="search">
+        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; border-top: 1px solid #555; pt: 15px;">
             <input type="number" id="searchId" placeholder="ID">
-            <button onclick="search()">Buscar Problema</button>
+            <button onclick="search()" style="flex: none;">Buscar</button>
         </div>
     </div>
 
@@ -54,50 +61,66 @@
         let game = new Chess();
         let solutionMoves = [];
         let currentMoveIndex = 0;
+        let sourceSquare = null;
 
         function getWikiPiece(piece) {
             const wiki = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
             return 'https://upload.wikimedia.org/wikipedia/commons/' + wiki[piece];
         }
 
-        function onDragStart(source, piece) {
-            if (game.game_over()) return false;
-            // Solo permitir mover las piezas del color que toca
-            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-                return false;
+        // Lógica de click/tap para mover (soporta Tap-Tap)
+        function onSquareClick(square) {
+            if (sourceSquare === null) {
+                // Primer tap: Seleccionar pieza
+                const piece = game.get(square);
+                if (piece && piece.color === game.turn()) {
+                    sourceSquare = square;
+                    highlight(square);
+                }
+            } else {
+                // Segundo tap: Mover
+                attemptMove(sourceSquare, square);
+                sourceSquare = null;
+                removeHighlights();
             }
         }
 
-        function onDrop(source, target) {
-            const moveStr = `${source}-${target}`;
-            const expectedMove = solutionMoves[currentMoveIndex];
+        function attemptMove(from, to) {
+            const moveStr = `${from}-${to}`;
+            const expected = solutionMoves[currentMoveIndex];
 
-            // Validar si es el movimiento correcto según el JSON
-            if (moveStr !== expectedMove) {
-                document.getElementById('status').innerText = "¡Movimiento incorrecto! Intenta de nuevo.";
-                return 'snapback';
-            }
-
-            // Ejecutar movimiento en la lógica
-            game.move({ from: source, to: target, promotion: 'q' });
-            currentMoveIndex++;
-            document.getElementById('status').innerText = "¡Correcto!";
-
-            // Si quedan movimientos (respuesta de la máquina)
-            if (currentMoveIndex < solutionMoves.length) {
-                setTimeout(makeReplyMove, 500);
+            if (moveStr === expected) {
+                game.move({ from: from, to: to, promotion: 'q' });
+                board.position(game.fen());
+                currentMoveIndex++;
+                document.getElementById('status').innerText = "¡Correcto!";
+                
+                if (currentMoveIndex < solutionMoves.length) {
+                    setTimeout(makeReplyMove, 600);
+                } else {
+                    document.getElementById('status').innerText = "¡Resuelto!";
+                    setTimeout(() => changeProb(1), 1200);
+                }
             } else {
-                document.getElementById('status').innerText = "¡Excelente! Problema resuelto.";
-                setTimeout(() => changeProb(1), 1500);
+                document.getElementById('status').innerText = "Movimiento incorrecto";
             }
         }
 
         function makeReplyMove() {
-            const moveParts = solutionMoves[currentMoveIndex].split('-');
-            game.move({ from: moveParts[0], to: moveParts[1], promotion: 'q' });
+            const [from, to] = solutionMoves[currentMoveIndex].split('-');
+            game.move({ from, to, promotion: 'q' });
             board.position(game.fen());
             currentMoveIndex++;
+        }
+
+        function highlight(square) {
+            $('#board .square-' + square).addClass('highlight-square');
+        }
+
+        function removeHighlights() {
+            $('#board .square-55d6').removeClass('highlight-square'); // Limpia selectores
+            $('.square-55d6').css('box-shadow', ''); 
+            $('#board [class*="square-"]').css('box-shadow', '');
         }
 
         function render() {
@@ -105,19 +128,21 @@
             game.load(p.fen);
             solutionMoves = p.moves.split(';');
             currentMoveIndex = 0;
+            sourceSquare = null;
 
-            document.getElementById('problem-title').innerText = `Problema #${p.problemid} (${p.type})`;
-            document.getElementById('status').innerText = "Tu turno: " + p.first;
+            document.getElementById('status').innerText = p.first;
             
             if (board) board.destroy();
             board = Chessboard('board', {
                 position: p.fen,
-                draggable: true,
                 pieceTheme: getWikiPiece,
-                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black',
-                onDragStart: onDragStart,
-                onDrop: onDrop,
-                onSnapEnd: () => board.position(game.fen())
+                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black'
+            });
+
+            // Evento para detectar toques en los cuadros
+            $('#board').on('click', '.square-55d6', function() {
+                const square = $(this).attr('data-square');
+                onSquareClick(square);
             });
         }
 
@@ -133,7 +158,6 @@
             const id = parseInt(document.getElementById('searchId').value);
             const found = data.problems.findIndex(p => p.problemid === id);
             if (found !== -1) { index = found; render(); }
-            else { alert("ID no encontrado"); }
         }
 
         render();
