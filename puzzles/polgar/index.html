@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Polgar Chess Trainer</title>
+    <title>Chess Kids Academy</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #2196F3;
+            --accent: #FFEB3B;
+            --bg: #E3F2FD;
+            --text: #2c3e50;
+        }
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; 
-            background: #1a1a1a; color: #eee; margin: 0; padding: 10px; touch-action: manipulation;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; display: flex; flex-direction: column; align-items: center; 
+            background: var(--bg); color: var(--text); margin: 0; padding: 10px; touch-action: manipulation;
         }
-        #board { width: 95vw; max-width: 450px; margin-bottom: 10px; border: 2px solid #333; }
+        #board { width: 95vw; max-width: 400px; margin-bottom: 15px; border: 8px solid white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
         .info-box { 
-            width: 95vw; max-width: 450px; background: #2d2d2d; padding: 20px; 
-            border-radius: 12px; text-align: center; box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 95vw; max-width: 400px; background: white; padding: 15px; 
+            border-radius: 20px; text-align: center; box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        .book-section { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 4px; }
-        .exercise-title { font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: #f1c40f; }
-        .turn-msg { font-size: 1.1em; margin-bottom: 20px; padding: 10px; border-radius: 6px; background: #222; border-left: 4px solid #f1c40f; }
+        .exercise-title { font-size: 1.2em; font-weight: bold; color: var(--secondary); margin-bottom: 5px; }
+        .type-tag { font-size: 0.8em; background: var(--accent); padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+        .turn-msg { 
+            font-size: 1em; margin-bottom: 15px; padding: 12px; border-radius: 12px; 
+            background: #f8f9fa; border: 2px dashed var(--primary); min-height: 50px; display: flex; align-items: center; justify-content: center;
+        }
         .nav-buttons { display: flex; justify-content: space-between; gap: 10px; }
-        button { flex: 1; padding: 15px; cursor: pointer; border: none; border-radius: 6px; background: #444; color: white; font-weight: bold; font-size: 14px; }
-        .btn-next { background: #27ae60; }
-        .highlight-sq { box-shadow: inset 0 0 3px 3px rgba(241, 196, 15, 0.8) !important; }
-        
-        /* Ajuste para que los toques no seleccionen texto */
+        button { 
+            flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 12px; 
+            background: var(--secondary); color: white; font-weight: bold; font-size: 14px;
+            box-shadow: 0 4px 0 #1976D2; transition: all 0.1s;
+        }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #1976D2; }
+        .btn-next { background: var(--primary); box-shadow: 0 4px 0 #388E3C; }
+        .highlight-sq { box-shadow: inset 0 0 5px 5px rgba(33, 150, 243, 0.5) !important; background: rgba(33, 150, 243, 0.2) !important; }
         .square-55d63 { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
@@ -33,14 +46,15 @@
     <div id="board"></div>
 
     <div class="info-box">
-        <div id="book-section" class="book-section">Cargando Sección...</div>
-        <div id="exercise-title" class="exercise-title">Ejercicio #--</div>
-        <div id="status" class="turn-msg">Preparando...</div>
+        <div id="exercise-title" class="exercise-title">¡Cargando Aventura!</div>
+        <div id="book-section" class="type-tag">Entrenamiento</div>
+        <div id="status" class="turn-msg">¡Hola, campeón! Prepárate...</div>
         
         <div class="nav-buttons">
-            <button onclick="changeProb(-1)">ANTERIOR</button>
-            <button class="btn-next" onclick="changeProb(1)">SIGUIENTE</button>
+            <button onclick="changeProb(-1)">⬅️ Atrás</button>
+            <button class="btn-next" onclick="changeProb(1)">Siguiente ➡️</button>
         </div>
+        <p style="font-size: 0.7em; color: #999; margin-top: 10px;">Progreso: <span id="progress-val">0</span>/4462</p>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -48,18 +62,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
     <script>
-        // Aquí puedes pegar tu JSON completo. He respetado los nombres de tus campos.
-        const data = { "problems": [
-            {"problemid":1,"first":"White to Move","type":"Mate in One, Simple","fen":"3q1rk1/5pbp/5Qp1/8/8/2B5/5PPP/6K1 w - - 0 1","moves":"f6-g7"},
-            {"problemid":2,"first":"White to Move","type":"Mate in One, Simple","fen":"2r2rk1/2q2p1p/6pQ/4P1N1/8/8/PPP5/2KR4 w - - 0 1","moves":"h6-h7"},
-            {"problemid":307,"first":"White to Move","type":"Mate in Two, Simple","fen":"r2q1rk1/pp1p1p1p/5PpQ/8/4N3/8/PP3PPP/R5K1 w - - 0 1","moves":"h6-g7"},
-            {"problemid":451,"first":"White to Move","type":"Mate in Two, Combination","fen":"5r1k/pp4pp/2p5/2Pb4/1P1P4/P5qP/4QRP1/7K w - - 0 1","moves":"f2-f8;d5-g8;e2-e8"}
+        // EL JSON SE ORDENARÁ AUTOMÁTICAMENTE POR PROBLEMID
+        const rawData = { "problems": [
+            {"problemid":1,"first":"White to Move","type":"Mate en 1","fen":"3q1rk1/5pbp/5Qp1/8/8/2B5/5PPP/6K1 w - - 0 1","moves":"f6-g7"},
+            {"problemid":307,"first":"White to Move","type":"Mate en 2","fen":"r2q1rk1/pp1p1p1p/5PpQ/8/4N3/8/PP3PPP/R5K1 w - - 0 1","moves":"h6-g7"},
+            {"problemid":2,"first":"White to Move","type":"Mate en 1","fen":"2r2rk1/2q2p1p/6pQ/4P1N1/8/8/PPP5/2KR4 w - - 0 1","moves":"h6-h7"}
+            // ... pega aquí el resto
         ]};
+
+        // Ordenar por ID para cumplir la secuencia 1, 2, 3...
+        const data = rawData.problems.sort((a, b) => a.problemid - b.problemid);
 
         let currentIdx = 0;
         let board, game = new Chess();
         let solutionMoves = [], moveStep = 0;
         let sourceSq = null;
+
+        const positiveFeedback = [
+            "¡Excelente visión deportiva!",
+            "¡Tu cerebro está brillando!",
+            "¡Esa jugada es de gran maestro!",
+            "¡Qué buena estrategia estás armando!",
+            "¡Sigue así, estás aprendiendo mucho!"
+        ];
 
         function getWikiPiece(p) {
             const m = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
@@ -74,19 +99,19 @@
             const isCorrect = (uci === solutionMoves[moveStep]);
             const isMate = game.in_checkmate();
 
-            // REGLA: Es correcto si es el movimiento del libro O si diste mate (aunque sea otra jugada)
             if (isCorrect || isMate) {
                 moveStep++;
                 if (isMate || moveStep >= solutionMoves.length) {
-                    document.getElementById('status').innerText = "¡EXCELENTE! MATE.";
-                    setTimeout(() => changeProb(1), 1000);
+                    const msg = positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)];
+                    document.getElementById('status').innerText = "⭐ " + msg;
+                    setTimeout(() => changeProb(1), 1200);
                 } else {
-                    document.getElementById('status').innerText = "Jugada correcta...";
-                    setTimeout(makeReply, 500);
+                    document.getElementById('status').innerText = "¡Buen movimiento! ¿Qué sigue?";
+                    setTimeout(makeReply, 300);
                 }
             } else {
                 game.undo();
-                document.getElementById('status').innerText = "Intenta otra jugada...";
+                document.getElementById('status').innerText = "¡Casi! Intenta otra ruta para el éxito 🧠";
                 return 'snapback';
             }
         }
@@ -95,18 +120,12 @@
             const reply = solutionMoves[moveStep];
             const [f, t] = reply.split('-');
             game.move({ from: f, to: t, promotion: 'q' });
-            board.position(game.fen());
+            board.position(game.fen(), false); // false = movimiento instantáneo
             moveStep++;
         }
 
-        // Lógica Tap Tap heredada de tu script funcional
         function handleTap(sq) {
-            if (sourceSq === sq) { 
-                removeHighlights(); 
-                sourceSq = null; 
-                return; 
-            }
-            
+            if (sourceSq === sq) { removeHighlights(); sourceSq = null; return; }
             const piece = game.get(sq);
             if (piece && piece.color === game.turn()) {
                 removeHighlights();
@@ -114,56 +133,51 @@
                 $(`.square-${sq}`).addClass('highlight-sq');
             } else if (sourceSq) {
                 const moveResult = handleMove(sourceSq, sq);
-                if (moveResult !== 'snapback') {
-                    board.position(game.fen());
-                }
+                if (moveResult !== 'snapback') board.position(game.fen(), false);
                 removeHighlights();
                 sourceSq = null;
             }
         }
 
-        function removeHighlights() {
-            $('.square-55d63').removeClass('highlight-sq');
-        }
+        function removeHighlights() { $('.square-55d63').removeClass('highlight-sq'); }
 
         function render() {
-            const p = data.problems[currentIdx];
+            const p = data[currentIdx];
             game.load(p.fen);
             solutionMoves = p.moves.split(';');
             moveStep = 0;
             sourceSq = null;
 
-            document.getElementById('exercise-title').innerText = `Ejercicio #${p.problemid}`;
+            document.getElementById('exercise-title').innerText = `Reto #${p.problemid}`;
             document.getElementById('book-section').innerText = p.type;
-            document.getElementById('status').innerText = p.first;
+            document.getElementById('status').innerText = p.first === "White to Move" ? "Juegan Blancas ⚪" : "Juegan Negras ⚫";
+            document.getElementById('progress-val').innerText = currentIdx + 1;
 
             if (board) board.destroy();
             board = Chessboard('board', {
                 position: p.fen,
                 draggable: true,
+                moveSpeed: 'fast', // Animación más rápida
                 onDrop: handleMove,
-                onSnapEnd: () => board.position(game.fen()),
+                onSnapEnd: () => board.position(game.fen(), false),
                 pieceTheme: getWikiPiece,
                 orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black'
             });
 
-            // VINCULACIÓN DIRECTA PARA MÓVIL (Tap Tap)
-            // Usamos mousedown y touchstart como en tu script funcional
-            $('.square-55d63').on('touchstart mousedown', function(e) {
+            // Tap Tap instantáneo
+            $('.square-55d63').off().on('touchstart mousedown', function(e) {
                 e.preventDefault();
-                const sq = $(this).data('square');
-                handleTap(sq);
+                handleTap($(this).data('square'));
             });
         }
 
         function changeProb(d) {
             currentIdx += d;
-            if (currentIdx >= data.problems.length) currentIdx = 0;
-            if (currentIdx < 0) currentIdx = data.problems.length - 1;
+            if (currentIdx >= data.length) currentIdx = 0;
+            if (currentIdx < 0) currentIdx = data.length - 1;
             render();
         }
 
-        // Iniciar
         render();
     </script>
 </body>
