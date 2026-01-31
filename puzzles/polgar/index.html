@@ -179,7 +179,7 @@
             const initialId = searchVal || startId;
 
             try {
-                const response = await fetch('enael.com/puzzles/polgar/puzzles.json');
+                const response = await fetch('./puzzles.json');
                 const data = await response.json();
                 
                 // Filtrar según el índice del libro
@@ -195,7 +195,7 @@
                 currentIdx = 0;
                 loadPuzzle();
             } catch (e) {
-                alert("Error: Asegúrate de que 'puzzles.json' esté en la carpeta raíz.");
+                alert("Error: Asegúrate de que './puzzles.json' esté en la carpeta raíz.");
             }
         }
 
