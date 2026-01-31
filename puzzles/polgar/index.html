@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Polgar Ultimate Trainer</title>
+    <title>Polgar Master Pro</title>
     
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,13 +14,13 @@
     
     <style>
         :root { --safe-top: env(safe-area-inset-top, 20px); }
-        body { font-family: 'Outfit', sans-serif; background: #f0f2f5; padding-top: var(--safe-top); }
-        #myBoard { width: 100%; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        body { font-family: 'Outfit', sans-serif; background: #f0f2f5; padding-top: var(--safe-top); user-select: none; }
+        #myBoard { width: 100%; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .vibrant-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
         .stat-card { background: white; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .highlight-sq { box-shadow: inset 0 0 3px 3px #fbbf24 !important; }
-        .level-btn { transition: all 0.2s; border: 2px solid transparent; }
-        .level-btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
+        .level-btn { transition: all 0.2s; border: 2px solid transparent; cursor: pointer; }
+        .level-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body class="min-h-screen pb-10">
@@ -30,57 +30,58 @@
         <header class="vibrant-header p-6 text-white shadow-lg">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-black">Polgar Master</h1>
-                    <p id="sub-title" class="text-xs font-bold opacity-80 tracking-widest uppercase">Entrenamiento Adaptativo</p>
+                    <h1 class="text-2xl font-black italic">Polgar Master</h1>
+                    <p id="sub-title" class="text-[10px] font-bold opacity-80 tracking-[0.2em] uppercase">Entrenamiento de Elite</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <div id="game-timer" class="hidden bg-white/20 px-3 py-1 rounded-lg font-mono font-bold">00:00</div>
-                    <button id="btn-exit" onclick="showDashboard()" class="hidden bg-red-500/80 hover:bg-red-600 px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors">Salir</button>
+                    <button id="btn-exit" onclick="showDashboard()" class="hidden bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl text-xs font-black uppercase transition-all shadow-lg">Finalizar</button>
                 </div>
             </div>
         </header>
 
-        <div id="screen-levels" class="p-6 flex-1 space-y-8">
-            <div class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 shadow-sm">
-                <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 block">Salto directo a ejercicio</label>
+        <div id="screen-levels" class="p-6 flex-1 space-y-6">
+            
+            <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 shadow-inner">
+                <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 block ml-2">Ir a un ejercicio específico</label>
                 <div class="flex gap-2">
-                    <input type="number" id="search-id" placeholder="ID 1-4462..." class="flex-1 p-4 rounded-2xl border-2 border-indigo-100 focus:border-indigo-400 outline-none font-bold text-lg">
-                    <button onclick="startRange(1, 4462)" class="bg-indigo-600 text-white px-6 rounded-2xl font-black shadow-lg shadow-indigo-200">IR</button>
+                    <input type="number" id="search-id" placeholder="ID del 1 al 4462" class="flex-1 p-4 rounded-2xl border-2 border-white focus:border-indigo-400 outline-none font-bold text-lg shadow-sm">
+                    <button onclick="quickSearch()" class="bg-indigo-600 text-white px-8 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all">BUSCAR</button>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between px-4">
-                <span class="text-sm font-bold text-slate-500">Estilo de piezas:</span>
-                <select id="piece-style" class="bg-slate-100 border-none rounded-lg px-3 py-2 text-xs font-bold text-slate-700 outline-none">
-                    <option value="local">Carpeta Local (img/)</option>
-                    <option value="staunty">Staunty (Online)</option>
-                    <option value="wikipedia">Wikipedia (Clásico)</option>
+            <div class="flex items-center justify-between px-4 bg-slate-50 p-4 rounded-2xl">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Estilo de piezas</span>
+                <select id="piece-style" class="bg-white border-2 border-slate-100 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:border-indigo-300">
+                    <option value="local">📁 Carpeta Local (img/)</option>
+                    <option value="staunty">🎨 Staunty (Elegante)</option>
+                    <option value="wikipedia">📖 Clásico (Wikipedia)</option>
                 </select>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="startRange(1, 306)" class="level-btn bg-emerald-500 text-white p-5 rounded-3xl text-left">
-                    <span class="block text-xs font-black opacity-70 uppercase">Nivel A1</span>
-                    <span class="text-xl font-bold italic">Mate in One</span>
-                    <span class="block text-[10px] mt-1 font-mono">IDs: 1 - 306</span>
+                <button onclick="loadPolgarRange(1, 306, 'Mate in One')" class="level-btn bg-emerald-500 text-white p-6 rounded-[2rem] text-left shadow-lg shadow-emerald-100">
+                    <span class="block text-[10px] font-black opacity-70 uppercase mb-1">Capítulo 1</span>
+                    <span class="text-2xl font-black">Mate in 1</span>
+                    <span class="block text-xs mt-2 opacity-80">Problemas 1 al 306</span>
                 </button>
                 
-                <button onclick="startRange(307, 1254)" class="level-btn bg-blue-500 text-white p-5 rounded-3xl text-left">
-                    <span class="block text-xs font-black opacity-70 uppercase">Nivel A2</span>
-                    <span class="text-xl font-bold italic">Mate in Two (Basic)</span>
-                    <span class="block text-[10px] mt-1 font-mono">IDs: 307 - 1254</span>
+                <button onclick="loadPolgarRange(307, 3718, 'Mate in Two')" class="level-btn bg-indigo-500 text-white p-6 rounded-[2rem] text-left shadow-lg shadow-indigo-100">
+                    <span class="block text-[10px] font-black opacity-70 uppercase mb-1">Capítulo 2</span>
+                    <span class="text-2xl font-black">Mate in 2</span>
+                    <span class="block text-xs mt-2 opacity-80">Problemas 307 al 3718</span>
                 </button>
 
-                <button onclick="startRange(1255, 3718)" class="level-btn bg-violet-500 text-white p-5 rounded-3xl text-left">
-                    <span class="block text-xs font-black opacity-70 uppercase">Nivel B1</span>
-                    <span class="text-xl font-bold italic">Mate in Two (Expert)</span>
-                    <span class="block text-[10px] mt-1 font-mono">IDs: 1255 - 3718</span>
+                <button onclick="loadPolgarRange(3719, 4462, 'Mate in Three')" class="level-btn bg-fuchsia-500 text-white p-6 rounded-[2rem] text-left shadow-lg shadow-fuchsia-100">
+                    <span class="block text-[10px] font-black opacity-70 uppercase mb-1">Capítulo 3</span>
+                    <span class="text-2xl font-black">Mate in 3</span>
+                    <span class="block text-xs mt-2 opacity-80">Problemas 3719 al 4462</span>
                 </button>
 
-                <button onclick="startRange(3719, 4462)" class="level-btn bg-pink-500 text-white p-5 rounded-3xl text-left">
-                    <span class="block text-xs font-black opacity-70 uppercase">Nivel C1</span>
-                    <span class="text-xl font-bold italic">Mate in Three</span>
-                    <span class="block text-[10px] mt-1 font-mono">IDs: 3719 - 4462</span>
+                <button onclick="loadPolgarRange(1, 4462, 'Full Book')" class="level-btn bg-slate-800 text-white p-6 rounded-[2rem] text-left shadow-lg">
+                    <span class="block text-[10px] font-black opacity-40 uppercase mb-1">Colección Completa</span>
+                    <span class="text-2xl font-black">Libro Completo</span>
+                    <span class="block text-xs mt-2 opacity-60">Todos los ejercicios</span>
                 </button>
             </div>
         </div>
@@ -91,48 +92,45 @@
                     <div id="myBoard"></div>
                 </div>
                 <div class="w-full lg:w-72 space-y-4">
-                    <div id="feedback" class="p-6 rounded-3xl bg-slate-50 border-2 border-slate-100 text-center min-h-[120px] flex items-center justify-center italic font-bold text-slate-600 transition-all">
-                        Analiza la posición...
+                    <div id="feedback" class="p-8 rounded-[2rem] bg-slate-50 border-2 border-slate-100 text-center min-h-[140px] flex items-center justify-center font-bold text-slate-600 text-lg italic transition-all">
+                        Analiza y juega...
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="stat-card p-4 text-center">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="stat-card p-4 text-center border border-slate-100">
                             <span class="text-[9px] font-black uppercase text-slate-400">Intento</span>
-                            <p id="ui-attempts" class="text-xl font-black text-slate-800">1</p>
+                            <p id="ui-attempts" class="text-2xl font-black text-slate-800">1</p>
                         </div>
-                        <div class="stat-card p-4 text-center">
+                        <div class="stat-card p-4 text-center border border-slate-100">
                             <span class="text-[9px] font-black uppercase text-slate-400">Restantes</span>
-                            <p id="ui-progress" class="text-xl font-black text-indigo-600">0</p>
+                            <p id="ui-progress" class="text-2xl font-black text-indigo-600">0</p>
                         </div>
                     </div>
-                    <button onclick="skipPuzzle()" class="w-full py-4 rounded-2xl bg-slate-100 text-slate-500 font-black text-xs uppercase hover:bg-slate-200">Saltar Ejercicio</button>
+                    <button onclick="skipPuzzle()" class="w-full py-5 rounded-2xl bg-slate-100 text-slate-500 font-black text-xs uppercase hover:bg-slate-200 transition-colors">Saltar este ejercicio</button>
                 </div>
             </div>
         </div>
 
         <div id="screen-report" class="hidden p-6 flex-1 bg-slate-50 overflow-y-auto">
-            <div id="pdf-content" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
+            <div id="pdf-content" class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
                 <div class="flex justify-between items-start mb-8">
                     <div>
-                        <h2 class="text-3xl font-black text-slate-900 leading-none">Reporte Polgar</h2>
-                        <p class="text-sm font-bold text-indigo-500">Sesión de Entrenamiento Personalizado</p>
+                        <h2 class="text-4xl font-black text-slate-900 tracking-tighter">Reporte Polgar</h2>
+                        <p id="res-date" class="text-sm font-bold text-indigo-500 uppercase tracking-widest mt-1"></p>
                     </div>
-                    <div class="text-right">
-                        <p id="res-date" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
+                    <div class="bg-indigo-600 text-white p-4 rounded-2xl text-center">
+                        <p class="text-[10px] font-bold uppercase opacity-80">Precisión</p>
+                        <p id="res-accuracy" class="text-2xl font-black">0%</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="grid grid-cols-3 gap-4 mb-8 text-center">
                     <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-black text-slate-400 uppercase">Tiempo</p>
+                        <p class="text-[9px] font-black text-slate-400 uppercase">Tiempo Total</p>
                         <p id="res-total-time" class="text-xl font-black text-slate-800">00:00</p>
                     </div>
                     <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-black text-slate-400 uppercase">Completados</p>
+                        <p class="text-[9px] font-black text-slate-400 uppercase">Ejercicios</p>
                         <p id="res-total-done" class="text-xl font-black text-slate-800">0</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-black text-slate-400 uppercase">Precisión</p>
-                        <p id="res-accuracy" class="text-xl font-black text-green-600">0%</p>
                     </div>
                     <div class="p-4 bg-slate-50 rounded-2xl">
                         <p class="text-[9px] font-black text-slate-400 uppercase">Ritmo Medio</p>
@@ -140,16 +138,16 @@
                     </div>
                 </div>
 
-                <div class="h-64 mb-8">
+                <div class="h-64 mb-8 bg-slate-50 rounded-3xl p-4">
                     <canvas id="timeChart"></canvas>
                 </div>
 
                 <div id="report-list" class="space-y-3"></div>
             </div>
 
-            <div class="flex gap-3 mt-8 no-print">
-                <button onclick="downloadPDF()" class="flex-1 bg-indigo-600 text-white py-5 rounded-3xl font-black text-lg shadow-xl">Descargar PDF</button>
-                <button onclick="location.reload()" class="bg-slate-900 text-white px-8 rounded-3xl font-black">Nueva Sesión</button>
+            <div class="flex flex-col sm:flex-row gap-3 mt-8 no-print">
+                <button onclick="downloadPDF()" class="flex-1 bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all">Descargar PDF</button>
+                <button onclick="location.reload()" class="bg-slate-900 text-white px-10 py-5 rounded-[2rem] font-black hover:bg-slate-800 transition-all">Reiniciar</button>
             </div>
         </div>
     </div>
@@ -160,9 +158,10 @@
     <script>
         let board, game = new Chess();
         let puzzles = [], currentIdx = 0, moves = [], step = 0;
-        let timerStart, timerInt, stats = [], sessionStartTime = Date.now();
+        let timerStart, timerInt, stats = [], sessionStartTime;
         let puzzleAttempts = 1, sourceSq = null;
 
+        // Configuración de piezas
         const PIECE_THEMES = {
             local: 'img/{piece}.png',
             staunty: 'https://raw.githubusercontent.com/ornicar/lila/master/public/piece/staunty/{piece}.png',
@@ -174,36 +173,60 @@
             return PIECE_THEMES[style].replace('{piece}', piece);
         }
 
-        async function startRange(startId, endId) {
-            const searchVal = parseInt(document.getElementById('search-id').value);
-            const initialId = searchVal || startId;
+        // BUSCADOR RÁPIDO
+        async function quickSearch() {
+            const id = parseInt(document.getElementById('search-id').value);
+            if(!id) return alert("Por favor, ingresa un número de ID válido.");
+            loadPolgarRange(id, 4462, `Desde ID #${id}`);
+        }
 
+        // CARGA DE DATOS
+        async function loadPolgarRange(start, end, label) {
             try {
-                const response = await fetch('./puzzles.json');
-                const data = await response.json();
+                const response = await fetch('puzzles.json');
+                if (!response.ok) throw new Error("No se pudo cargar el archivo puzzles.json");
                 
-                // Filtrar según el índice del libro
-                puzzles = data.problems.filter(p => p.problemid >= initialId && p.problemid <= endId);
+                const data = await response.json();
+                const allPuzzles = data.problems || [];
+                
+                // Filtrar por el rango de IDs del libro
+                puzzles = allPuzzles.filter(p => {
+                    const pid = parseInt(p.problemid);
+                    return pid >= start && pid <= end;
+                });
 
-                if(puzzles.length === 0) throw "Rango no encontrado";
+                if(puzzles.length === 0) {
+                    alert(`No se encontraron ejercicios en el rango ${start} - ${end}. Verifica los IDs en tu JSON.`);
+                    return;
+                }
 
+                // UI Transitions
                 document.getElementById('screen-levels').classList.add('hidden');
                 document.getElementById('screen-game').classList.remove('hidden');
                 document.getElementById('btn-exit').classList.remove('hidden');
                 document.getElementById('game-timer').classList.remove('hidden');
+                document.getElementById('sub-title').innerText = label;
                 
                 currentIdx = 0;
+                sessionStartTime = Date.now();
                 loadPuzzle();
-            } catch (e) {
-                alert("Error: Asegúrate de que './puzzles.json' esté en la carpeta raíz.");
+
+            } catch (err) {
+                console.error(err);
+                alert("Error crítico: " + err.message + "\n\n1. Asegúrate de que el archivo se llame puzzles.json\n2. Debes abrir este HTML usando un servidor local (Live Server en VS Code) o subirlo a un hosting.");
             }
         }
 
         function loadPuzzle() {
             const p = puzzles[currentIdx];
             game.load(p.FEN);
-            moves = p.moves.replace(/-/g, '').match(/.{1,4}/g);
-            step = 0; puzzleAttempts = 1;
+            
+            // Limpiar movimientos (remover guiones)
+            const movesRaw = p.moves.replace(/-/g, '');
+            moves = movesRaw.match(/.{1,4}/g);
+            
+            step = 0; 
+            puzzleAttempts = 1;
             
             board = ChessBoard('myBoard', {
                 draggable: true,
@@ -219,8 +242,8 @@
             startPuzzleTimer();
             setFeedback("Tu turno. Busca el mate.", "info");
 
-            // Eventos táctiles para móvil
-            $('.square-55d63').on('touchstart mousedown', function(e) {
+            // Soporte táctil
+            $('.square-55d63').unbind().on('touchstart mousedown', function(e) {
                 e.preventDefault();
                 handleTap($(this).data('square'));
             });
@@ -232,7 +255,6 @@
 
             if (!move) return 'snapback';
 
-            // Verificamos si es el movimiento esperado o si ya es mate
             const isCorrect = (uci === moves[step] || (uci + 'q') === moves[step]);
             const isMate = game.in_checkmate();
 
@@ -241,6 +263,7 @@
                 if (isMate || step >= moves.length) {
                     finishPuzzle(true);
                 } else {
+                    // Turno de respuesta automática
                     setTimeout(() => {
                         game.move(moves[step], {sloppy: true});
                         step++;
@@ -252,7 +275,7 @@
                 game.undo();
                 puzzleAttempts++;
                 document.getElementById('ui-attempts').innerText = puzzleAttempts;
-                setFeedback("No es la respuesta correcta. Intenta de nuevo.", "fail");
+                setFeedback("Intento incorrecto. Prueba otra idea.", "fail");
                 return 'snapback';
             }
         }
@@ -269,7 +292,7 @@
                 fen: puzzles[currentIdx].FEN
             });
 
-            setFeedback(success ? "¡Mate encontrado!" : "Ejercicio saltado", "info");
+            setFeedback(success ? "¡Brillante! Mate encontrado." : "Saltado.", "info");
             
             setTimeout(() => {
                 currentIdx++;
@@ -289,13 +312,13 @@
 
         function updateUI() {
             document.getElementById('ui-attempts').innerText = puzzleAttempts;
-            document.getElementById('ui-progress').innerText = puzzles.length - currentIdx;
+            document.getElementById('ui-progress').innerText = puzzles.length - currentIdx - 1;
         }
 
         function setFeedback(m, t) {
             const f = document.getElementById('feedback');
             f.innerText = m;
-            f.className = `p-6 rounded-3xl border-2 text-center min-h-[120px] flex items-center justify-center italic font-bold transition-all ${t==='fail'?'border-red-200 bg-red-50 text-red-500':'border-slate-100 bg-slate-50 text-slate-600'}`;
+            f.className = `p-8 rounded-[2rem] border-2 text-center min-h-[140px] flex items-center justify-center font-bold text-lg italic transition-all ${t==='fail'?'border-red-200 bg-red-50 text-red-500':'border-slate-100 bg-slate-50 text-slate-600'}`;
         }
 
         function handleTap(sq) {
@@ -326,7 +349,7 @@
             const perfects = stats.filter(s => s.attempts === 1 && s.success).length;
             const totalSecs = Math.floor((Date.now() - sessionStartTime) / 1000);
 
-            document.getElementById('res-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('res-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             document.getElementById('res-total-time').innerText = new Date(totalSecs * 1000).toISOString().substr(14, 5);
             document.getElementById('res-total-done').innerText = stats.length;
             document.getElementById('res-accuracy').innerText = stats.length ? Math.round((perfects/stats.length)*100) + "%" : "0%";
@@ -337,32 +360,41 @@
         }
 
         function renderChart() {
-            new Chart(document.getElementById('timeChart'), {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+            new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: stats.map((_, i) => i + 1),
                     datasets: [{
-                        label: 'Segundos por puzzle',
                         data: stats.map(s => s.time),
                         borderColor: '#6366f1',
+                        borderWidth: 4,
+                        pointRadius: 0,
                         backgroundColor: 'rgba(99, 102, 241, 0.1)',
                         fill: true,
                         tension: 0.4
                     }]
                 },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { display: false }, x: { display: false } }
+                }
             });
         }
 
         function renderList() {
             const list = document.getElementById('report-list');
             list.innerHTML = stats.map(s => `
-                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                    <div>
-                        <p class="text-xs font-black text-slate-800">Ejercicio #${s.id}</p>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase">${s.time}s • ${s.attempts} intentos</p>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">#${s.id}</div>
+                        <div>
+                            <p class="text-xs font-black text-slate-800">Ejercicio Polgar</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">${s.time} seg • ${s.attempts} intentos</p>
+                        </div>
                     </div>
-                    <div class="text-xl">${s.success ? (s.attempts === 1 ? '✅' : '⚠️') : '❌'}</div>
+                    <div class="text-xl">${s.success ? (s.attempts === 1 ? '💎' : '⚠️') : '⏭️'}</div>
                 </div>
             `).join('');
         }
@@ -371,7 +403,7 @@
             const element = document.getElementById('pdf-content');
             const opt = {
                 margin: 0.5,
-                filename: `Reporte_Polgar_${new Date().getTime()}.pdf`,
+                filename: `Polgar_Training_Report.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
