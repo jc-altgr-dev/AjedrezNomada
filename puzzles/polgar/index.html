@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chess Trainer Mobile</title>
+    <title>Chess Trainer Final</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
         body { 
             font-family: sans-serif; display: flex; flex-direction: column; align-items: center; 
             background: #2c3e50; color: white; margin: 0; padding: 10px;
-            touch-action: manipulation; /* Optimiza toques generales */
+            touch-action: manipulation;
         }
-        /* CRÍTICO: Evita que el scroll interfiera con el tablero */
         #board { 
             width: 90vw; max-width: 400px; 
             touch-action: none; 
-            -webkit-user-select: none;
         }
         .controls { width: 90vw; max-width: 400px; margin-top: 15px; background: #34495e; padding: 15px; border-radius: 8px; text-align: center; box-sizing: border-box; }
         .nav { display: flex; justify-content: space-between; margin: 15px 0; gap: 10px; }
         button { flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 4px; background: #27ae60; color: white; font-weight: bold; font-size: 16px; }
-        input { padding: 10px; border-radius: 4px; border: none; width: 80px; text-align: center; font-size: 16px; }
-        .highlight-square { box-shadow: inset 0 0 3px 3px yellow; }
+        input { padding: 10px; border-radius: 4px; border: none; width: 80px; text-align: center; font-size: 16px; color: black;}
+        .status-msg { margin-bottom: 10px; font-weight: bold; color: #f1c40f; min-height: 1.2em; }
+        /* Resaltado de casilla seleccionada */
+        .highlight { box-shadow: inset 0 0 3px 3px #f1c40f !important; }
     </style>
 </head>
 <body>
@@ -29,14 +29,14 @@
     <div id="board"></div>
 
     <div class="controls">
-        <div id="status" style="margin-bottom: 10px; font-weight: bold; color: #f1c40f;">Cargando...</div>
+        <div id="status" class="status-msg">Cargando...</div>
         
         <div class="nav">
             <button onclick="changeProb(-1)">◀ Ant.</button>
             <button onclick="changeProb(1)">Sig. ▶</button>
         </div>
 
-        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; border-top: 1px solid #555; pt: 15px;">
+        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; border-top: 1px solid #555; padding-top: 15px;">
             <input type="number" id="searchId" placeholder="ID">
             <button onclick="search()" style="flex: none;">Buscar</button>
         </div>
@@ -68,30 +68,23 @@
             return 'https://upload.wikimedia.org/wikipedia/commons/' + wiki[piece];
         }
 
-        // Lógica de click/tap para mover (soporta Tap-Tap)
-        function onSquareClick(square) {
-            if (sourceSquare === null) {
-                // Primer tap: Seleccionar pieza
-                const piece = game.get(square);
-                if (piece && piece.color === game.turn()) {
-                    sourceSquare = square;
-                    highlight(square);
-                }
-            } else {
-                // Segundo tap: Mover
-                attemptMove(sourceSquare, square);
-                sourceSquare = null;
-                removeHighlights();
-            }
+        // Eliminar resaltados
+        function removeHighlights() {
+            $('#board .square-55d6').removeClass('highlight');
         }
 
-        function attemptMove(from, to) {
-            const moveStr = `${from}-${to}`;
+        // Añadir resaltado
+        function addHighlight(square) {
+            $('#board .square-' + square).addClass('highlight');
+        }
+
+        function onDrop(source, target) {
+            removeHighlights();
+            const moveStr = `${source}-${target}`;
             const expected = solutionMoves[currentMoveIndex];
 
             if (moveStr === expected) {
-                game.move({ from: from, to: to, promotion: 'q' });
-                board.position(game.fen());
+                game.move({ from: source, to: target, promotion: 'q' });
                 currentMoveIndex++;
                 document.getElementById('status').innerText = "¡Correcto!";
                 
@@ -102,7 +95,29 @@
                     setTimeout(() => changeProb(1), 1200);
                 }
             } else {
-                document.getElementById('status').innerText = "Movimiento incorrecto";
+                document.getElementById('status').innerText = "Incorrecto, intenta de nuevo";
+                return 'snapback';
+            }
+        }
+
+        // Soporte para clics (Tap-Tap) además de arrastrar
+        function onSquareClick(square) {
+            const piece = game.get(square);
+
+            // Si no hay nada seleccionado y toca una pieza de su color
+            if (sourceSquare === null) {
+                if (piece && piece.color === game.turn()) {
+                    sourceSquare = square;
+                    addHighlight(square);
+                }
+            } else {
+                // Si ya había algo seleccionado, intentamos mover
+                const move = onDrop(sourceSquare, square);
+                if (move !== 'snapback') {
+                    board.position(game.fen());
+                }
+                sourceSquare = null;
+                removeHighlights();
             }
         }
 
@@ -113,16 +128,6 @@
             currentMoveIndex++;
         }
 
-        function highlight(square) {
-            $('#board .square-' + square).addClass('highlight-square');
-        }
-
-        function removeHighlights() {
-            $('#board .square-55d6').removeClass('highlight-square'); // Limpia selectores
-            $('.square-55d6').css('box-shadow', ''); 
-            $('#board [class*="square-"]').css('box-shadow', '');
-        }
-
         function render() {
             const p = data.problems[index];
             game.load(p.fen);
@@ -130,16 +135,19 @@
             currentMoveIndex = 0;
             sourceSquare = null;
 
-            document.getElementById('status').innerText = p.first;
+            document.getElementById('status').innerText = "Mueven " + (p.first.includes('White') ? 'Blancas' : 'Negras');
             
             if (board) board.destroy();
             board = Chessboard('board', {
                 position: p.fen,
+                draggable: true,
                 pieceTheme: getWikiPiece,
-                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black'
+                orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black',
+                onDrop: onDrop,
+                onSnapEnd: () => board.position(game.fen())
             });
 
-            // Evento para detectar toques en los cuadros
+            // Vincular evento de clic a las casillas
             $('#board').on('click', '.square-55d6', function() {
                 const square = $(this).attr('data-square');
                 onSquareClick(square);
