@@ -14,298 +14,314 @@
     
     <style>
         :root { --safe-top: env(safe-area-inset-top, 20px); }
-        body { font-family: 'Outfit', sans-serif; background: #f0f2f5; padding-top: var(--safe-top); user-select: none; }
-        #myBoard { width: 100%; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .vibrant-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-        .stat-card { background: white; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        body { font-family: 'Outfit', sans-serif; background: #f0f2f5; padding-top: var(--safe-top); user-select: none; overflow-x: hidden; }
+        #myBoard { width: 100%; max-width: 500px; margin: 0 auto; border-radius: 0.75rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .vibrant-header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
         .highlight-sq { box-shadow: inset 0 0 3px 3px #fbbf24 !important; }
-        .level-btn { transition: all 0.2s; border: 2px solid transparent; cursor: pointer; }
-        .level-btn:active { transform: scale(0.98); }
+        .level-btn { transition: all 0.2s; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
+        .level-btn:active { transform: scale(0.96); }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="min-h-screen">
 
     <div id="app" class="max-w-4xl mx-auto bg-white min-h-screen shadow-2xl flex flex-col">
         
-        <header class="vibrant-header p-6 text-white shadow-lg">
+        <header class="vibrant-header p-5 text-white shadow-md">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-black italic">Polgar Master</h1>
-                    <p id="sub-title" class="text-[10px] font-bold opacity-80 tracking-[0.2em] uppercase">Entrenamiento de Elite</p>
+                    <h1 class="text-xl font-black italic tracking-tighter">POLGAR MASTER</h1>
+                    <p id="sub-title" class="text-[10px] font-bold opacity-60 uppercase">Libro de los 5334 Problemas</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div id="game-timer" class="hidden bg-white/20 px-3 py-1 rounded-lg font-mono font-bold">00:00</div>
-                    <button id="btn-exit" onclick="showDashboard()" class="hidden bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl text-xs font-black uppercase transition-all shadow-lg">Finalizar</button>
+                <div class="flex items-center gap-3">
+                    <div id="game-timer" class="hidden bg-white/10 px-3 py-1 rounded-lg font-mono text-sm">00:00</div>
+                    <button id="btn-exit" onclick="showDashboard()" class="hidden bg-red-500 hover:bg-red-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Finalizar</button>
                 </div>
             </div>
         </header>
 
         <div id="screen-levels" class="p-6 flex-1 space-y-6">
-            
-            <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 shadow-inner">
-                <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 block ml-2">Ir a un ejercicio específico</label>
+            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Buscador por ID</label>
                 <div class="flex gap-2">
-                    <input type="number" id="search-id" placeholder="ID del 1 al 4462" class="flex-1 p-4 rounded-2xl border-2 border-white focus:border-indigo-400 outline-none font-bold text-lg shadow-sm">
-                    <button onclick="quickSearch()" class="bg-indigo-600 text-white px-8 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all">BUSCAR</button>
+                    <input type="number" id="search-id" placeholder="Ej: 1500" class="flex-1 p-3 rounded-xl border-2 border-white shadow-sm outline-none focus:border-indigo-500 font-bold">
+                    <button onclick="quickSearch()" class="bg-indigo-600 text-white px-6 rounded-xl font-bold">IR</button>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between px-4 bg-slate-50 p-4 rounded-2xl">
-                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Estilo de piezas</span>
-                <select id="piece-style" class="bg-white border-2 border-slate-100 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:border-indigo-300">
-                    <option value="local">📁 Carpeta Local (img/)</option>
-                    <option value="staunty">🎨 Staunty (Elegante)</option>
-                    <option value="wikipedia">📖 Clásico (Wikipedia)</option>
+            <div class="flex items-center justify-between px-2">
+                <span class="text-[10px] font-black text-slate-400 uppercase">Estilo de piezas</span>
+                <select id="piece-style" class="text-sm font-bold bg-transparent outline-none cursor-pointer">
+                    <option value="wikipedia">📖 Wikipedia (Estándar)</option>
+                    <option value="local">📁 Local (Carpeta img/)</option>
                 </select>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="loadPolgarRange(1, 306, 'Mate in One')" class="level-btn bg-emerald-500 text-white p-6 rounded-[2rem] text-left shadow-lg shadow-emerald-100">
-                    <span class="block text-[10px] font-black opacity-70 uppercase mb-1">Capítulo 1</span>
-                    <span class="text-2xl font-black">Mate in 1</span>
-                    <span class="block text-xs mt-2 opacity-80">Problemas 1 al 306</span>
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="loadPolgarRange(1, 306, 'Mate en 1')" class="level-btn bg-emerald-500 text-white p-5 rounded-2xl text-left">
+                    <span class="text-lg font-black block">Capítulo 1: Mate en 1</span>
+                    <span class="text-xs opacity-80">Problemas 1 - 306</span>
                 </button>
-                
-                <button onclick="loadPolgarRange(307, 3718, 'Mate in Two')" class="level-btn bg-indigo-500 text-white p-6 rounded-[2rem] text-left shadow-lg shadow-indigo-100">
-                    <span class="block text-[10px] font-black opacity-70 uppercase mb-1">Capítulo 2</span>
-                    <span class="text-2xl font-black">Mate in 2</span>
-                    <span class="block text-xs mt-2 opacity-80">Problemas 307 al 3718</span>
+                <button onclick="loadPolgarRange(307, 3718, 'Mate en 2')" class="level-btn bg-indigo-500 text-white p-5 rounded-2xl text-left">
+                    <span class="text-lg font-black block">Capítulo 2: Mate en 2</span>
+                    <span class="text-xs opacity-80">Problemas 307 - 3718</span>
                 </button>
-
-                <button onclick="loadPolgarRange(3719, 4462, 'Mate in Three')" class="level-btn bg-fuchsia-500 text-white p-6 rounded-[2rem] text-left shadow-lg shadow-fuchsia-100">
-                    <span class="block text-[10px] font-black opacity-70 uppercase mb-1">Capítulo 3</span>
-                    <span class="text-2xl font-black">Mate in 3</span>
-                    <span class="block text-xs mt-2 opacity-80">Problemas 3719 al 4462</span>
-                </button>
-
-                <button onclick="loadPolgarRange(1, 4462, 'Full Book')" class="level-btn bg-slate-800 text-white p-6 rounded-[2rem] text-left shadow-lg">
-                    <span class="block text-[10px] font-black opacity-40 uppercase mb-1">Colección Completa</span>
-                    <span class="text-2xl font-black">Libro Completo</span>
-                    <span class="block text-xs mt-2 opacity-60">Todos los ejercicios</span>
+                <button onclick="loadPolgarRange(3719, 4462, 'Mate en 3')" class="level-btn bg-fuchsia-500 text-white p-5 rounded-2xl text-left">
+                    <span class="text-lg font-black block">Capítulo 3: Mate en 3</span>
+                    <span class="text-xs opacity-80">Problemas 3719 - 4462</span>
                 </button>
             </div>
         </div>
 
-        <div id="screen-game" class="hidden p-4 md:p-8 flex-1">
-            <div class="flex flex-col lg:flex-row gap-8">
-                <div class="flex-1">
-                    <div id="myBoard"></div>
+        <div id="screen-game" class="hidden p-4 flex-1 flex flex-col items-center">
+            <div id="myBoard" class="mb-6"></div>
+            
+            <div class="w-full max-w-[500px] space-y-4">
+                <div id="feedback" class="py-4 px-6 bg-slate-100 rounded-2xl text-center font-bold text-slate-600 italic">
+                    Analiza y juega...
                 </div>
-                <div class="w-full lg:w-72 space-y-4">
-                    <div id="feedback" class="p-8 rounded-[2rem] bg-slate-50 border-2 border-slate-100 text-center min-h-[140px] flex items-center justify-center font-bold text-slate-600 text-lg italic transition-all">
-                        Analiza y juega...
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-50 p-3 rounded-xl text-center">
+                        <span class="text-[9px] font-black uppercase text-slate-400">Intentos</span>
+                        <p id="ui-attempts" class="text-xl font-black">1</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="stat-card p-4 text-center border border-slate-100">
-                            <span class="text-[9px] font-black uppercase text-slate-400">Intento</span>
-                            <p id="ui-attempts" class="text-2xl font-black text-slate-800">1</p>
-                        </div>
-                        <div class="stat-card p-4 text-center border border-slate-100">
-                            <span class="text-[9px] font-black uppercase text-slate-400">Restantes</span>
-                            <p id="ui-progress" class="text-2xl font-black text-indigo-600">0</p>
-                        </div>
+                    <div class="bg-slate-50 p-3 rounded-xl text-center">
+                        <span class="text-[9px] font-black uppercase text-slate-400">Restantes</span>
+                        <p id="ui-progress" class="text-xl font-black text-indigo-600">0</p>
                     </div>
-                    <button onclick="skipPuzzle()" class="w-full py-5 rounded-2xl bg-slate-100 text-slate-500 font-black text-xs uppercase hover:bg-slate-200 transition-colors">Saltar este ejercicio</button>
                 </div>
+
+                <button onclick="skipPuzzle()" class="w-full py-3 text-slate-400 font-bold text-xs uppercase tracking-widest">Saltar Problema</button>
             </div>
         </div>
 
         <div id="screen-report" class="hidden p-6 flex-1 bg-slate-50 overflow-y-auto">
-            <div id="pdf-content" class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
-                <div class="flex justify-between items-start mb-8">
-                    <div>
-                        <h2 class="text-4xl font-black text-slate-900 tracking-tighter">Reporte Polgar</h2>
-                        <p id="res-date" class="text-sm font-bold text-indigo-500 uppercase tracking-widest mt-1"></p>
+            <div id="pdf-content" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <h2 class="text-2xl font-black mb-1">Sesión Finalizada</h2>
+                <p id="res-date" class="text-[10px] font-bold text-indigo-500 uppercase mb-6"></p>
+
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="p-4 bg-slate-50 rounded-2xl">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase text-center">Precisión</p>
+                        <p id="res-accuracy" class="text-2xl font-black text-center text-indigo-600">0%</p>
                     </div>
-                    <div class="bg-indigo-600 text-white p-4 rounded-2xl text-center">
-                        <p class="text-[10px] font-bold uppercase opacity-80">Precisión</p>
-                        <p id="res-accuracy" class="text-2xl font-black">0%</p>
+                    <div class="p-4 bg-slate-50 rounded-2xl">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase text-center">T. Medio</p>
+                        <p id="res-avg-time" class="text-2xl font-black text-center text-slate-800">0s</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-4 mb-8 text-center">
-                    <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-black text-slate-400 uppercase">Tiempo Total</p>
-                        <p id="res-total-time" class="text-xl font-black text-slate-800">00:00</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-black text-slate-400 uppercase">Ejercicios</p>
-                        <p id="res-total-done" class="text-xl font-black text-slate-800">0</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-2xl">
-                        <p class="text-[9px] font-black text-slate-400 uppercase">Ritmo Medio</p>
-                        <p id="res-avg-time" class="text-xl font-black text-indigo-600">0s</p>
-                    </div>
-                </div>
-
-                <div class="h-64 mb-8 bg-slate-50 rounded-3xl p-4">
-                    <canvas id="timeChart"></canvas>
-                </div>
-
-                <div id="report-list" class="space-y-3"></div>
+                <div id="report-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 mt-8 no-print">
-                <button onclick="downloadPDF()" class="flex-1 bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all">Descargar PDF</button>
-                <button onclick="location.reload()" class="bg-slate-900 text-white px-10 py-5 rounded-[2rem] font-black hover:bg-slate-800 transition-all">Reiniciar</button>
+            <div class="flex flex-col gap-2 mt-6">
+                <button onclick="downloadPDF()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black">Descargar Reporte PDF</button>
+                <button onclick="location.reload()" class="w-full py-4 font-bold text-slate-400">Volver al Inicio</button>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 
     <script>
-    let board, game = new Chess();
-    let puzzles = [], currentIdx = 0, moves = [], step = 0;
-    let timerStart, timerInt, stats = [], sessionStartTime;
-    let puzzleAttempts = 1, sourceSq = null;
+        let board = null;
+        let game = new Chess();
+        let puzzles = [], currentIdx = 0, moves = [], step = 0;
+        let timerStart, timerInt, stats = [], sessionStartTime;
+        let puzzleAttempts = 1;
 
-    const PIECE_THEMES = {
-        local: 'img/{piece}.png',
-        staunty: 'https://raw.githubusercontent.com/ornicar/lila/master/public/piece/staunty/{piece}.png',
-        wikipedia: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
-    };
+        // --- GESTIÓN DE PIEZAS ---
+        function getPieceTheme(piece) {
+            const style = document.getElementById('piece-style').value;
+            if (style === 'local') return `img/${piece}.png`;
+            return `https://chessboardjs.com/img/chesspieces/wikipedia/${piece}.png`;
+        }
 
-    function getPieceTheme(piece) {
-        const style = document.getElementById('piece-style').value;
-        return PIECE_THEMES[style].replace('{piece}', piece);
-    }
+        // --- CARGA DE DATOS ---
+        async function quickSearch() {
+            const id = parseInt(document.getElementById('search-id').value);
+            if(id) loadPolgarRange(id, 4462, `Búsqueda: #${id}`);
+        }
 
-    async function quickSearch() {
-        const id = parseInt(document.getElementById('search-id').value);
-        if(!id) return alert("Ingresa un ID");
-        loadPolgarRange(id, 4462, `Desde ID #${id}`);
-    }
+        async function loadPolgarRange(start, end, label) {
+            try {
+                const response = await fetch('puzzles.json');
+                const data = await response.json();
+                const rawList = Array.isArray(data) ? data : (data.problems || []);
+                
+                puzzles = rawList.filter(p => {
+                    const pid = parseInt(p.problemid || p.ID);
+                    return pid >= start && pid <= end;
+                });
 
-    async function loadPolgarRange(start, end, label) {
-        try {
-            const response = await fetch('puzzles.json');
-            if (!response.ok) throw new Error("No se pudo leer puzzles.json");
+                if (puzzles.length === 0) return alert("No se encontraron problemas.");
+
+                document.getElementById('screen-levels').classList.add('hidden');
+                document.getElementById('screen-game').classList.remove('hidden');
+                document.getElementById('btn-exit').classList.remove('hidden');
+                document.getElementById('game-timer').classList.remove('hidden');
+                document.getElementById('sub-title').innerText = label;
+
+                currentIdx = 0;
+                sessionStartTime = Date.now();
+                loadPuzzle();
+            } catch (e) {
+                alert("Error cargando el archivo puzzles.json");
+            }
+        }
+
+        function loadPuzzle() {
+            const p = puzzles[currentIdx];
+            game.load(p.FEN || p.fen);
             
-            const data = await response.json();
-            // Soporta si el JSON viene como array directo o dentro de un objeto "problems"
-            const rawList = Array.isArray(data) ? data : (data.problems || []);
+            // Limpiar movimientos: quitar guiones y espacios
+            const rawMoves = (p.moves || p.move).replace(/[-\s]/g, '');
+            moves = rawMoves.match(/.{1,4}/g);
             
-            puzzles = rawList.filter(p => {
-                const pid = parseInt(p.problemid || p.ID || 0);
-                return pid >= start && pid <= end;
+            step = 0;
+            puzzleAttempts = 1;
+
+            if (board) board.destroy();
+            
+            board = ChessBoard('myBoard', {
+                draggable: true,
+                position: game.fen(),
+                orientation: game.turn() === 'w' ? 'white' : 'black',
+                pieceTheme: getPieceTheme,
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                onSnapEnd: onSnapEnd
             });
 
-            if(puzzles.length === 0) throw new Error("Rango vacío");
-
-            document.getElementById('screen-levels').classList.add('hidden');
-            document.getElementById('screen-game').classList.remove('hidden');
-            document.getElementById('btn-exit').classList.remove('hidden');
-            document.getElementById('game-timer').classList.remove('hidden');
-            document.getElementById('sub-title').innerText = label;
-            
-            currentIdx = 0;
-            sessionStartTime = Date.now();
-            loadPuzzle();
-
-        } catch (err) {
-            alert("Error de carga: " + err.message);
-        }
-    }
-
-    function loadPuzzle() {
-        const p = puzzles[currentIdx];
-        
-        // --- VALIDACIÓN DE DATOS (EL FIX CRÍTICO) ---
-        const fen = p.FEN || p.fen;
-        const movesStr = p.moves || p.move || p.Moves;
-
-        if (!fen || !movesStr) {
-            console.warn("Ejercicio incompleto detectado, saltando al siguiente...", p);
-            currentIdx++;
-            loadPuzzle();
-            return;
+            updateUI();
+            startTimer();
+            setFeedback("Tu turno", "info");
         }
 
-        // Intentar cargar FEN, si falla r es undefined
-        const validFen = game.load(fen);
-        if (!validFen) {
-            console.error("FEN inválido en ID:", p.problemid);
-            currentIdx++;
-            loadPuzzle();
-            return;
+        // --- LÓGICA DE MOVIMIENTO (RECUPERADA Y LIMPIA) ---
+        function onDragStart (source, piece, position, orientation) {
+            if (game.game_over()) return false;
+            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+                return false;
+            }
         }
 
-        // Limpieza de movimientos
-        const movesRaw = movesStr.replace(/-/g, '').replace(/\s/g, '');
-        moves = movesRaw.match(/.{1,4}/g);
-        
-        if (!moves) {
-            currentIdx++;
-            loadPuzzle();
-            return;
-        }
+        function onDrop (source, target) {
+            const moveUCI = source + target;
+            const expectedMove = moves[step];
 
-        step = 0; 
-        puzzleAttempts = 1;
-        
-        if (board) board.destroy(); // Limpiar tablero previo
+            // 1. Intentar el movimiento en el motor
+            const move = game.move({
+                from: source,
+                to: target,
+                promotion: 'q' // Simplificamos a dama siempre
+            });
 
-        board = ChessBoard('myBoard', {
-            draggable: true,
-            onDrop: handleMove,
-            onSnapEnd: () => board.position(game.fen()),
-            pieceTheme: getPieceTheme
-        });
+            // 2. Si el movimiento es ilegal según las reglas de ajedrez
+            if (move === null) return 'snapback';
 
-        board.orientation(game.turn() === 'w' ? 'white' : 'black');
-        board.position(game.fen());
-        
-        updateUI();
-        startPuzzleTimer();
-        setFeedback("Tu turno. Busca el mate.", "info");
+            // 3. Verificar si es el movimiento correcto de la solución de Polgar
+            // (Comparamos los primeros 4 caracteres para ignorar promociones si fuera necesario)
+            if (moveUCI !== expectedMove.substring(0,4) && !game.in_checkmate()) {
+                game.undo();
+                puzzleAttempts++;
+                document.getElementById('ui-attempts').innerText = puzzleAttempts;
+                setFeedback("No es la mejor jugada", "fail");
+                return 'snapback';
+            }
 
-        $('.square-55d63').unbind().on('mousedown touchstart', function(e) {
-            e.preventDefault();
-            handleTap($(this).data('square'));
-        });
-    }
-
-    function handleMove(src, tgt) {
-        // Evitar que el usuario mueva si no es su turno (por si acaso)
-        const piece = game.get(src);
-        if (!piece || piece.color !== game.turn()) return 'snapback';
-
-        const uci = src + tgt;
-        const move = game.move({ from: src, to: tgt, promotion: 'q' });
-
-        if (!move) return 'snapback';
-
-        // Comprobación flexible de movimientos
-        const expectedMove = moves[step];
-        const isCorrect = (uci === expectedMove || (uci + 'q') === expectedMove);
-
-        if (isCorrect || game.in_checkmate()) {
+            // 4. Movimiento correcto
             step++;
+            
             if (game.in_checkmate() || step >= moves.length) {
-                finishPuzzle(true);
+                completePuzzle(true);
             } else {
+                // Respuesta de la "máquina" (siguiente movimiento en el JSON)
                 setTimeout(() => {
-                    const nextMove = moves[step];
-                    game.move(nextMove, {sloppy: true});
+                    game.move(moves[step], {sloppy: true});
                     step++;
                     board.position(game.fen());
-                    updateUI();
-                    if(game.in_checkmate()) finishPuzzle(true);
-                }, 400);
+                    if (game.in_checkmate()) completePuzzle(true);
+                }, 500);
             }
-        } else {
-            game.undo();
-            puzzleAttempts++;
-            document.getElementById('ui-attempts').innerText = puzzleAttempts;
-            setFeedback("Incorrecto. Intenta otra vez.", "fail");
-            return 'snapback';
         }
-    }
 
-    // El resto de funciones (finishPuzzle, startPuzzleTimer, etc.) se mantienen igual que la versión anterior.
-    // Asegúrate de incluirlas para que el reporte y el cronómetro funcionen.
-</script>
+        function onSnapEnd () {
+            board.position(game.fen());
+        }
+
+        // --- UTILIDADES ---
+        function completePuzzle(success) {
+            clearInterval(timerInt);
+            const timeTaken = Math.floor((Date.now() - timerStart) / 1000);
+            
+            stats.push({
+                id: puzzles[currentIdx].problemid || puzzles[currentIdx].ID,
+                time: timeTaken,
+                attempts: puzzleAttempts,
+                success: success
+            });
+
+            setFeedback(success ? "¡Correcto!" : "Saltado", "info");
+            
+            setTimeout(() => {
+                currentIdx++;
+                if (currentIdx < puzzles.length) loadPuzzle();
+                else showDashboard();
+            }, 1000);
+        }
+
+        function startTimer() {
+            clearInterval(timerInt);
+            timerStart = Date.now();
+            timerInt = setInterval(() => {
+                const s = Math.floor((Date.now() - timerStart) / 1000);
+                document.getElementById('game-timer').innerText = new Date(s * 1000).toISOString().substr(14, 5);
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('ui-attempts').innerText = puzzleAttempts;
+            document.getElementById('ui-progress').innerText = puzzles.length - currentIdx - 1;
+        }
+
+        function setFeedback(msg, type) {
+            const f = document.getElementById('feedback');
+            f.innerText = msg;
+            f.className = `py-4 px-6 rounded-2xl text-center font-bold italic transition-all ${type==='fail' ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-600'}`;
+        }
+
+        function skipPuzzle() { completePuzzle(false); }
+
+        function showDashboard() {
+            clearInterval(timerInt);
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-report').classList.remove('hidden');
+            document.getElementById('btn-exit').classList.add('hidden');
+            document.getElementById('game-timer').classList.add('hidden');
+
+            const perfects = stats.filter(s => s.attempts === 1 && s.success).length;
+            const avgTime = stats.length ? Math.round(stats.reduce((a,b)=>a+b.time, 0)/stats.length) : 0;
+
+            document.getElementById('res-date').innerText = new Date().toLocaleDateString();
+            document.getElementById('res-accuracy').innerText = stats.length ? Math.round((perfects/stats.length)*100) + "%" : "0%";
+            document.getElementById('res-avg-time').innerText = avgTime + "s";
+
+            document.getElementById('report-list').innerHTML = stats.map(s => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 text-[11px]">
+                    <span class="font-black text-slate-400">#${s.id}</span>
+                    <span class="font-bold">${s.time}s</span>
+                    <span>${s.success ? (s.attempts === 1 ? '💎' : '✅') : '❌'}</span>
+                </div>
+            `).join('');
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdf-content');
+            html2pdf().from(element).save('Reporte_Polgar.pdf');
+        }
+    </script>
 </body>
 </html>
