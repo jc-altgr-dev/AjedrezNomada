@@ -12,37 +12,52 @@
             margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center;
         }
         
-        /* Contenedores */
         #board { width: 95vw; max-width: 380px; margin-bottom: 10px; border: 6px solid white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .ui-container { width: 95vw; max-width: 380px; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
+        .ui-container { width: 95vw; max-width: 380px; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; margin-bottom: 10px; }
 
-        /* Buscador e Índice */
-        .search-zone { display: flex; gap: 5px; margin-bottom: 10px; }
+        /* FEN Display */
+        .fen-box { background: #f8f9fa; border: 1px solid #ddd; padding: 8px; border-radius: 8px; font-family: monospace; font-size: 11px; margin: 10px 0; display: flex; align-items: center; gap: 5px; }
+        .fen-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .copy-btn { background: var(--secondary); padding: 4px 8px; font-size: 10px; box-shadow: 0 2px 0 #1976D2; }
+
+        /* Promoción Modal */
+        #promotion-dialog {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 20px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.3); z-index: 1000;
+        }
+        .promo-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .promo-btns button { flex: 1; background: #eee; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; }
+        .promo-btns img { width: 40px; }
+
         input, select { padding: 10px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; }
-        input { flex: 1; }
-        select { width: 100%; margin-bottom: 10px; background: #fff; }
-
-        /* Mensajes y Tags */
-        .exercise-title { font-size: 1.1em; font-weight: bold; color: var(--secondary); }
+        .search-zone { display: flex; gap: 5px; margin-bottom: 10px; }
         .type-tag { font-size: 0.75em; background: var(--accent); padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; display: inline-block; }
         .turn-msg { font-size: 1em; margin: 10px 0; padding: 10px; border-radius: 12px; background: #f0f4f8; border: 2px dashed var(--primary); min-height: 40px; }
 
-        /* Botones */
         .nav-buttons { display: flex; gap: 10px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.1s; }
         .btn-prev { background: #95a5a6; box-shadow: 0 4px 0 #7f8c8d; }
         .btn-next { background: var(--primary); box-shadow: 0 4px 0 #388E3C; }
         button:active { transform: translateY(2px); box-shadow: none; }
-
         .highlight-sq { box-shadow: inset 0 0 5px 5px rgba(33, 150, 243, 0.6) !important; }
     </style>
 </head>
 <body>
 
-    <div class="ui-container" style="margin-bottom: 10px; padding: 10px;">
+    <div id="promotion-dialog">
+        <p>¡Coronación! Elige pieza:</p>
+        <div class="promo-btns">
+            <button onclick="selectPromotion('q')"><img id="pq" src=""></button>
+            <button onclick="selectPromotion('r')"><img id="pr" src=""></button>
+            <button onclick="selectPromotion('b')"><img id="pb" src=""></button>
+            <button onclick="selectPromotion('n')"><img id="pn" src=""></button>
+        </div>
+    </div>
+
+    <div class="ui-container">
         <div class="search-zone">
-            <input type="number" id="goto-id" placeholder="Ej: 500">
-            <button onclick="goToProblem()" style="flex: 0; background: var(--secondary); box-shadow: 0 4px 0 #1976D2;">🔍 Ir</button>
+            <input type="number" id="goto-id" placeholder="ID (1-4462)">
+            <button onclick="goToProblem()" style="flex: 0; background: var(--secondary); box-shadow: 0 4px 0 #1976D2;">🔍</button>
         </div>
         <select id="category-index" onchange="jumpToCategory()">
             <option value="">📂 Explorar categorías...</option>
@@ -54,13 +69,17 @@
     <div class="ui-container">
         <div id="exercise-title" class="exercise-title">Cargando...</div>
         <div id="book-section" class="type-tag">---</div>
-        <div id="status" class="turn-msg">¡Estamos preparando tus piezas!</div>
+        <div id="status" class="turn-msg">¡Prepárate!</div>
         
+        <div class="fen-box">
+            <span class="fen-text" id="fen-display">...</span>
+            <button class="copy-btn" onclick="copyFEN()">Copiar</button>
+        </div>
+
         <div class="nav-buttons">
-            <button class="btn-prev" onclick="changeProb(-1)">⬅️ Anterior</button>
+            <button class="btn-prev" onclick="changeProb(-1)">⬅️</button>
             <button class="btn-next" onclick="changeProb(1)">Siguiente ➡️</button>
         </div>
-        <p style="font-size: 0.7em; color: #999; margin-top: 8px;">Problema <span id="progress-val">0</span> de 4462</p>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -68,62 +87,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
     <script>
-        let allProblems = [];
-        let currentIdx = 0;
+        let allProblems = [], currentIdx = 0;
         let board, game = new Chess();
         let solutionMoves = [], moveStep = 0;
-        let sourceSq = null;
+        let sourceSq = null, pendingMove = null;
 
         const positiveFeedback = ["¡Increíble!", "¡Qué cerebro!", "¡Eres un genio!", "¡Maestro total!", "¡Súper jugada!"];
 
-        // 1. CARGAR JSON EXTERNO
         fetch('puzzles.json')
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                // Ordenar por ID y guardar
                 allProblems = data.problems.sort((a, b) => a.problemid - b.problemid);
                 buildCategoryIndex();
                 render();
-            })
-            .catch(err => {
-                document.getElementById('status').innerText = "❌ Error al cargar puzzles.json";
-                console.error(err);
             });
-
-        function buildCategoryIndex() {
-            const select = document.getElementById('category-index');
-            const categories = {};
-            
-            allProblems.forEach((p, index) => {
-                if (!categories[p.type]) categories[p.type] = index;
-            });
-
-            for (let type in categories) {
-                const opt = document.createElement('option');
-                opt.value = categories[type];
-                opt.innerText = type;
-                select.appendChild(opt);
-            }
-        }
-
-        function jumpToCategory() {
-            const val = document.getElementById('category-index').value;
-            if (val !== "") {
-                currentIdx = parseInt(val);
-                render();
-            }
-        }
-
-        function goToProblem() {
-            const id = parseInt(document.getElementById('goto-id').value);
-            const foundIdx = allProblems.findIndex(p => p.problemid === id);
-            if (foundIdx !== -1) {
-                currentIdx = foundIdx;
-                render();
-            } else {
-                alert("¡Ups! Ese número de problema no existe.");
-            }
-        }
 
         function getWikiPiece(p) {
             const m = {'wP':'4/45/Chess_plt45.svg','wN':'7/70/Chess_nlt45.svg','wB':'b/b1/Chess_blt45.svg','wR':'7/72/Chess_rlt45.svg','wQ':'1/15/Chess_qlt45.svg','wK':'4/42/Chess_klt45.svg','bP':'c/c7/Chess_pdt45.svg','bN':'e/ef/Chess_ndt45.svg','bB':'9/98/Chess_bdt45.svg','bR':'f/ff/Chess_rdt45.svg','bQ':'4/47/Chess_qdt45.svg','bK':'f/f0/Chess_kdt45.svg'};
@@ -131,25 +108,51 @@
         }
 
         function handleMove(src, tgt) {
-            const move = game.move({ from: src, to: tgt, promotion: 'q' });
+            const piece = game.get(src);
+            // Detectar promoción
+            if (piece && piece.type === 'p' && ((piece.color === 'w' && tgt[1] === '8') || (piece.color === 'b' && tgt[1] === '1'))) {
+                pendingMove = { from: src, to: tgt };
+                showPromotionDialog(piece.color);
+                return 'snapback';
+            }
+            return finalizeMove(src, tgt);
+        }
+
+        function showPromotionDialog(color) {
+            document.getElementById('pq').src = getWikiPiece(color + 'Q');
+            document.getElementById('pr').src = getWikiPiece(color + 'R');
+            document.getElementById('pb').src = getWikiPiece(color + 'B');
+            document.getElementById('pn').src = getWikiPiece(color + 'N');
+            document.getElementById('promotion-dialog').style.display = 'block';
+        }
+
+        function selectPromotion(pieceType) {
+            document.getElementById('promotion-dialog').style.display = 'none';
+            finalizeMove(pendingMove.from, pendingMove.to, pieceType);
+            board.position(game.fen(), false);
+        }
+
+        function finalizeMove(src, tgt, promo = 'q') {
+            const move = game.move({ from: src, to: tgt, promotion: promo });
             if (!move) return 'snapback';
 
-            const uci = `${src}-${tgt}`;
-            const isCorrect = (uci === solutionMoves[moveStep]);
-            const isMate = game.in_checkmate();
+            const uci = `${src}-${tgt}${promo === 'q' && !solutionMoves[moveStep].includes('q') ? '' : promo}`;
+            const targetUci = solutionMoves[moveStep].replace('-', '');
+            const currentUci = src + tgt + (move.promotion ? move.promotion : '');
 
-            if (isCorrect || isMate) {
+            if (currentUci === targetUci) {
                 moveStep++;
-                if (isMate || moveStep >= solutionMoves.length) {
-                    document.getElementById('status').innerText = "⭐ " + positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)];
+                updateFEN();
+                if (game.in_checkmate() || moveStep >= solutionMoves.length) {
+                    document.getElementById('status').innerText = "⭐ " + positiveFeedback[Math.floor(Math.random()*5)];
                     setTimeout(() => changeProb(1), 1000);
                 } else {
-                    document.getElementById('status').innerText = "¡Excelente! ¿Cuál sigue?";
+                    document.getElementById('status').innerText = "¡Bien! ¿Qué sigue?";
                     setTimeout(makeReply, 250);
                 }
             } else {
                 game.undo();
-                document.getElementById('status').innerText = "¡Casi! Intenta otra idea 🧠";
+                document.getElementById('status').innerText = "¡Casi! Intenta otra vez 🧠";
                 return 'snapback';
             }
         }
@@ -157,39 +160,36 @@
         function makeReply() {
             const reply = solutionMoves[moveStep];
             const [f, t] = reply.split('-');
-            game.move({ from: f, to: t, promotion: 'q' });
-            board.position(game.fen(), false); // Instantáneo
+            const promo = t.length > 2 ? t[2] : 'q';
+            game.move({ from: f, to: t.substring(0,2), promotion: promo });
+            board.position(game.fen(), false);
             moveStep++;
+            updateFEN();
         }
 
-        function handleTap(sq) {
-            if (sourceSq === sq) { removeHighlights(); sourceSq = null; return; }
-            const piece = game.get(sq);
-            if (piece && piece.color === game.turn()) {
-                removeHighlights();
-                sourceSq = sq;
-                $(`.square-${sq}`).addClass('highlight-sq');
-            } else if (sourceSq) {
-                const moveResult = handleMove(sourceSq, sq);
-                if (moveResult !== 'snapback') board.position(game.fen(), false);
-                removeHighlights();
-                sourceSq = null;
-            }
+        function updateFEN() {
+            const fen = game.fen();
+            document.getElementById('fen-display').innerText = fen;
         }
 
-        function removeHighlights() { $('.square-55d63').removeClass('highlight-sq'); }
+        function copyFEN() {
+            const text = document.getElementById('fen-display').innerText;
+            navigator.clipboard.writeText(text);
+            const btn = document.querySelector('.copy-btn');
+            btn.innerText = "¡Copiado!";
+            setTimeout(() => btn.innerText = "Copiar", 2000);
+        }
 
         function render() {
-            if (allProblems.length === 0) return;
+            if (!allProblems.length) return;
             const p = allProblems[currentIdx];
             game.load(p.fen);
             solutionMoves = p.moves.split(';');
             moveStep = 0;
-            sourceSq = null;
+            updateFEN();
 
             document.getElementById('exercise-title').innerText = `Reto #${p.problemid}`;
             document.getElementById('book-section').innerText = p.type;
-            document.getElementById('status').innerText = p.first.includes('White') ? "Juegan Blancas ⚪" : "Juegan Negras ⚫";
             document.getElementById('progress-val').innerText = currentIdx + 1;
 
             if (board) board.destroy();
@@ -201,18 +201,39 @@
                 pieceTheme: getWikiPiece,
                 orientation: p.first.toLowerCase().includes('white') ? 'white' : 'black'
             });
-
+            // Re-vincular tap para móviles
             $('.square-55d63').off().on('touchstart mousedown', function(e) {
                 e.preventDefault();
-                handleTap($(this).data('square'));
+                const sq = $(this).data('square');
+                if (sourceSq === sq) { removeHighlights(); sourceSq = null; }
+                else if (game.get(sq) && game.get(sq).color === game.turn()) {
+                    removeHighlights(); sourceSq = sq; $(this).addClass('highlight-sq');
+                } else if (sourceSq) {
+                    const r = handleMove(sourceSq, sq);
+                    if (r !== 'snapback') board.position(game.fen(), false);
+                    removeHighlights(); sourceSq = null;
+                }
             });
         }
 
-        function changeProb(d) {
-            currentIdx += d;
-            if (currentIdx >= allProblems.length) currentIdx = 0;
-            if (currentIdx < 0) currentIdx = allProblems.length - 1;
-            render();
+        function removeHighlights() { $('.square-55d63').removeClass('highlight-sq'); }
+        function changeProb(d) { currentIdx = (currentIdx + d + allProblems.length) % allProblems.length; render(); }
+        function goToProblem() {
+            const id = parseInt(document.getElementById('goto-id').value);
+            const idx = allProblems.findIndex(p => p.problemid === id);
+            if (idx !== -1) { currentIdx = idx; render(); }
+        }
+        function buildCategoryIndex() {
+            const select = document.getElementById('category-index');
+            const cats = {};
+            allProblems.forEach((p, i) => { if (!cats[p.type]) cats[p.type] = i; });
+            for (let t in cats) {
+                const o = document.createElement('option'); o.value = cats[t]; o.innerText = t; select.appendChild(o);
+            }
+        }
+        function jumpToCategory() { 
+            const v = document.getElementById('category-index').value;
+            if(v !== "") { currentIdx = parseInt(v); render(); }
         }
     </script>
 </body>
