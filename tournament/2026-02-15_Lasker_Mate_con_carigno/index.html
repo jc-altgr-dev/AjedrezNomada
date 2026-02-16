@@ -51,7 +51,7 @@
 <script>
 // === CONFIGURACIÓN ===
 const photosFolder = 'photos/';
-const totalImages = 37; // número total de imágenes numeradas (1.jpeg, 2.jpeg, etc.)
+const totalImages = 37; // número total de imágenes numeradas (1.jpg, 2.jpg, etc.)
 let currentIndex = 0;
 
 function loadGallery() {
@@ -59,7 +59,7 @@ function loadGallery() {
 
   for (let i = 1; i <= totalImages; i++) {
     const img = document.createElement('img');
-    img.src = `${photosFolder}${i}.jpeg`;
+    img.src = `${photosFolder}${i}.jpg`;
     img.alt = `Foto ${i}`;
     img.loading = "lazy";
     img.addEventListener('click', () => openLightbox(i));
@@ -79,7 +79,7 @@ function closeLightbox() {
 
 function updateLightboxImage() {
   const lightboxImg = document.getElementById('lightbox-img');
-  lightboxImg.src = `${photosFolder}${currentIndex}.jpeg`;
+  lightboxImg.src = `${photosFolder}${currentIndex}.jpg`;
 }
 
 function showNext() {
