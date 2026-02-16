@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Language" content="es">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="José Carlos Alvarado Garzón - Club ENAEL">
+  <link rel="canonical" href="https://enael.com.mx">
+  <title>Torneo de Ajedrez Emanuel Lasker Mate con Cariño Rapid 2026</title>
+  <meta name="description" content="Torneo Oficial de Ajedrez Emanuel Lasker F3, válido para rating FIDE y FENAMAC. Todo jugador afiliado al club o a la FENAMAC puede participar">
+  <meta name="keywords" content="Lasker F3, enael, ajedrez, Lasker, F3, tehuacan, ajedrez tehuacan,aprender ajedrez, ajedrez online, clases de ajedrez, academia de ajedrez, torneos de ajedrez, estrategia, táctica, Escuela Nacional de Ajedrez Emanuel Lasker">
+
+  <link rel="stylesheet" href="style.css">
+
+    <link rel="icon" href="../../img/favicon.png" type="image/png">
+</head>
+<body>
+  <header>
+    <h1>Torneo de Ajedrez Emanuel Lasker Mate con Cariño Rapid 2026</h1>
+    <p>Organizado por el Club Escuela Nacional de Ajedrez Emanuel Lasker</p>
+  </header>
+
+  <section class="info">
+    <h2>Información General</h2>
+    <ul>
+      <li><strong>Fecha y hora:</strong> 15 de Febrero del 2026. Primera ronda 10:00</li>
+      <li><strong>Sede:</strong> Calle 2 norte #134, Tehuacán, Puebla, México</li>
+      <li><strong>Sistema de Juego:</strong> Suizo a 5 rondas</li>
+      <li><strong>Ritmo de juego:</strong> 10 minutos + 2 segundos de incremento</li>
+      <li><strong>Arbitraje:</strong> Árbitro Nacional Gwendolyne Palacios Méndez</li>
+    </ul>
+  </section>
+
+<!-- ============================= -->
+<!-- 🖼️ Sección: Galería de Fotos -->
+<!-- ============================= -->
+<section id="gallery">
+  <h2>Galería de Fotos - Torneo Pasado</h2>
+  <div id="gallery-grid" class="grid"></div>
+</section>
+
+<!-- 🕶️ Lightbox -->
+<div id="lightbox" class="hidden">
+  <span id="close-lightbox">&times;</span>
+  <span id="prev-lightbox">&#10094;</span>
+  <img id="lightbox-img" src="" alt="Foto ampliada">
+  <span id="next-lightbox">&#10095;</span>
+</div>
+
+<script>
+// === CONFIGURACIÓN ===
+const photosFolder = 'photos/';
+const totalImages = 37; // número total de imágenes numeradas (1.jpeg, 2.jpeg, etc.)
+let currentIndex = 0;
+
+function loadGallery() {
+  const grid = document.getElementById('gallery-grid');
+
+  for (let i = 1; i <= totalImages; i++) {
+    const img = document.createElement('img');
+    img.src = `${photosFolder}${i}.jpeg`;
+    img.alt = `Foto ${i}`;
+    img.loading = "lazy";
+    img.addEventListener('click', () => openLightbox(i));
+    grid.appendChild(img);
+  }
+}
+
+function openLightbox(index) {
+  currentIndex = index;
+  updateLightboxImage();
+  document.getElementById('lightbox').classList.remove('hidden');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.add('hidden');
+}
+
+function updateLightboxImage() {
+  const lightboxImg = document.getElementById('lightbox-img');
+  lightboxImg.src = `${photosFolder}${currentIndex}.jpeg`;
+}
+
+function showNext() {
+  currentIndex = currentIndex >= totalImages ? 1 : currentIndex + 1;
+  updateLightboxImage();
+}
+
+function showPrev() {
+  currentIndex = currentIndex <= 1 ? totalImages : currentIndex - 1;
+  updateLightboxImage();
+}
+
+// === EVENTOS ===
+document.getElementById('close-lightbox').addEventListener('click', closeLightbox);
+document.getElementById('next-lightbox').addEventListener('click', showNext);
+document.getElementById('prev-lightbox').addEventListener('click', showPrev);
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
+
+// Teclado ← → Esc
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('hidden')) return;
+  if (e.key === 'ArrowRight') showNext();
+  if (e.key === 'ArrowLeft') showPrev();
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// Deslizamiento táctil (para móviles)
+let startX = 0;
+document.getElementById('lightbox').addEventListener('touchstart', e => {
+  startX = e.touches[0].clientX;
+});
+document.getElementById('lightbox').addEventListener('touchend', e => {
+  const endX = e.changedTouches[0].clientX;
+  const diff = startX - endX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) showNext(); // desliza a la izquierda
+    else showPrev();          // desliza a la derecha
+  }
+});
+
+document.addEventListener("DOMContentLoaded", loadGallery);
+</script>
+
+<style>
+/* ==== Galería ==== */
+#gallery {
+  padding: 2rem;
+  text-align: center;
+  background: #f5f5f5;
+}
+
+#gallery h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+#gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+}
+
+#gallery-grid img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+#gallery-grid img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* ==== Lightbox ==== */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#lightbox.hidden {
+  display: none;
+}
+
+#lightbox img {
+  max-width: 90%;
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+#close-lightbox,
+#next-lightbox,
+#prev-lightbox {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.5rem;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+#close-lightbox {
+  top: 30px;
+  right: 40px;
+  transform: none;
+  font-size: 2.5rem;
+}
+
+#next-lightbox {
+  right: 40px;
+}
+
+#prev-lightbox {
+  left: 40px;
+}
+
+#close-lightbox:hover,
+#next-lightbox:hover,
+#prev-lightbox:hover {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+</style>
+
+  <section class="tabla">
+    <h2>Clasificación actual : <a href="https://s1.chess-results.com/tnr1288977.aspx?lan=2&art=4&turdet=YES&flag=30&SNode=S0">Enlace</a></h2>
+    <!-- Puedes usar iframe si solo quieres embebido -->
+    <h2>Visor Interno:</h2>
+    <iframe src="https://s1.chess-results.com/tnr1288977.aspx?lan=2&art=4&turdet=YES&flag=30&SNode=S0" width="100%" height="500" frameborder="0"></iframe>
+  </section>
+
+  <section class="rondas">
+    <h2>Ronda 1 Mesa 2 Carlos Valencia vs Joel Martín</h2>
+    <h2>Partida en Lichess.org</h2>
+    <iframe width="600" height="371" src="https://lichess.org/study/embed/3sry8aAQ/Q3rzUpy1" frameborder=0></iframe>
+  </section>
+
+  <section class="rondas">
+    <h2>Ronda 1 Mesa 3 Enrique Temoxtle vs José Eduardo</h2>
+    <h2>Partida en Lichess.org</h2>
+<iframe width="600" height="371" src="https://lichess.org/study/embed/3sry8aAQ/YTpVU5Ye#last" frameborder=0></iframe>
+  </section>
+
+  <section class="rondas">
+    <h2>Ronda 1 Mesa 6 Alberto Yeret vs Alex Roberto</h2>
+    <h2>Partida en Lichess.org</h2>
+<iframe width="600" height="371" src="https://lichess.org/study/embed/3sry8aAQ/6eJGlcVy" frameborder=0></iframe>
+  </section>
+
+
+
+  <section class="enlaces">
+    <h2>Enlaces útiles</h2>
+    <ul>
+      <li><a href="https://s2.chess-results.com/tnr1257539.aspx?SNode=S0">Página oficial del torneo en Chess-Results</a></li>
+      <li><a href="https://enael.com.mx">Inicio</a></li>
+      <li><a href="https://www.facebook.com/AjedrezEmanuelLasker">Facebook</a></li>
+
+    </ul>
+  </section>
+  
+
+  <footer>
+    <p>&copy; 2025 Club Escuela Nacional de Ajedrez Emanuel Lasker | Desarrollado por José Carlos Alvarado Garzón</p>
+  </footer>
+</body>
+</html>
+
