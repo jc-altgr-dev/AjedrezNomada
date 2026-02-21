@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3er Torneo de Ajedrez en Rosa - Lista de Jugadoras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #fff5f7; }
+        .font-title { font-family: 'Playfair Display', serif; }
+        .pink-gradient { background: linear-gradient(135deg, #ff0080 0%, #ff85b2 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 133, 178, 0.2); }
+        .neon-text { text-shadow: 0 0 10px rgba(255, 0, 128, 0.3); }
+        .table-row:hover { background-color: #fff0f5; transition: 0.3s; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="py-10 px-4 text-center">
+        <img src="logo.jpeg" alt="Torneo de Ajedrez en Rosa" class="mx-auto mb-6 max-w-full h-auto drop-shadow-xl" style="max-height: 180px;">
+        <h1 class="text-3xl md:text-4xl font-title italic text-[#ff0080] neon-text mb-2">Lista Inicial de Jugadoras</h1>
+        <p id="tournament-date" class="text-lg text-pink-600 font-medium tracking-widest uppercase">Cargando fecha...</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-20">
+        
+        <section id="info-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+            </section>
+
+        <div class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <input type="text" id="searchInput" placeholder="Buscar jugadora..." class="w-full md:w-1/3 px-4 py-2 rounded-full border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400">
+            <span class="text-pink-500 font-semibold" id="playerCount">Total: 0 jugadoras</span>
+        </div>
+
+        <div class="glass-card rounded-3xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="pink-gradient text-white">
+                            <th class="py-4 px-6 font-bold uppercase text-sm">N°</th>
+                            <th class="py-4 px-6 font-bold uppercase text-sm">Nombre</th>
+                            <th class="py-4 px-6 font-bold uppercase text-sm">Fed</th>
+                            <th class="py-4 px-6 font-bold uppercase text-sm">Elo</th>
+                            <th class="py-4 px-6 font-bold uppercase text-sm">Categoría</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playerTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white py-10 border-t border-pink-100 text-center">
+        <p class="text-pink-400 text-sm">Organizado por:</p>
+        <p id="organizer-name" class="font-bold text-gray-700 uppercase tracking-tighter">Club ENAEL</p>
+    </footer>
+
+    <script>
+        // Configuración de carga de archivos
+        const PLAYERS_CSV = 'Players.csv';
+        const INFO_CSV = 'infotournament.csv';
+
+        // Cargar Información del Torneo
+        Papa.parse(INFO_CSV, {
+            download: true,
+            header: false, // Asumiendo formato "Etiqueta: Valor"
+            complete: function(results) {
+                const data = results.data;
+                const infoGrid = document.getElementById('info-grid');
+                const dateEl = document.getElementById('tournament-date');
+                
+                // Mapeo simple de datos clave
+                const infoMap = {};
+                data.forEach(row => {
+                    if(row[0]) infoMap[row[0].trim().replace(':','')] = row[1];
+                });
+
+                if(infoMap['Fecha']) dateEl.innerText = `${infoMap['Fecha']} | ${infoMap['Lugar'] || ''}`;
+
+                const cards = [
+                    { label: 'Ritmo', value: infoMap['Ritmo de juego'] || '10+2' },
+                    { label: 'Sistema', value: infoMap['Sistema de juego'] || 'Suizo' },
+                    { label: 'Rondas', value: infoMap['Número de rondas'] || '5' }
+                ];
+
+                infoGrid.innerHTML = cards.map(card => `
+                    <div class="glass-card p-6 rounded-2xl text-center shadow-sm">
+                        <p class="text-xs text-pink-400 uppercase font-bold mb-1">${card.label}</p>
+                        <p class="text-xl font-title text-gray-800">${card.value}</p>
+                    </div>
+                `).join('');
+            }
+        });
+
+        // Cargar Jugadoras
+        Papa.parse(PLAYERS_CSV, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                const players = results.data;
+                renderTable(players);
+
+                // Buscador funcional
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const filtered = players.filter(p => 
+                        p.Name.toLowerCase().includes(term) || 
+                        p.Categoría.toLowerCase().includes(term)
+                    );
+                    renderTable(filtered);
+                });
+            }
+        });
+
+        function renderTable(data) {
+            const tbody = document.getElementById('playerTableBody');
+            document.getElementById('playerCount').innerText = `Total: ${data.length} jugadoras`;
+            
+            tbody.innerHTML = data.map(p => `
+                <tr class="table-row border-b border-pink-50">
+                    <td class="py-4 px-6 text-gray-400 font-mono text-sm">${p.N}</td>
+                    <td class="py-4 px-6 font-bold text-gray-700">${p.Name}</td>
+                    <td class="py-4 px-6 text-sm text-gray-500">${p.Fed}</td>
+                    <td class="py-4 px-6 font-semibold ${p.Rtg > 0 ? 'text-pink-600' : 'text-gray-300'}">${p.Rtg > 0 ? p.Rtg : '-'}</td>
+                    <td class="py-4 px-6">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-pink-100 text-pink-600 uppercase italic">
+                            ${p.Categoría}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
