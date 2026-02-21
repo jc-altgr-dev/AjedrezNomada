@@ -3,136 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3er Torneo de Ajedrez en Rosa - Lista de Jugadoras</title>
+    <title>3er Torneo de Ajedrez en Rosa - Jugadoras</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #fff5f7; }
         .font-title { font-family: 'Playfair Display', serif; }
         .pink-gradient { background: linear-gradient(135deg, #ff0080 0%, #ff85b2 100%); }
         .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 133, 178, 0.2); }
-        .neon-text { text-shadow: 0 0 10px rgba(255, 0, 128, 0.3); }
-        .table-row:hover { background-color: #fff0f5; transition: 0.3s; }
+        .neon-border { box-shadow: 0 0 15px rgba(255, 0, 128, 0.2); }
+        .modal-entry { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body class="text-gray-800">
 
-    <header class="py-10 px-4 text-center">
-        <img src="logo.jpeg" alt="Torneo de Ajedrez en Rosa" class="mx-auto mb-6 max-w-full h-auto drop-shadow-xl" style="max-height: 180px;">
-        <h1 class="text-3xl md:text-4xl font-title italic text-[#ff0080] neon-text mb-2">Lista Inicial de Jugadoras</h1>
-        <p id="tournament-date" class="text-lg text-pink-600 font-medium tracking-widest uppercase">Cargando fecha...</p>
+    <header class="py-8 px-4 text-center">
+        <img src="logo.jpeg" alt="Logo Torneo" class="mx-auto mb-4 max-w-full h-auto drop-shadow-lg" style="max-height: 150px;">
+        <h1 class="text-3xl md:text-4xl font-title italic text-[#ff0080] mb-2">Lista Inicial de Jugadoras</h1>
+        <p id="tournament-date" class="text-sm text-pink-500 font-bold tracking-widest uppercase">Cargando información...</p>
     </header>
 
     <main class="max-w-6xl mx-auto px-4 pb-20">
         
-        <section id="info-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+        <section id="info-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 text-center">
             </section>
 
-        <div class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <input type="text" id="searchInput" placeholder="Buscar jugadora..." class="w-full md:w-1/3 px-4 py-2 rounded-full border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400">
-            <span class="text-pink-500 font-semibold" id="playerCount">Total: 0 jugadoras</span>
+        <div class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl shadow-sm">
+            <input type="text" id="searchInput" placeholder="Buscar por nombre o categoría..." class="w-full md:w-1/2 px-5 py-3 rounded-xl border border-pink-100 focus:ring-2 focus:ring-pink-400 outline-none transition-all">
+            <div id="playerCount" class="bg-pink-50 text-pink-600 px-4 py-2 rounded-lg font-bold text-sm uppercase">Total: 0</div>
         </div>
 
-        <div class="glass-card rounded-3xl overflow-hidden shadow-2xl">
+        <div class="glass-card rounded-3xl overflow-hidden shadow-xl border-none">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left">
                     <thead>
-                        <tr class="pink-gradient text-white">
-                            <th class="py-4 px-6 font-bold uppercase text-sm">N°</th>
-                            <th class="py-4 px-6 font-bold uppercase text-sm">Nombre</th>
-                            <th class="py-4 px-6 font-bold uppercase text-sm">Fed</th>
-                            <th class="py-4 px-6 font-bold uppercase text-sm">Elo</th>
-                            <th class="py-4 px-6 font-bold uppercase text-sm">Categoría</th>
+                        <tr class="pink-gradient text-white text-xs uppercase tracking-wider">
+                            <th class="py-4 px-6">N°</th>
+                            <th class="py-4 px-6">Jugadora</th>
+                            <th class="py-4 px-6">Elo</th>
+                            <th class="py-4 px-6">Categoría</th>
+                            <th class="py-4 px-6 text-center">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="playerTableBody">
+                    <tbody id="playerTableBody" class="divide-y divide-pink-50">
                         </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <footer class="bg-white py-10 border-t border-pink-100 text-center">
-        <p class="text-pink-400 text-sm">Organizado por:</p>
-        <p id="organizer-name" class="font-bold text-gray-700 uppercase tracking-tighter">Club ENAEL</p>
-    </footer>
+    <div id="playerModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl modal-entry">
+            <div class="pink-gradient p-6 text-white relative">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-white/80 hover:text-white text-2xl">&times;</button>
+                <p id="m-category" class="text-xs font-bold uppercase tracking-widest opacity-80 mb-1"></p>
+                <h2 id="m-name" class="text-2xl font-title"></h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <p class="text-gray-400 text-[10px] uppercase font-bold">FIDE ID</p>
+                        <p id="m-fideid" class="font-mono font-bold text-gray-700"></p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <p class="text-gray-400 text-[10px] uppercase font-bold">Elo Internacional</p>
+                        <p id="m-rtgfide" class="font-bold text-pink-600"></p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <p class="text-gray-400 text-[10px] uppercase font-bold">ID Nacional</p>
+                        <p id="m-natid" class="font-mono font-bold text-gray-700"></p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <p class="text-gray-400 text-[10px] uppercase font-bold">Elo Nacional</p>
+                        <p id="m-rtgnat" class="font-bold text-pink-600"></p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 pt-4">
+                    <a id="link-fide" target="_blank" class="flex items-center justify-center gap-2 bg-[#004a99] text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all">
+                        🌐 Ver Perfil FIDE
+                    </a>
+                    <a id="link-lichess" target="_blank" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all">
+                        ♟️ Ver en Lichess
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Configuración de carga de archivos
-        const PLAYERS_CSV = 'Players.csv';
-        const INFO_CSV = 'infotournament.csv';
+        let allPlayers = [];
 
-        // Cargar Información del Torneo
-        Papa.parse(INFO_CSV, {
+        // Cargar Datos del Torneo
+        Papa.parse('infotournament.csv', {
             download: true,
-            header: false, // Asumiendo formato "Etiqueta: Valor"
-            complete: function(results) {
-                const data = results.data;
-                const infoGrid = document.getElementById('info-grid');
-                const dateEl = document.getElementById('tournament-date');
+            complete: (results) => {
+                const info = {};
+                results.data.forEach(row => { if(row[0]) info[row[0].trim().replace(':','')] = row[1]; });
                 
-                // Mapeo simple de datos clave
-                const infoMap = {};
-                data.forEach(row => {
-                    if(row[0]) infoMap[row[0].trim().replace(':','')] = row[1];
-                });
-
-                if(infoMap['Fecha']) dateEl.innerText = `${infoMap['Fecha']} | ${infoMap['Lugar'] || ''}`;
-
-                const cards = [
-                    { label: 'Ritmo', value: infoMap['Ritmo de juego'] || '10+2' },
-                    { label: 'Sistema', value: infoMap['Sistema de juego'] || 'Suizo' },
-                    { label: 'Rondas', value: infoMap['Número de rondas'] || '5' }
+                document.getElementById('tournament-date').innerText = `${info['Fecha'] || ''} • ${info['Lugar'] || ''}`;
+                
+                const stats = [
+                    ['Ritmo', info['Ritmo de juego']],
+                    ['Rondas', info['Número de rondas']],
+                    ['Elo Medio', info['Elo medio']],
+                    ['Organiza', info['Organizador']]
                 ];
-
-                infoGrid.innerHTML = cards.map(card => `
-                    <div class="glass-card p-6 rounded-2xl text-center shadow-sm">
-                        <p class="text-xs text-pink-400 uppercase font-bold mb-1">${card.label}</p>
-                        <p class="text-xl font-title text-gray-800">${card.value}</p>
+                
+                document.getElementById('info-grid').innerHTML = stats.map(s => `
+                    <div class="bg-white p-3 rounded-xl shadow-sm border border-pink-50">
+                        <p class="text-[10px] text-pink-400 font-bold uppercase">${s[0]}</p>
+                        <p class="text-sm font-semibold text-gray-700">${s[1] || 'N/A'}</p>
                     </div>
                 `).join('');
             }
         });
 
         // Cargar Jugadoras
-        Papa.parse(PLAYERS_CSV, {
+        Papa.parse('Players.csv', {
             download: true,
             header: true,
             skipEmptyLines: true,
-            complete: function(results) {
-                const players = results.data;
-                renderTable(players);
-
-                // Buscador funcional
-                document.getElementById('searchInput').addEventListener('input', (e) => {
-                    const term = e.target.value.toLowerCase();
-                    const filtered = players.filter(p => 
-                        p.Name.toLowerCase().includes(term) || 
-                        p.Categoría.toLowerCase().includes(term)
-                    );
-                    renderTable(filtered);
-                });
+            complete: (results) => {
+                allPlayers = results.data;
+                renderTable(allPlayers);
             }
         });
 
         function renderTable(data) {
             const tbody = document.getElementById('playerTableBody');
-            document.getElementById('playerCount').innerText = `Total: ${data.length} jugadoras`;
+            document.getElementById('playerCount').innerText = `Total: ${data.length}`;
             
-            tbody.innerHTML = data.map(p => `
-                <tr class="table-row border-b border-pink-50">
-                    <td class="py-4 px-6 text-gray-400 font-mono text-sm">${p.N}</td>
-                    <td class="py-4 px-6 font-bold text-gray-700">${p.Name}</td>
-                    <td class="py-4 px-6 text-sm text-gray-500">${p.Fed}</td>
+            tbody.innerHTML = data.map((p, idx) => `
+                <tr class="hover:bg-pink-50/50 transition-colors cursor-pointer group" onclick="showDetails(${allPlayers.indexOf(p)})">
+                    <td class="py-4 px-6 text-xs font-mono text-gray-400">${p.N}</td>
+                    <td class="py-4 px-6">
+                        <div class="font-bold text-gray-700 group-hover:text-[#ff0080] transition-colors">${p.Name}</div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-tighter">${p.Fed}</div>
+                    </td>
                     <td class="py-4 px-6 font-semibold ${p.Rtg > 0 ? 'text-pink-600' : 'text-gray-300'}">${p.Rtg > 0 ? p.Rtg : '-'}</td>
                     <td class="py-4 px-6">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-pink-100 text-pink-600 uppercase italic">
+                        <span class="px-2 py-1 rounded-md text-[10px] font-bold bg-pink-100 text-pink-600 uppercase italic">
                             ${p.Categoría}
                         </span>
                     </td>
+                    <td class="py-4 px-6 text-center text-pink-300 group-hover:text-[#ff0080]">
+                        <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"></path></svg>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        function showDetails(index) {
+            const p = allPlayers[index];
+            const modal = document.getElementById('playerModal');
+            
+            document.getElementById('m-name').innerText = p.Name;
+            document.getElementById('m-category').innerText = p.Categoría;
+            document.getElementById('m-fideid').innerText = p['ID FIDE'] != "0" ? p['ID FIDE'] : 'No registrado';
+            document.getElementById('m-rtgfide').innerText = p.FRtg != "0" ? p.FRtg : 'S/R';
+            document.getElementById('m-natid').innerText = p['ID Nat'] != "0" ? p['ID Nat'] : 'S/I';
+            document.getElementById('m-rtgnat').innerText = p.NRtg != "0" ? p.NRtg : 'S/R';
+
+            // Enlaces FIDE y Lichess
+            const fideLink = document.getElementById('link-fide');
+            const lichessLink = document.getElementById('link-lichess');
+
+            if(p['ID FIDE'] && p['ID FIDE'] !== "0") {
+                fideLink.href = `https://ratings.fide.com/profile/${p['ID FIDE']}`;
+                lichessLink.href = `https://lichess.org/fide/${p['ID FIDE']}`;
+                fideLink.style.display = 'flex';
+                lichessLink.style.display = 'flex';
+            } else {
+                fideLink.style.display = 'none';
+                lichessLink.style.display = 'none';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('playerModal').classList.add('hidden');
+        }
+
+        // Buscador
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allPlayers.filter(p => 
+                p.Name.toLowerCase().includes(term) || 
+                p.Categoría.toLowerCase().includes(term)
+            );
+            renderTable(filtered);
+        });
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('playerModal');
+            if (event.target == modal) closeModal();
         }
     </script>
 </body>
