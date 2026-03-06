@@ -25,7 +25,6 @@
         .hidden-section { display: none; }
         .crosstable-text { font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; white-space: pre; line-height: 1.5; }
         
-        /* Estilos Rondas */
         .round-selector { background: white; border: 1px solid #fee2e2; padding: 10px 20px; border-radius: 15px; cursor: pointer; font-weight: 700; color: #ff0080; transition: all 0.2s; }
         .round-selector:hover { background: #fff0f6; }
         .round-active { background: #ff0080 !important; color: white !important; }
@@ -36,7 +35,7 @@
     <header class="bg-white shadow-sm border-b border-pink-50 sticky top-0 z-[100]">
         <div class="max-w-7xl mx-auto px-4 py-6">
             <div class="flex items-center justify-between">
-                <div class="w-[100%] md:w-full flex justify-center">
+                <div class="w-[85%] md:w-full flex justify-center">
                     <img src="logo.webp" alt="Logo" class="h-24 md:h-32 w-auto cursor-pointer" onclick="location.reload()">
                 </div>
                 <div class="md:hidden w-[15%] flex justify-end">
@@ -70,37 +69,76 @@
 
     <main class="max-w-6xl mx-auto px-4 py-12">
         <section id="sec-convocatoria" class="hidden-section">
-            <div class="max-w-4xl mx-auto">
-                <div class="text-center mb-12"><h2 class="text-4xl font-title italic text-pink-600 mb-4">Convocatoria Oficial</h2></div>
-                <div class="grid md:grid-cols-2 gap-8 mb-16">
-                    <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-pink-50">
-                        <h3 class="font-bold text-pink-500 uppercase mb-6 text-xs tracking-widest">Información</h3>
-                        <ul class="space-y-4 text-sm">
-                            <li><strong>📍 Lugar:</strong> Hemingway Coffee</li>
-                            <li><strong>📅 Fecha:</strong> 8 de Marzo</li>
-                            <li><strong>💰 Costo:</strong> $100 MXN</li>
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-title italic text-pink-600 mb-2">Convocatoria Oficial</h2>
+                    <p class="text-gray-400 italic">"Los límites existen solo si los aceptamos"</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-16 items-stretch">
+                    <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border border-pink-50">
+                        <h3 class="font-bold text-pink-500 uppercase tracking-widest text-[11px] mb-8">Detalles del Evento</h3>
+                        <ul class="space-y-5 text-sm">
+                            <li class="flex items-center gap-3">
+                                <span class="text-lg">📍</span> 
+                                <span class="font-semibold text-gray-600">Lugar:</span> 
+                                <span class="text-gray-500">Hemingway Coffee, Tehuacán</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="text-lg">📅</span> 
+                                <span class="font-semibold text-gray-600">Fecha:</span> 
+                                <span class="text-gray-500">Domingo, 8 de marzo del 2026</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="text-lg">🕙</span> 
+                                <span class="font-semibold text-gray-600">Horario:</span> 
+                                <span class="text-gray-500">10:00 h - 15:00 h</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="text-lg">♟️</span> 
+                                <span class="font-semibold text-gray-600">Sistema:</span> 
+                                <span class="text-gray-500">Suizo a 7 rondas</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="text-lg">💰</span> 
+                                <span class="font-semibold text-gray-600">Inscripción:</span> 
+                                <span class="text-gray-500">$100 MXN</span>
+                            </li>
                         </ul>
                     </div>
-                    <div class="pink-gradient p-8 rounded-[2.5rem] text-white flex flex-col justify-center">
-                        <a href="https://forms.gle/YZjtJnGEVgopafoi7" target="_blank" class="bg-white text-pink-600 py-4 rounded-2xl font-bold text-center uppercase text-xs">Inscribirme</a>
+
+                    <div class="pink-gradient p-10 rounded-[2.5rem] text-white flex flex-col justify-center text-center shadow-lg">
+                        <p class="text-xl md:text-2xl font-title italic mb-10 leading-relaxed px-4">
+                            ¡Forma parte de la tercera edición y demuestra tu talento en el tablero!
+                        </p>
+                        <a href="https://forms.gle/YZjtJnGEVgopafoi7" target="_blank" class="bg-white text-pink-600 py-4 px-8 rounded-2xl font-bold uppercase tracking-widest text-xs shadow-md hover:scale-105 transition-transform">
+                            Inscribirme Ahora
+                        </a>
+                        <a href="bases_convocatoria.pdf" target="_blank" class="mt-6 text-[10px] uppercase font-bold tracking-widest opacity-80 hover:opacity-100 flex items-center justify-center gap-2">
+                            <span>⬇️</span> Descargar convocatoria en PDF
+                        </a>
                     </div>
                 </div>
-                <div id="convocatoriaImgs" class="space-y-6"></div>
+
+                <div id="convocatoriaImgs" class="space-y-8">
+                    </div>
             </div>
         </section>
 
         <section id="sec-players" class="hidden-section">
             <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                 <h2 class="text-3xl font-title italic text-pink-600">Lista de Inscritas</h2>
-                <input type="text" id="playerSearch" oninput="handleSearch(this.value)" placeholder="Buscar jugadora..." class="w-full md:w-80 px-6 py-4 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm">
+                <input type="text" id="playerSearch" oninput="handleSearch(this.value)" placeholder="Buscar jugadora..." class="w-full md:w-80 px-6 py-4 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm transition-all">
             </div>
             <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
-                <table class="w-full text-left text-sm">
-                    <thead class="pink-gradient text-white uppercase text-[10px] tracking-widest">
-                        <tr><th class="p-6">ID</th><th class="p-6">Nombre</th><th class="p-6 text-center">Categoría</th><th class="p-6 text-right">Ficha</th></tr>
-                    </thead>
-                    <tbody id="playersList" class="divide-y divide-pink-50"></tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="pink-gradient text-white uppercase text-[10px] tracking-widest">
+                            <tr><th class="p-6">ID</th><th class="p-6">Nombre</th><th class="p-6 text-center">Categoría</th><th class="p-6 text-right">Ficha</th></tr>
+                        </thead>
+                        <tbody id="playersList" class="divide-y divide-pink-50"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -121,11 +159,11 @@
                         <thead class="bg-gray-50 text-gray-400 uppercase text-[9px] font-bold tracking-widest">
                             <tr>
                                 <th class="p-5 text-center">Mesa</th>
-                                <th class="p-5">Blanco</th>
+                                <th class="p-5">Blanca</th>
                                 <th class="p-5 text-center">Pts</th>
                                 <th class="p-5 text-center bg-pink-50 text-pink-600">Resultado</th>
                                 <th class="p-5 text-center">Pts</th>
-                                <th class="p-5 text-right">Negro</th>
+                                <th class="p-5 text-right">Negra</th>
                             </tr>
                         </thead>
                         <tbody id="pairingList" class="divide-y divide-pink-50">
@@ -162,15 +200,17 @@
                     <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase">Elo</p><p id="m-fide-rtg" class="font-bold text-pink-600">-</p></div>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <a id="fide-btn" target="_blank" class="w-full py-4 bg-blue-800 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest">FIDE</a>
-                    <a id="lichess-btn" target="_blank" class="w-full py-4 bg-zinc-900 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest">Lichess</a>
+                    <a id="fide-btn" target="_blank" class="w-full py-4 bg-blue-800 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest hover:brightness-110">Perfil FIDE</a>
+                    <a id="lichess-btn" target="_blank" class="w-full py-4 bg-zinc-900 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest hover:brightness-125">Lichess</a>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Configuración de inicio: 'convocatoria', 'players', 'rondas', 'cuadro', 'galeria'
         const VISTA_INICIAL = 'convocatoria'; 
+
         let playersData = [];
 
         function showSection(id) {
@@ -203,16 +243,15 @@
 
         function renderPlayers(data) {
             document.getElementById('playersList').innerHTML = data.map((p) => `
-                <tr class="hover:bg-pink-50 cursor-pointer" onclick="openModal(${playersData.indexOf(p)})">
+                <tr class="hover:bg-pink-50 cursor-pointer transition-colors" onclick="openModal(${playersData.indexOf(p)})">
                     <td class="p-6 text-xs text-gray-300 font-mono">${p.N}</td>
-                    <td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold">${p.Fed} | Elo: ${p.Rtg}</div></td>
-                    <td class="p-6 text-center"><span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold uppercase">${p.Categoría}</span></td>
+                    <td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold uppercase">${p.Fed} | Elo: ${p.Rtg}</div></td>
+                    <td class="p-6 text-center"><span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span></td>
                     <td class="p-6 text-right text-pink-300">→</td>
                 </tr>
             `).join('');
         }
 
-        // --- ARREGLO 13: Búsqueda ---
         function handleSearch(val) {
             const filtered = playersData.filter(p => 
                 p.Name.toLowerCase().includes(val.toLowerCase()) || 
@@ -221,11 +260,10 @@
             renderPlayers(filtered);
         }
 
-        // --- ARREGLO 14: Rondas ---
         function loadRound(num) {
-            // Estilo de botones
             document.querySelectorAll('.round-selector').forEach(b => b.classList.remove('round-active'));
-            document.getElementById(`btn-round-${num}`).classList.add('round-active');
+            const btn = document.getElementById(`btn-round-${num}`);
+            if(btn) btn.classList.add('round-active');
 
             const path = `Rondas/Ronda_${num}/pairing${num}.csv`;
             Papa.parse(path, {
@@ -244,7 +282,7 @@
                     `).join('');
                 },
                 error: function() {
-                    document.getElementById('pairingList').innerHTML = `<tr><td colspan="6" class="p-20 text-center text-pink-300 italic">Archivo de Ronda ${num} no encontrado aún.</td></tr>`;
+                    document.getElementById('pairingList').innerHTML = `<tr><td colspan="6" class="p-20 text-center text-pink-300 italic">Archivo de Ronda ${num} no disponible.</td></tr>`;
                 }
             });
         }
@@ -253,7 +291,9 @@
             Papa.parse('Convocatoria/convocatoria.csv', {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(r) {
-                    document.getElementById('convocatoriaImgs').innerHTML = r.data.map(row => `<img src="Convocatoria/${row[0]}" class="w-full rounded-3xl shadow-lg" loading="lazy">`).join('');
+                    document.getElementById('convocatoriaImgs').innerHTML = r.data.map(row => `
+                        <img src="Convocatoria/${row[0]}" class="w-full h-auto rounded-[2rem] shadow-lg border border-pink-50" loading="lazy">
+                    `).join('');
                 }
             });
         }
@@ -268,7 +308,11 @@
             Papa.parse('galeria/galeria.csv', {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(r) {
-                    document.getElementById('galleryGrid').innerHTML = r.data.map(row => `<div class="aspect-square rounded-lg overflow-hidden bg-pink-100"><img src="galeria/${row[0]}" class="w-full h-full object-cover"></div>`).join('');
+                    document.getElementById('galleryGrid').innerHTML = r.data.map(row => `
+                        <div class="aspect-square rounded-[1.5rem] overflow-hidden bg-pink-100 shadow-sm">
+                            <img src="galeria/${row[0]}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                        </div>
+                    `).join('');
                 }
             });
         }
