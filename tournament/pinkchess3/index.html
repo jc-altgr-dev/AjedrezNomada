@@ -12,24 +12,23 @@
         .font-title { font-family: 'Playfair Display', serif; }
         .pink-gradient { background: linear-gradient(135deg, #ff0080 0%, #ff85b2 100%); }
         
-        /* Arreglo 12: Sandwich Elegante Restaurado */
+        /* Arreglo 12: Sandwich Elegante */
         .sandwich-btn { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; width: 32px; border: none; background: none; cursor: pointer; }
         .sandwich-line { background-color: #ff0080; height: 2px; border-radius: 2px; transition: 0.3s; }
         .line-1 { width: 28px; }
         .line-2 { width: 20px; }
         .line-3 { width: 12px; }
-        .sandwich-btn:hover .sandwich-line { width: 28px; }
 
         .desktop-nav-btn { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #9ca3af; transition: all 0.3s; border-bottom: 2px solid transparent; padding-bottom: 4px; }
         .desktop-nav-btn:hover, .active-tab { color: #ff0080; border-bottom: 2px solid #ff0080; }
 
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
-        .gallery-item { aspect-ratio: 1 / 1; overflow: hidden; border-radius: 8px; background: #fee2e2; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-        .gallery-item:hover img { transform: scale(1.08); }
-
         .hidden-section { display: none; }
         .crosstable-text { font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; white-space: pre; line-height: 1.5; }
+        
+        /* Estilos Rondas */
+        .round-selector { background: white; border: 1px solid #fee2e2; padding: 10px 20px; border-radius: 15px; cursor: pointer; font-weight: 700; color: #ff0080; transition: all 0.2s; }
+        .round-selector:hover { background: #fff0f6; }
+        .round-active { background: #ff0080 !important; color: white !important; }
     </style>
 </head>
 <body class="text-gray-800">
@@ -37,7 +36,7 @@
     <header class="bg-white shadow-sm border-b border-pink-50 sticky top-0 z-[100]">
         <div class="max-w-7xl mx-auto px-4 py-6">
             <div class="flex items-center justify-between">
-                <div class="w-[85%] md:w-full flex justify-center">
+                <div class="w-[100%] md:w-full flex justify-center">
                     <img src="logo.webp" alt="Logo" class="h-24 md:h-32 w-auto cursor-pointer" onclick="location.reload()">
                 </div>
                 <div class="md:hidden w-[15%] flex justify-end">
@@ -49,9 +48,10 @@
                 </div>
             </div>
 
-            <nav class="hidden md:flex justify-center gap-12 mt-8">
+            <nav class="hidden md:flex justify-center gap-10 mt-8">
                 <button onclick="showSection('convocatoria')" id="tab-convocatoria" class="desktop-nav-btn">Convocatoria</button>
                 <button onclick="showSection('players')" id="tab-players" class="desktop-nav-btn">Jugadoras</button>
+                <button onclick="showSection('rondas')" id="tab-rondas" class="desktop-nav-btn">Rondas</button>
                 <button onclick="showSection('cuadro')" id="tab-cuadro" class="desktop-nav-btn">Cuadro Cruzado</button>
                 <button onclick="showSection('galeria')" id="tab-galeria" class="desktop-nav-btn">Galería</button>
             </nav>
@@ -61,6 +61,7 @@
             <div class="flex flex-col text-center font-bold py-8 gap-6 text-gray-400 uppercase tracking-widest text-xs">
                 <button onclick="showSection('convocatoria')">Convocatoria</button>
                 <button onclick="showSection('players')">Jugadoras</button>
+                <button onclick="showSection('rondas')">Rondas</button>
                 <button onclick="showSection('cuadro')">Cuadro Cruzado</button>
                 <button onclick="showSection('galeria')">Galería</button>
             </div>
@@ -70,24 +71,18 @@
     <main class="max-w-6xl mx-auto px-4 py-12">
         <section id="sec-convocatoria" class="hidden-section">
             <div class="max-w-4xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl font-title italic text-pink-600 mb-4">Convocatoria Oficial</h2>
-                    <p class="text-lg text-gray-500 italic">"Los límites existen solo si los aceptamos"</p>
-                </div>
+                <div class="text-center mb-12"><h2 class="text-4xl font-title italic text-pink-600 mb-4">Convocatoria Oficial</h2></div>
                 <div class="grid md:grid-cols-2 gap-8 mb-16">
                     <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-pink-50">
-                        <h3 class="font-bold text-pink-500 uppercase tracking-widest text-xs mb-6">Detalles del Evento</h3>
+                        <h3 class="font-bold text-pink-500 uppercase mb-6 text-xs tracking-widest">Información</h3>
                         <ul class="space-y-4 text-sm">
-                            <li><strong>📍 Lugar:</strong> Hemingway Coffee, Tehuacán </li>
-                            <li><strong>📅 Fecha:</strong> Domingo, 8 de marzo del 2026 </li>
-                            <li><strong>🕙 Horario:</strong> 10:00 h - 15:00 h </li>
-                            <li><strong>♟️ Sistema:</strong> Suizo a 7 rondas </li>
-                            <li><strong>💰 Inscripción:</strong> $100 MXN </li>
+                            <li><strong>📍 Lugar:</strong> Hemingway Coffee</li>
+                            <li><strong>📅 Fecha:</strong> 8 de Marzo</li>
+                            <li><strong>💰 Costo:</strong> $100 MXN</li>
                         </ul>
                     </div>
-                    <div class="pink-gradient p-8 rounded-[2.5rem] text-white flex flex-col justify-center text-center">
-                        <p class="text-xl font-title italic mb-6">¡Forma parte de la tercera edición y demuestra tu talento en el tablero!</p>
-                        <a href="https://forms.gle/YZjtJnGEVgopafoi7" target="_blank" class="bg-white text-pink-600 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs shadow-lg">Inscribirme Ahora </a>
+                    <div class="pink-gradient p-8 rounded-[2.5rem] text-white flex flex-col justify-center">
+                        <a href="https://forms.gle/YZjtJnGEVgopafoi7" target="_blank" class="bg-white text-pink-600 py-4 rounded-2xl font-bold text-center uppercase text-xs">Inscribirme</a>
                     </div>
                 </div>
                 <div id="convocatoriaImgs" class="space-y-6"></div>
@@ -96,12 +91,12 @@
 
         <section id="sec-players" class="hidden-section">
             <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                <h2 class="text-3xl font-title italic text-pink-600">Listado de Jugadoras</h2>
-                <input type="text" id="playerSearch" placeholder="Buscar..." class="w-full md:w-80 px-6 py-4 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm">
+                <h2 class="text-3xl font-title italic text-pink-600">Lista de Inscritas</h2>
+                <input type="text" id="playerSearch" oninput="handleSearch(this.value)" placeholder="Buscar jugadora..." class="w-full md:w-80 px-6 py-4 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm">
             </div>
             <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
-                <table class="w-full text-left">
-                    <thead class="pink-gradient text-white text-[10px] uppercase tracking-[0.2em]">
+                <table class="w-full text-left text-sm">
+                    <thead class="pink-gradient text-white uppercase text-[10px] tracking-widest">
                         <tr><th class="p-6">ID</th><th class="p-6">Nombre</th><th class="p-6 text-center">Categoría</th><th class="p-6 text-right">Ficha</th></tr>
                     </thead>
                     <tbody id="playersList" class="divide-y divide-pink-50"></tbody>
@@ -109,33 +104,65 @@
             </div>
         </section>
 
+        <section id="sec-rondas" class="hidden-section">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-title italic text-pink-600 mb-6">Emparejamientos y Resultados</h2>
+                <div class="flex flex-wrap justify-center gap-3" id="roundContainer">
+                    <script>
+                        for(let i=1; i<=7; i++) {
+                            document.write(`<button onclick="loadRound(${i})" id="btn-round-${i}" class="round-selector">R${i}</button>`);
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-400 uppercase text-[9px] font-bold tracking-widest">
+                            <tr>
+                                <th class="p-5 text-center">Mesa</th>
+                                <th class="p-5">Blanco</th>
+                                <th class="p-5 text-center">Pts</th>
+                                <th class="p-5 text-center bg-pink-50 text-pink-600">Resultado</th>
+                                <th class="p-5 text-center">Pts</th>
+                                <th class="p-5 text-right">Negro</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pairingList" class="divide-y divide-pink-50">
+                            <tr><td colspan="6" class="p-20 text-center text-gray-400 italic">Selecciona una ronda para ver los enfrentamientos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <section id="sec-cuadro" class="hidden-section">
             <div class="bg-white p-8 md:p-16 rounded-[3rem] shadow-2xl border border-pink-50 overflow-x-auto">
-                <div id="crosstable-content" class="crosstable-text text-gray-500 bg-pink-50/20 p-8 rounded-3xl">Cargando...</div>
+                <div id="crosstable-content" class="crosstable-text text-gray-500 bg-pink-50/20 p-8 rounded-3xl"></div>
             </div>
         </section>
 
         <section id="sec-galeria" class="hidden-section">
-            <div id="galleryGrid" class="gallery-grid"></div>
+            <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </section>
     </main>
 
     <div id="detailsModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <div class="bg-white rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden">
             <div class="pink-gradient p-10 text-white relative">
-                <button onclick="closeModal()" class="absolute top-6 right-8 text-white/70 hover:text-white text-4xl font-light">&times;</button>
+                <button onclick="closeModal()" class="absolute top-6 right-8 text-4xl font-light">&times;</button>
                 <div class="flex items-center gap-6">
-                    <img id="m-avatar" src="" class="w-24 h-24 rounded-[2rem] object-cover border-4 border-white/20 shadow-xl">
-                    <div><span id="m-cat-tag" class="text-[10px] font-bold uppercase opacity-80 tracking-widest">Categoría</span><h3 id="m-name" class="text-2xl font-title mt-1">Nombre</h3></div>
+                    <img id="m-avatar" src="" class="w-24 h-24 rounded-[2rem] object-cover border-4 border-white/20">
+                    <div><span id="m-cat-tag" class="text-[10px] font-bold uppercase opacity-80">Categoría</span><h3 id="m-name" class="text-2xl font-title mt-1">Nombre</h3></div>
                 </div>
             </div>
-            <div class="p-10 space-y-8">
-                <div class="grid grid-cols-2 gap-6 text-center">
-                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase mb-1">ID FIDE</p><p id="m-fide-id" class="font-bold text-gray-700">-</p></div>
-                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase mb-1">Elo FIDE</p><p id="m-fide-rtg" class="font-bold text-pink-600">-</p></div>
+            <div class="p-10 space-y-6">
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase">FIDE ID</p><p id="m-fide-id" class="font-bold text-gray-700">-</p></div>
+                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase">Elo</p><p id="m-fide-rtg" class="font-bold text-pink-600">-</p></div>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <a id="fide-btn" target="_blank" class="w-full py-4 bg-blue-800 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest">Perfil FIDE</a>
+                    <a id="fide-btn" target="_blank" class="w-full py-4 bg-blue-800 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest">FIDE</a>
                     <a id="lichess-btn" target="_blank" class="w-full py-4 bg-zinc-900 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest">Lichess</a>
                 </div>
             </div>
@@ -143,21 +170,15 @@
     </div>
 
     <script>
-        // --- ARREGLO 11: CONFIGURACIÓN DE INICIO ---
-        // Cambia este valor para elegir qué sección se ve al abrir la página:
-        // Opciones: 'convocatoria', 'players', 'cuadro', 'galeria'
-        const VISTA_INICIAL = 'convocatoria'; 
-
+        const VISTA_INICIAL = 'players'; 
         let playersData = [];
 
         function showSection(id) {
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden-section'));
             document.querySelectorAll('.desktop-nav-btn').forEach(b => b.classList.remove('active-tab'));
-            
             document.getElementById(`sec-${id}`).classList.remove('hidden-section');
             const tab = document.getElementById(`tab-${id}`);
             if(tab) tab.classList.add('active-tab');
-            
             document.getElementById('navMenu').classList.add('hidden');
             window.scrollTo(0,0);
 
@@ -168,33 +189,71 @@
 
         function toggleMenu() { document.getElementById('navMenu').classList.toggle('hidden'); }
 
-        // Inicializar con la sección elegida
-        window.onload = () => showSection(VISTA_INICIAL);
+        window.onload = () => {
+            loadPlayers();
+            showSection(VISTA_INICIAL);
+        };
 
-        // --- CARGA DE DATOS ---
-        Papa.parse('players/Players.csv', {
-            download: true, header: true, skipEmptyLines: true,
-            complete: function(r) { playersData = r.data; renderPlayers(playersData); }
-        });
+        function loadPlayers() {
+            Papa.parse('players/Players.csv', {
+                download: true, header: true, skipEmptyLines: true,
+                complete: function(r) { playersData = r.data; renderPlayers(playersData); }
+            });
+        }
 
         function renderPlayers(data) {
-            document.getElementById('playersList').innerHTML = data.map((p, i) => `
+            document.getElementById('playersList').innerHTML = data.map((p) => `
                 <tr class="hover:bg-pink-50 cursor-pointer" onclick="openModal(${playersData.indexOf(p)})">
                     <td class="p-6 text-xs text-gray-300 font-mono">${p.N}</td>
-                    <td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold uppercase">${p.Fed} | Elo: ${p.Rtg > 0 ? p.Rtg : 'S/R'}</div></td>
-                    <td class="p-6 text-center"><span class="px-4 py-1.5 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span></td>
-                    <td class="p-6 text-right"><div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-400 ml-auto">→</div></td>
+                    <td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold">${p.Fed} | Elo: ${p.Rtg}</div></td>
+                    <td class="p-6 text-center"><span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold uppercase">${p.Categoría}</span></td>
+                    <td class="p-6 text-right text-pink-300">→</td>
                 </tr>
             `).join('');
+        }
+
+        // --- ARREGLO 13: Búsqueda ---
+        function handleSearch(val) {
+            const filtered = playersData.filter(p => 
+                p.Name.toLowerCase().includes(val.toLowerCase()) || 
+                p.Categoría.toLowerCase().includes(val.toLowerCase())
+            );
+            renderPlayers(filtered);
+        }
+
+        // --- ARREGLO 14: Rondas ---
+        function loadRound(num) {
+            // Estilo de botones
+            document.querySelectorAll('.round-selector').forEach(b => b.classList.remove('round-active'));
+            document.getElementById(`btn-round-${num}`).classList.add('round-active');
+
+            const path = `Rondas/Ronda_${num}/pairing${num}.csv`;
+            Papa.parse(path, {
+                download: true, header: true, skipEmptyLines: true,
+                complete: function(r) {
+                    const list = document.getElementById('pairingList');
+                    list.innerHTML = r.data.map(row => `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-5 text-center font-mono text-gray-400">${row.Board}</td>
+                            <td class="p-5 font-bold text-gray-700">${row.Name}</td>
+                            <td class="p-5 text-center text-xs text-gray-400">${row.Score}</td>
+                            <td class="p-5 text-center"><span class="px-3 py-1 bg-pink-600 text-white rounded-md font-bold text-xs">${row.Result}</span></td>
+                            <td class="p-5 text-center text-xs text-gray-400">${row.Score_2 || row.Score}</td>
+                            <td class="p-5 text-right font-bold text-gray-700">${row.Name_2 || row.Name}</td>
+                        </tr>
+                    `).join('');
+                },
+                error: function() {
+                    document.getElementById('pairingList').innerHTML = `<tr><td colspan="6" class="p-20 text-center text-pink-300 italic">Archivo de Ronda ${num} no encontrado aún.</td></tr>`;
+                }
+            });
         }
 
         function loadConvocatoria() {
             Papa.parse('Convocatoria/convocatoria.csv', {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(r) {
-                    document.getElementById('convocatoriaImgs').innerHTML = r.data.map(row => `
-                        <img src="Convocatoria/${row[0]}" class="w-full h-auto rounded-3xl shadow-lg border border-pink-50" loading="lazy">
-                    `).join('');
+                    document.getElementById('convocatoriaImgs').innerHTML = r.data.map(row => `<img src="Convocatoria/${row[0]}" class="w-full rounded-3xl shadow-lg" loading="lazy">`).join('');
                 }
             });
         }
@@ -209,9 +268,7 @@
             Papa.parse('galeria/galeria.csv', {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(r) {
-                    document.getElementById('galleryGrid').innerHTML = r.data.map(row => `
-                        <div class="gallery-item"><img src="galeria/${row[0]}" loading="lazy"></div>
-                    `).join('');
+                    document.getElementById('galleryGrid').innerHTML = r.data.map(row => `<div class="aspect-square rounded-lg overflow-hidden bg-pink-100"><img src="galeria/${row[0]}" class="w-full h-full object-cover"></div>`).join('');
                 }
             });
         }
