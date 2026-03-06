@@ -3,61 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3er Torneo de Ajedrez en Rosa</title>
+    <title>3er Torneo de Ajedrez en Rosa - Tehuacán</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #fff9fa; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #fffafb; }
         .font-title { font-family: 'Playfair Display', serif; }
         .pink-gradient { background: linear-gradient(135deg, #ff0080 0%, #ff85b2 100%); }
         
-        /* Arreglo 5: Sandwich con líneas desiguales */
+        /* Arreglo 9: UI de Header */
+        .desktop-nav-btn { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #9ca3af; transition: all 0.3s; }
+        .desktop-nav-btn:hover, .active-tab { color: #ff0080; border-bottom: 2px solid #ff0080; padding-bottom: 4px; }
+
+        /* Arreglo 5: Sandwich Móvil */
         .sandwich-line { background-color: #ff0080; height: 2px; border-radius: 2px; transition: 0.3s; margin-left: auto; }
         .line-1 { width: 28px; }
         .line-2 { width: 20px; margin-top: 6px; }
         .line-3 { width: 12px; margin-top: 6px; }
 
-        /* Arreglo 6: Estilo Galería Instagram */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
-        .gallery-item { aspect-ratio: 1 / 1; overflow: hidden; position: relative; cursor: pointer; border-radius: 4px; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-        .gallery-item:hover img { transform: scale(1.1); }
+        /* Arreglo 6: Galería Estilo Instagram */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+        .gallery-item { aspect-ratio: 1 / 1; overflow: hidden; border-radius: 8px; background: #fee2e2; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .gallery-item:hover img { transform: scale(1.08); }
 
-        .active-tab { color: #ff0080; border-bottom: 2px solid #ff0080; }
         .hidden-section { display: none; }
-        
-        /* Estilo para Cuadro Cruzado */
-        .crosstable-text { font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; line-height: 1.4; white-space: pre; }
+        .crosstable-text { font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; white-space: pre; line-height: 1.5; }
     </style>
 </head>
 <body class="text-gray-800">
 
     <header class="bg-white shadow-sm border-b border-pink-50 sticky top-0 z-[100]">
-        <div class="max-w-7xl mx-auto flex items-center px-4 py-4">
-            <div class="w-[90%] flex justify-center md:justify-start">
-                <img src="logo.webp" alt="Logo" class="max-h-20 w-auto cursor-pointer" onclick="showSection('players')">
-            </div>
-            <div class="w-[10%] flex justify-end">
-                <button onclick="toggleMenu()" class="p-2 hover:opacity-70 transition-all">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="w-[90%] md:w-full flex justify-center">
+                    <img src="logo.webp" alt="3er Torneo de Ajedrez en Rosa" class="h-24 md:h-32 w-auto cursor-pointer" onclick="showSection('players')">
+                </div>
+                <button onclick="toggleMenu()" class="md:hidden w-[10%] flex justify-end">
                     <div class="sandwich-line line-1"></div>
                     <div class="sandwich-line line-2"></div>
                     <div class="sandwich-line line-3"></div>
                 </button>
             </div>
+
+            <nav class="hidden md:flex justify-center gap-12 mt-8">
+                <button onclick="showSection('convocatoria')" id="tab-convocatoria" class="desktop-nav-btn">Convocatoria</button>
+                <button onclick="showSection('players')" id="tab-players" class="desktop-nav-btn active-tab">Jugadoras</button>
+                <button onclick="showSection('cuadro')" id="tab-cuadro" class="desktop-nav-btn">Cuadro Cruzado</button>
+                <button onclick="showSection('galeria')" id="tab-galeria" class="desktop-nav-btn">Galería</button>
+            </nav>
         </div>
 
-        <div class="hidden md:flex justify-center border-t border-pink-50 bg-white/50">
-            <div class="flex gap-10 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
-                <button onclick="showSection('players')" id="tab-players" class="active-tab transition-colors">Jugadoras</button>
-                <button onclick="showSection('cuadro')" id="tab-cuadro" class="hover:text-pink-600 transition-colors">Cuadro Cruzado</button>
-                <button onclick="showSection('galeria')" id="tab-galeria" class="hover:text-pink-600 transition-colors">Galería</button>
-                <button class="opacity-30 cursor-not-allowed">Calendarización</button>
-            </div>
-        </div>
-
-        <div id="navMenu" class="hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-pink-50">
-            <div class="flex flex-col text-center font-bold uppercase tracking-widest text-xs py-6 gap-6 text-gray-500">
+        <div id="navMenu" class="hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-pink-50 md:hidden">
+            <div class="flex flex-col text-center font-bold py-8 gap-6 text-gray-400 uppercase tracking-widest text-xs">
+                <button onclick="showSection('convocatoria')">Convocatoria</button>
                 <button onclick="showSection('players')">Jugadoras</button>
                 <button onclick="showSection('cuadro')">Cuadro Cruzado</button>
                 <button onclick="showSection('galeria')">Galería</button>
@@ -65,21 +65,51 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-10">
+    <main class="max-w-6xl mx-auto px-4 py-12">
 
-        <section id="sec-players" class="animate-fade-in">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
-                <h2 class="text-3xl font-title italic text-pink-600">Listado Inicial</h2>
-                <input type="text" id="playerSearch" placeholder="Buscar jugadora..." 
-                    class="w-full md:w-80 px-6 py-3 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm">
+        <section id="sec-convocatoria" class="hidden-section">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-title italic text-pink-600 mb-4">Convocatoria Oficial</h2>
+                    <p class="text-lg text-gray-500 italic">"Los límites existen solo si los aceptamos"</p> [cite: 2, 3]
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-16">
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-pink-50">
+                        <h3 class="font-bold text-pink-500 uppercase tracking-widest text-xs mb-6">Detalles del Evento</h3> 
+                        <ul class="space-y-4 text-sm">
+                            <li class="flex justify-between"><strong>📍 Lugar:</strong> <span class="text-right">Hemingway Coffee, Tehuacán</span></li> 
+                            <li class="flex justify-between"><strong>📅 Fecha:</strong> <span>8 de marzo del 2026</span></li> 
+                            <li class="flex justify-between"><strong>🕙 Horario:</strong> <span>10:00 h - 15:00 h</span></li> 
+                            <li class="flex justify-between"><strong>♟️ Sistema:</strong> <span>Suizo a 7 rondas</span></li> 
+                            <li class="flex justify-between"><strong>💰 Costo:</strong> <span>$100 por jugadora</span></li> 
+                        </ul>
+                    </div>
+                    <div class="pink-gradient p-8 rounded-[2.5rem] text-white flex flex-col justify-center text-center">
+                        <p class="text-xl font-title italic mb-6">Uniendo mentes, rompiendo barreras. ¡Asegura tu lugar en la historia!</p>
+                        <a href="https://forms.gle/YZjtJnGEVgopafoi7" target="_blank" class="bg-white text-pink-600 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs shadow-lg hover:scale-105 transition-transform">Inscribirme Ahora</a> 
+                        <a href="#" class="mt-4 text-[10px] underline opacity-80">Descargar Bases en PDF</a>
+                    </div>
+                </div>
+
+                <div id="convocatoriaImgs" class="space-y-6">
+                    </div>
             </div>
-            <div class="bg-white rounded-[2rem] overflow-hidden shadow-lg border border-pink-50">
+        </section>
+
+        <section id="sec-players">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+                <h2 class="text-3xl font-title italic text-pink-600">Listado de Jugadoras</h2>
+                <input type="text" id="playerSearch" placeholder="Buscar por nombre o categoría..." 
+                    class="w-full md:w-80 px-6 py-4 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm transition-all">
+            </div>
+            <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="pink-gradient text-white text-[10px] uppercase tracking-wider">
+                        <thead class="pink-gradient text-white text-[10px] uppercase tracking-[0.2em]">
                             <tr>
-                                <th class="p-6">N°</th>
-                                <th class="p-6">Jugadora / Elo</th>
+                                <th class="p-6">ID</th>
+                                <th class="p-6">Nombre</th>
                                 <th class="p-6 text-center">Categoría</th>
                                 <th class="p-6 text-right">Ficha</th>
                             </tr>
@@ -91,22 +121,14 @@
         </section>
 
         <section id="sec-cuadro" class="hidden-section">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-title italic text-pink-600 mb-2">Resultados en Vivo</h2>
-                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Cuadro Cruzado - Ronda 5</p>
-            </div>
-            <div class="bg-white p-6 md:p-10 rounded-[2.5rem] shadow-xl border border-pink-50 overflow-x-auto">
-                <div id="crosstable-content" class="crosstable-text text-gray-600 bg-pink-50/30 p-6 rounded-2xl">
-                    Cargando resultados...
+            <div class="bg-white p-8 md:p-16 rounded-[3rem] shadow-2xl border border-pink-50 overflow-x-auto">
+                <div id="crosstable-content" class="crosstable-text text-gray-500 bg-pink-50/20 p-8 rounded-3xl">
+                    Cargando clasificación...
                 </div>
             </div>
         </section>
 
         <section id="sec-galeria" class="hidden-section">
-            <div class="text-center mb-10">
-                <h2 class="text-4xl font-title italic text-pink-600 mb-2">Galería Rosa</h2>
-                <p class="text-gray-400 text-sm">Momentos capturados del torneo</p>
-            </div>
             <div id="galleryGrid" class="gallery-grid">
                 </div>
         </section>
@@ -118,21 +140,21 @@
             <div class="pink-gradient p-10 text-white relative">
                 <button onclick="closeModal()" class="absolute top-6 right-8 text-white/70 hover:text-white text-4xl font-light">&times;</button>
                 <div class="flex items-center gap-6">
-                    <img id="m-avatar" src="" class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-lg" onerror="this.src='https://via.placeholder.com/150?text=Chess'">
+                    <img id="m-avatar" src="" class="w-24 h-24 rounded-[2rem] object-cover border-4 border-white/20 shadow-xl">
                     <div>
-                        <span id="m-cat-tag" class="text-[10px] font-bold uppercase opacity-80">CATEGORÍA</span>
-                        <h3 id="m-name" class="text-2xl font-title mt-1">Nombre</h3>
+                        <span id="m-cat-tag" class="text-[10px] font-bold uppercase opacity-80 tracking-widest">Categoría</span>
+                        <h3 id="m-name" class="text-2xl font-title mt-1 leading-tight">Nombre</h3>
                     </div>
                 </div>
             </div>
-            <div class="p-10 space-y-6">
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase">ID FIDE</p><p id="m-fide-id" class="font-bold">-</p></div>
-                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase">Elo FIDE</p><p id="m-fide-rtg" class="font-bold text-pink-600">-</p></div>
+            <div class="p-10 space-y-8">
+                <div class="grid grid-cols-2 gap-6 text-center">
+                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase mb-1">ID FIDE</p><p id="m-fide-id" class="font-bold text-gray-700">-</p></div>
+                    <div class="bg-gray-50 p-4 rounded-2xl"><p class="text-[9px] text-gray-400 font-bold uppercase mb-1">Elo FIDE</p><p id="m-fide-rtg" class="font-bold text-pink-600">-</p></div>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <a id="fide-btn" target="_blank" class="w-full py-3 bg-[#004a99] text-white rounded-xl text-center font-bold text-xs uppercase tracking-widest">Perfil FIDE</a>
-                    <a id="lichess-btn" target="_blank" class="w-full py-3 bg-zinc-800 text-white rounded-xl text-center font-bold text-xs uppercase tracking-widest">Lichess Tracking</a>
+                    <a id="fide-btn" target="_blank" class="w-full py-4 bg-blue-800 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest hover:brightness-110">Perfil FIDE</a>
+                    <a id="lichess-btn" target="_blank" class="w-full py-4 bg-zinc-900 text-white rounded-2xl text-center font-bold text-xs uppercase tracking-widest hover:brightness-125">Perfil Lichess</a>
                 </div>
             </div>
         </div>
@@ -141,88 +163,88 @@
     <script>
         let playersData = [];
 
-        // LÓGICA DE NAVEGACIÓN (SPA)
-        function showSection(secId) {
+        function showSection(id) {
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden-section'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-tab'));
             
-            document.getElementById(`sec-${secId}`).classList.remove('hidden-section');
-            const tab = document.getElementById(`tab-${secId}`);
+            document.getElementById(`sec-${id}`).classList.remove('hidden-section');
+            const tab = document.getElementById(`tab-${id}`);
             if(tab) tab.classList.add('active-tab');
             
             document.getElementById('navMenu').classList.add('hidden');
             window.scrollTo(0,0);
 
-            // Cargas bajo demanda
-            if(secId === 'cuadro') loadCrosstable();
-            if(secId === 'galeria') loadGallery();
+            if(id === 'cuadro') loadCrosstable();
+            if(id === 'galeria') loadGallery();
+            if(id === 'convocatoria') loadConvocatoria();
         }
 
         function toggleMenu() { document.getElementById('navMenu').classList.toggle('hidden'); }
 
-        // CARGA JUGADORAS (Mantiene Arreglo 4)
+        // CARGA JUGADORAS
         Papa.parse('players/Players.csv', {
             download: true, header: true, skipEmptyLines: true,
-            complete: function(results) {
-                playersData = results.data;
-                renderPlayers(playersData);
-            }
+            complete: function(r) { playersData = r.data; renderPlayers(playersData); }
         });
 
         function renderPlayers(data) {
-            const list = document.getElementById('playersList');
-            list.innerHTML = data.map((p, i) => `
-                <tr class="hover:bg-pink-50 cursor-pointer" onclick="openModal(${playersData.indexOf(p)})">
+            document.getElementById('playersList').innerHTML = data.map((p, i) => `
+                <tr class="hover:bg-pink-50 cursor-pointer transition-colors" onclick="openModal(${playersData.indexOf(p)})">
                     <td class="p-6 text-xs text-gray-300 font-mono">${p.N}</td>
                     <td class="p-6">
                         <div class="font-bold text-gray-700">${p.Name}</div>
-                        <div class="text-[9px] text-pink-400 uppercase font-bold">${p.Fed} | Elo: ${p.Rtg > 0 ? p.Rtg : 'S/R'}</div>
+                        <div class="text-[9px] text-pink-400 font-bold uppercase">${p.Fed} | Elo: ${p.Rtg > 0 ? p.Rtg : 'S/R'}</div>
                     </td>
                     <td class="p-6 text-center">
-                        <span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span>
+                        <span class="px-4 py-1.5 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span>
                     </td>
-                    <td class="p-6 text-right text-pink-200">
-                        <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </td>
+                    <td class="p-6 text-right"><div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-400 ml-auto">→</div></td>
                 </tr>
             `).join('');
         }
 
-        // ARREGLO 7: CARGA CUADRO CRUZADO
-        function loadCrosstable() {
-            fetch('cuadro_cruzado.txt')
-                .then(res => res.text())
-                .then(text => {
-                    document.getElementById('crosstable-content').innerText = text;
-                })
-                .catch(() => {
-                    document.getElementById('crosstable-content').innerText = "Archivo de cuadro cruzado no encontrado.";
-                });
-        }
-
-        // ARREGLO 6: CARGA GALERÍA
-        function loadGallery() {
-            Papa.parse('Galeria/galeria.csv', {
+        // ARREGLO 10: CONVOCATORIA
+        function loadConvocatoria() {
+            Papa.parse('Convocatoria/convocatoria.csv', {
                 download: true, header: false, skipEmptyLines: true,
-                complete: function(results) {
-                    const grid = document.getElementById('galleryGrid');
-                    grid.innerHTML = results.data.map(row => `
-                        <div class="gallery-item">
-                            <img src="Galeria/${row[0]}" alt="Torneo" loading="lazy">
-                        </div>
+                complete: function(r) {
+                    document.getElementById('convocatoriaImgs').innerHTML = r.data.map(row => `
+                        <img src="Convocatoria/${row[0]}" class="w-full h-auto rounded-3xl shadow-lg border border-pink-50" loading="lazy">
                     `).join('');
                 }
             });
         }
 
-        // ARREGLO 1 & 4: MODAL Y LICHESS
+        // ARREGLO 7: CUADRO CRUZADO
+        function loadCrosstable() {
+            fetch('CuadroCruzado/cuadro_cruzado.txt')
+                .then(res => res.text())
+                .then(text => document.getElementById('crosstable-content').innerText = text);
+        }
+
+        // ARREGLO 6: GALERÍA
+        function loadGallery() {
+            Papa.parse('galeria/galeria.csv', {
+                download: true, header: false, skipEmptyLines: true,
+                complete: function(r) {
+                    document.getElementById('galleryGrid').innerHTML = r.data.map(row => `
+                        <div class="gallery-item"><img src="galeria/${row[0]}" loading="lazy"></div>
+                    `).join('');
+                }
+            });
+        }
+
         function openModal(idx) {
             const p = playersData[idx];
             document.getElementById('m-name').innerText = p.Name;
             document.getElementById('m-cat-tag').innerText = p.Categoría;
             document.getElementById('m-fide-id').innerText = p['ID FIDE'] || '-';
             document.getElementById('m-fide-rtg').innerText = p.FRtg || 'S/R';
-            document.getElementById('m-avatar').src = p.Avatars ? `Avatars/${p.Avatars}` : '';
+            
+            const avatar = document.getElementById('m-avatar');
+            // Arreglo 8: Sin placeholders externos. Solo carga si existe.
+            avatar.src = p.Avatars ? `Avatars/${p.Avatars}` : '';
+            avatar.style.display = p.Avatars ? 'block' : 'none';
 
             const lBtn = document.getElementById('lichess-btn');
             const fBtn = document.getElementById('fide-btn');
