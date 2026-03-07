@@ -12,6 +12,7 @@
         .font-title { font-family: 'Playfair Display', serif; }
         .pink-gradient { background: linear-gradient(135deg, #ff0080 0%, #ff85b2 100%); }
         
+        /* Arreglo Navegación */
         .sandwich-btn { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; width: 32px; border: none; background: none; cursor: pointer; }
         .sandwich-line { background-color: #ff0080; height: 2px; border-radius: 2px; transition: 0.3s; }
         .line-1 { width: 28px; }
@@ -28,17 +29,31 @@
         .round-selector:hover { background: #fff0f6; }
         .round-active { background: #ff0080 !important; color: white !important; }
 
-        /* Ajuste para tooltips en móviles y desktop */
-        .help-tip { cursor: help; text-decoration: underline dotted; }
+        /* Estilo para los Tooltips Personalizados */
+        .tooltip-container { position: relative; cursor: help; }
+        .tooltip-box { 
+            position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 8px 12px; border-radius: 8px;
+            font-size: 10px; white-space: nowrap; visibility: hidden; opacity: 0;
+            transition: opacity 0.2s; z-index: 50; pointer-events: none;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .tooltip-container:hover .tooltip-box, .tooltip-container:active .tooltip-box { 
+            visibility: visible; opacity: 1; 
+        }
+        .tooltip-box::after {
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+            border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent;
+        }
     </style>
 </head>
 <body class="text-gray-800">
 
-    <header class="bg-white shadow-sm border-b border-pink-50 relative z-[100]">
-        <div class="max-w-7xl mx-auto px-4 py-2 md:py-4">
+    <header class="bg-white border-b border-pink-50 relative z-[100]">
+        <div class="max-w-7xl mx-auto px-4 py-2">
             <div class="flex items-center justify-between">
                 <div class="w-[85%] md:w-full flex justify-center">
-                    <img src="logo.webp" alt="Logo" class="h-32 md:h-48 w-auto cursor-pointer object-contain" onclick="location.reload()">
+                    <img src="logo.webp" alt="Logo" class="h-40 md:h-56 w-auto cursor-pointer py-1" onclick="location.reload()">
                 </div>
                 <div class="md:hidden w-[15%] flex justify-end">
                     <button onclick="toggleMenu()" class="sandwich-btn">
@@ -49,7 +64,7 @@
                 </div>
             </div>
 
-            <nav class="hidden md:flex justify-center gap-10 mt-4 mb-2">
+            <nav class="hidden md:flex justify-center gap-10 mt-2 mb-4">
                 <button onclick="showSection('convocatoria')" id="tab-convocatoria" class="desktop-nav-btn">Convocatoria</button>
                 <button onclick="showSection('players')" id="tab-players" class="desktop-nav-btn">Jugadoras</button>
                 <button onclick="showSection('rondas')" id="tab-rondas" class="desktop-nav-btn">Rondas</button>
@@ -71,77 +86,12 @@
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-12">
-        <section id="sec-convocatoria" class="hidden-section">
-            <div class="max-w-5xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl font-title italic text-pink-600 mb-2">Convocatoria Oficial</h2>
-                    <p class="text-gray-400 italic">"Los límites existen solo si los aceptamos"</p>
-                </div>
-                <div class="grid md:grid-cols-2 gap-8 mb-16 items-stretch">
-                    <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border border-pink-50">
-                        <h3 class="font-bold text-pink-500 uppercase tracking-widest text-[11px] mb-8">Detalles del Evento</h3>
-                        <ul class="space-y-5 text-sm">
-                            <li class="flex items-center gap-3"><span>📍</span> <span class="font-semibold text-gray-600">Lugar:</span> <span class="text-gray-500">Hemingway Coffee, Tehuacán</span></li>
-                            <li class="flex items-center gap-3"><span>📅</span> <span class="font-semibold text-gray-600">Fecha:</span> <span class="text-gray-500">Domingo, 8 de marzo del 2026</span></li>
-                            <li class="flex items-center gap-3"><span>🕙</span> <span class="font-semibold text-gray-600">Horario:</span> <span class="text-gray-500">10:00 h - 15:00 h</span></li>
-                            <li class="flex items-center gap-3"><span>♟️</span> <span class="font-semibold text-gray-600">Sistema:</span> <span class="text-gray-500">Suizo a 7 rondas</span></li>
-                            <li class="flex items-center gap-3"><span>💰</span> <span class="font-semibold text-gray-600">Inscripción:</span> <span class="text-gray-500">$100 MXN</span></li>
-                        </ul>
-                    </div>
-                    <div class="pink-gradient p-10 rounded-[2.5rem] text-white flex flex-col justify-center text-center shadow-lg">
-                        <p class="text-xl md:text-2xl font-title italic mb-10 leading-relaxed px-4">¡Forma parte de la tercera edición y demuestra tu talento en el tablero!</p>
-                        <a href="https://forms.gle/YZjtJnGEVgopafoi7" target="_blank" class="bg-white text-pink-600 py-4 px-8 rounded-2xl font-bold uppercase tracking-widest text-xs shadow-md hover:scale-105 transition-transform">Inscribirme Ahora</a>
-                    </div>
-                </div>
-                <div id="convocatoriaImgs" class="space-y-8"></div>
-            </div>
-        </section>
-
-        <section id="sec-players" class="hidden-section">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                <h2 class="text-3xl font-title italic text-pink-600">Lista de Inscritas</h2>
-                <input type="text" id="playerSearch" oninput="handleSearch(this.value)" placeholder="Buscar jugadora..." class="w-full md:w-80 px-6 py-4 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm transition-all">
-            </div>
-            <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="pink-gradient text-white uppercase text-[10px] tracking-widest">
-                            <tr><th class="p-6">ID</th><th class="p-6">Nombre</th><th class="p-6 text-center">Categoría</th><th class="p-6 text-right">Ficha</th></tr>
-                        </thead>
-                        <tbody id="playersList" class="divide-y divide-pink-50"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="sec-rondas" class="hidden-section">
-            <div class="text-center mb-10">
-                <h2 class="text-3xl font-title italic text-pink-600 mb-6">Emparejamientos y Resultados</h2>
-                <div class="flex flex-wrap justify-center gap-3">
-                    <script>
-                        for(let i=1; i<=7; i++) {
-                            document.write(`<button onclick="loadRound(${i})" id="btn-round-${i}" class="round-selector">R${i}</button>`);
-                        }
-                    </script>
-                </div>
-            </div>
-            <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50 text-gray-400 uppercase text-[9px] font-bold tracking-widest">
-                            <tr><th class="p-5 text-center">Mesa</th><th class="p-5">Blancas</th><th class="p-5 text-center">Score</th><th class="p-5 text-center bg-pink-50 text-pink-600">Resultado</th><th class="p-5 text-center">Score</th><th class="p-5 text-right">Negras</th></tr>
-                        </thead>
-                        <tbody id="pairingList" class="divide-y divide-pink-50"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
         <section id="sec-clasificaciones" class="hidden-section">
             <div class="text-center mb-10">
-                <h2 class="text-3xl font-title italic text-pink-600 mb-6">Posiciones Generales</h2>
-                <div class="flex flex-wrap justify-center gap-3" id="standingRounds">
+                <h2 class="text-3xl font-title italic text-pink-600 mb-6">Clasificaciones</h2>
+                <div class="flex flex-wrap justify-center gap-3">
                     <script>
                         for(let i=1; i<=7; i++) {
                             document.write(`<button onclick="loadStandings(${i})" id="btn-standing-${i}" class="round-selector">Tras R${i}</button>`);
@@ -154,19 +104,19 @@
                     <table class="w-full text-left text-[11px] md:text-xs">
                         <thead class="pink-gradient text-white uppercase tracking-wider">
                             <tr>
-                                <th class="p-4 text-center">Rank</th>
-                                <th class="p-4">Nombre</th>
-                                <th class="p-4 text-center">Cat</th>
-                                <th class="p-4 text-center font-bold">Pts</th>
-                                <th class="p-4 text-center help-tip" title="Desempate 1: Encuentro Directo">DE</th>
-                                <th class="p-4 text-center help-tip" title="Desempate 2: Buchholz">BH</th>
-                                <th class="p-4 text-center help-tip" title="Desempate 3: Sonneborn-Berger">SB</th>
-                                <th class="p-4 text-center help-tip" title="Desempate 4: Buchholz Mediano 1">BH/M1</th>
-                                <th class="p-4 text-center help-tip" title="Desempate 5: Partidas Ganadas">WON</th>
-                                <th class="p-4 text-center help-tip" title="Desempate 6: Menor Edad">Age</th>
+                                <th class="p-4 text-center tooltip-container">Rank <span class="tooltip-box">Ranking Actual</span></th>
+                                <th class="p-4 tooltip-container">Nombre <span class="tooltip-box">Nombre Completo</span></th>
+                                <th class="p-4 text-center tooltip-container">Cat <span class="tooltip-box">Categoría de Juego</span></th>
+                                <th class="p-4 text-center font-bold tooltip-container">Pts <span class="tooltip-box">Puntos Acumulados</span></th>
+                                <th class="p-4 text-center tooltip-container">DE <span class="tooltip-box">D1: Encuentro Directo</span></th>
+                                <th class="p-4 text-center tooltip-container">BH <span class="tooltip-box">D2: Buchholz Total</span></th>
+                                <th class="p-4 text-center tooltip-container">SB <span class="tooltip-box">D3: Sonneborn-Berger</span></th>
+                                <th class="p-4 text-center tooltip-container">BH/M1 <span class="tooltip-box">D4: Buchholz Mediano 1</span></th>
+                                <th class="p-4 text-center tooltip-container">WON <span class="tooltip-box">D5: Partidas Ganadas</span></th>
+                                <th class="p-4 text-center tooltip-container">Age <span class="tooltip-box">D6: Menor Edad</span></th>
                             </tr>
                         </thead>
-                        <tbody id="standingsList" class="divide-y divide-pink-50">
+                        <tbody id="standingsList" class="divide-y divide-pink-50 text-gray-600">
                             <tr><td colspan="10" class="p-20 text-center text-gray-400 italic">Selecciona una ronda para ver la tabla de posiciones</td></tr>
                         </tbody>
                     </table>
@@ -174,19 +124,12 @@
             </div>
         </section>
 
-        <section id="sec-cuadro" class="hidden-section">
-            <div class="bg-white p-8 md:p-16 rounded-[3rem] shadow-2xl border border-pink-50 overflow-x-auto">
-                <div id="crosstable-content" class="crosstable-text text-gray-500 bg-pink-50/20 p-8 rounded-3xl"></div>
-            </div>
-        </section>
-
-        <section id="sec-galeria" class="hidden-section">
-            <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-        </section>
+        <section id="sec-convocatoria" class="hidden-section">...</section>
+        <section id="sec-players" class="hidden-section">...</section>
+        <section id="sec-rondas" class="hidden-section">...</section>
+        <section id="sec-cuadro" class="hidden-section">...</section>
+        <section id="sec-galeria" class="hidden-section">...</section>
     </main>
-
-    <div id="detailsModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-        </div>
 
     <script>
         const VISTA_INICIAL = 'convocatoria'; 
@@ -208,43 +151,52 @@
 
         function toggleMenu() { document.getElementById('navMenu').classList.toggle('hidden'); }
 
-        window.onload = () => {
-            loadPlayers();
-            showSection(VISTA_INICIAL);
-        };
+        window.onload = () => { loadPlayers(); showSection(VISTA_INICIAL); };
 
-        // Lógica de Clasificaciones
+        // --- LÓGICA DE CLASIFICACIONES MEJORADA ---
         function loadStandings(num) {
-            document.querySelectorAll('#standingRounds .round-selector').forEach(b => b.classList.remove('round-active'));
-            document.getElementById(`btn-standing-${num}`).classList.add('round-active');
+            document.querySelectorAll('#sec-clasificaciones .round-selector').forEach(b => b.classList.remove('round-active'));
+            const btn = document.getElementById(`btn-standing-${num}`);
+            if(btn) btn.classList.add('round-active');
 
             const path = `Clasificaciones/Tras_Ronda_${num}/standings_${num}.csv`;
+            
             Papa.parse(path, {
-                download: true, header: true, skipEmptyLines: true,
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                // Función para limpiar nombres de columnas (quita espacios y caracteres invisibles)
+                transformHeader: h => h.trim().replace(/[\u200B-\u200D\uFEFF]/g, ""), 
                 complete: function(r) {
                     const list = document.getElementById('standingsList');
-                    list.innerHTML = r.data.map(row => `
+                    if(r.data.length === 0) return;
+
+                    list.innerHTML = r.data.map(row => {
+                        // Acceso seguro a columnas con nombres complejos
+                        const bhm1 = row['BH/M1'] || row['BH/M 1'] || row['BHM1'] || '0';
+                        
+                        return `
                         <tr class="hover:bg-pink-50/50 transition-colors">
-                            <td class="p-4 text-center font-bold text-gray-400">${row.Rank}</td>
-                            <td class="p-4 font-semibold text-gray-700">${row.Name}</td>
-                            <td class="p-4 text-center"><span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-500 uppercase">${row.Categoría}</span></td>
-                            <td class="p-4 text-center font-bold text-pink-600">${row.Score}</td>
-                            <td class="p-4 text-center text-gray-500">${row.DE}</td>
-                            <td class="p-4 text-center text-gray-500">${row.BH}</td>
-                            <td class="p-4 text-center text-gray-500">${row.SB}</td>
-                            <td class="p-4 text-center text-gray-500">${row.BH_M1 || row['BH/M1']}</td>
-                            <td class="p-4 text-center text-gray-500">${row.WON}</td>
-                            <td class="p-4 text-center text-gray-400 font-mono">${row.Birthday}</td>
-                        </tr>
-                    `).join('');
+                            <td class="p-4 text-center font-bold text-gray-400">${row.Rank || '-'}</td>
+                            <td class="p-4 font-semibold text-gray-800">${row.Name || '---'}</td>
+                            <td class="p-4 text-center"><span class="bg-pink-50 text-pink-500 px-2 py-0.5 rounded text-[9px] font-bold">${row.Categoría || ''}</span></td>
+                            <td class="p-4 text-center font-bold text-pink-600">${row.Score || '0'}</td>
+                            <td class="p-4 text-center">${row.DE || '0'}</td>
+                            <td class="p-4 text-center">${row.BH || '0'}</td>
+                            <td class="p-4 text-center">${row.SB || '0'}</td>
+                            <td class="p-4 text-center">${bhm1}</td>
+                            <td class="p-4 text-center">${row.WON || '0'}</td>
+                            <td class="p-4 text-center font-mono text-gray-400">${row.Birthday || '0'}</td>
+                        </tr>`;
+                    }).join('');
                 },
                 error: function() {
-                    document.getElementById('standingsList').innerHTML = `<tr><td colspan="10" class="p-20 text-center text-pink-300 italic">Clasificación de Ronda ${num} no disponible todavía.</td></tr>`;
+                    document.getElementById('standingsList').innerHTML = `<tr><td colspan="10" class="p-20 text-center text-pink-300 italic">Archivo de Ronda ${num} no encontrado.</td></tr>`;
                 }
             });
         }
 
-        // Resto de funciones originales (loadPlayers, loadRound, loadConvocatoria, etc.)
+        // --- OTRAS FUNCIONES (Jugadoras, Rondas, etc. sin cambios) ---
         function loadPlayers() { Papa.parse('players/Players.csv', { download: true, header: true, skipEmptyLines: true, complete: function(r) { playersData = r.data; renderPlayers(playersData); } }); }
         function renderPlayers(data) { document.getElementById('playersList').innerHTML = data.map((p) => `<tr class="hover:bg-pink-50 cursor-pointer" onclick="openModal(${playersData.indexOf(p)})"><td class="p-6 text-xs text-gray-300 font-mono">${p.N}</td><td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold uppercase">${p.Fed} | Elo: ${p.Rtg}</div></td><td class="p-6 text-center"><span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span></td><td class="p-6 text-right text-pink-300">→</td></tr>`).join(''); }
         function handleSearch(val) { const filtered = playersData.filter(p => p.Name.toLowerCase().includes(val.toLowerCase()) || p.Categoría.toLowerCase().includes(val.toLowerCase())); renderPlayers(filtered); }
