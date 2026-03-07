@@ -3,15 +3,15 @@ N,Name,Fed,Sex,Rtg,ID FIDE,FRtg,ID Nat,NRtg,Categoría,Avatars
 2,"Soriano Crispin, Cinthya Rubi",MEX,f,1617,29666716,1617,29666716,1612,U18,peoncitas_2.png
 3,"Gonzalez Bravo, Luz America",MEX,f,1617,29666716,1617,29666716,1612,U18,peoncitas_2.png
 4,"Soriano Reyes, Kenia",MEX,f,1739,29610966,1685,29610966,1739,Libre,peoncitas_1.png
-5,"Acevedo Correa, Melanny Yaretzy",MEX,f,0,0,0,0,0,U12,peoncitas_4.png
-6,"Aguilar Quiahua, Jazmin",MEX,f,0,29695619,0,0,0,U15,peoncitas_5.png
-7,"Aranda Zopillaxtle, Ximena",MEX,f,0,0,0,0,0,U15,peoncitas_3.png
-8,"Carvajal Tzitzihua, Ana Melissa",MEX,f,0,0,0,0,0,U15,peoncitas_8.png
-9,"Cortes Hernandez, Amanda",MEX,f,0,0,0,0,0,U12,peoncitas_6.png
-10,"De Jesus Salome, Abril Aranza",MEX,f,0,0,0,0,0,U12,peoncitas_4.png
-11,"Hernandez Mariano, Marisol",MEX,f,0,0,0,0,0,U18,peoncitas_7.png
-12,"Jimenez Ojeda, Joselyn",MEX,f,0,0,0,0,0,U15,peoncitas_3.png
-13,"Perez Aguilar, Dulce Maria",MEX,f,0,0,0,0,0,U18,peoncitas_7.png
-14,"Perez Ortiz, Arlet Guadalupe",MEX,f,0,0,0,0,0,U12,peoncitas_6.png
-15,"Sandoval Mendez, Cinthia",MEX,f,0,0,0,0,0,U15,peoncitas_8.png
-16,"Santiago Flores, Keren Ester",MEX,f,0,29695619,0,0,0,U15,peoncitas_5.png
+5,"Acevedo Correa, Melanny Yaretzy",MEX,f,0,0,0,0,0,Sub-12,peoncitas_4.png
+6,"Aguilar Quiahua, Jazmin",MEX,f,0,29695619,0,0,0,Sub-15,peoncitas_5.png
+7,"Aranda Zopillaxtle, Ximena",MEX,f,0,0,0,0,0,Sub-15,peoncitas_3.png
+8,"Carvajal Tzitzihua, Ana Melissa",MEX,f,0,0,0,0,0,Sub-15,peoncitas_8.png
+9,"Cortes Hernandez, Amanda",MEX,f,0,0,0,0,0,Sub-12,peoncitas_6.png
+10,"De Jesus Salome, Abril Aranza",MEX,f,0,0,0,0,0,Sub-12,peoncitas_4.png
+11,"Hernandez Mariano, Marisol",MEX,f,0,0,0,0,0,Sub-18,peoncitas_7.png
+12,"Jimenez Ojeda, Joselyn",MEX,f,0,0,0,0,0,Sub-15,peoncitas_3.png
+13,"Perez Aguilar, Dulce Maria",MEX,f,0,0,0,0,0,Sub-18,peoncitas_7.png
+14,"Perez Ortiz, Arlet Guadalupe",MEX,f,0,0,0,0,0,Sub-12,peoncitas_6.png
+15,"Sandoval Mendez, Cinthia",MEX,f,0,0,0,0,0,Sub-15,peoncitas_8.png
+16,"Santiago Flores, Keren Ester",MEX,f,0,29695619,0,0,0,Sub-15,peoncitas_5.png
