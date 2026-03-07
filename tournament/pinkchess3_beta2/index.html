@@ -124,15 +124,34 @@
                     <table class="w-full text-left text-[11px] md:text-xs">
                         <thead class="pink-gradient text-white uppercase tracking-wider">
                             <tr>
-                                <th class="p-4 text-center">Rk</th>
+                                <th class="p-4 text-center">Rank</th>
                                 <th class="p-4">Nombre</th>
+                                <th class="p-4 text-center">Cat</th>
                                 <th class="p-4 text-center font-bold">Pts</th>
-                                <th class="p-4 text-center">BUCH</th>
+                                <th class="p-4 text-center">DE</th>
+                                <th class="p-4 text-center">BH</th>
+                                <th class="p-4 text-center">SB</th>
+                                <th class="p-4 text-center">BH/M1</th>
                                 <th class="p-4 text-center">WON</th>
-                                <th class="p-4 text-right">Categoría</th>
                             </tr>
                         </thead>
                         <tbody id="finalStandingsList" class="divide-y divide-pink-50 text-gray-600"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-players" class="hidden-section">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-title italic text-pink-600">Lista de Inscritas</h2>
+            </div>
+            <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="pink-gradient text-white uppercase text-[10px] tracking-widest">
+                            <tr><th class="p-6">ID</th><th class="p-6">Nombre</th><th class="p-6 text-center">Categoría</th><th class="p-6 text-right">Ficha</th></tr>
+                        </thead>
+                        <tbody id="playersList" class="divide-y divide-pink-50"></tbody>
                     </table>
                 </div>
             </div>
@@ -142,7 +161,6 @@
             <div class="max-w-5xl mx-auto">
                 <div class="text-center mb-12">
                     <h2 class="text-4xl font-title italic text-pink-600 mb-2">Convocatoria Oficial</h2>
-                    <p class="text-gray-400 italic">"Los límites existen solo si los aceptamos"</p>
                 </div>
                 <div class="grid md:grid-cols-2 gap-8 mb-16 items-stretch">
                     <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border border-pink-50">
@@ -161,23 +179,6 @@
                     </div>
                 </div>
                 <div id="convocatoriaImgs" class="grid grid-cols-1 gap-8"></div>
-            </div>
-        </section>
-
-        <section id="sec-players" class="hidden-section">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                <h2 class="text-3xl font-title italic text-pink-600">Lista de Inscritas</h2>
-                <input type="text" id="playerSearch" oninput="handleSearch(this.value)" placeholder="Buscar jugadora..." class="w-full md:w-80 px-6 py-4 rounded-full border border-pink-100 outline-none focus:ring-2 focus:ring-pink-300 shadow-sm transition-all">
-            </div>
-            <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-pink-50">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="pink-gradient text-white uppercase text-[10px] tracking-widest">
-                            <tr><th class="p-6">ID</th><th class="p-6">Nombre</th><th class="p-6 text-center">Categoría</th><th class="p-6 text-right">Ficha</th></tr>
-                        </thead>
-                        <tbody id="playersList" class="divide-y divide-pink-50"></tbody>
-                    </table>
-                </div>
             </div>
         </section>
 
@@ -312,16 +313,22 @@
         }
 
         function renderPodiums() {
-            // 1. Podio General (Top 3)
-            const top3 = standingsFinal.slice(0, 3);
-            document.getElementById('podiumGeneral').innerHTML = top3.map((p, i) => createPodiumSlot(p, i+1, '')).join('');
+            // 1. Podio General: Absolutamente las 3 primeras del torneo
+            const top3General = standingsFinal.slice(0, 3);
+            document.getElementById('podiumGeneral').innerHTML = top3General.map((p, i) => createPodiumSlot(p, i+1, '')).join('');
             
-            // 2. Podio Categorías (Libre, Sub-18, Sub-15, Sub-12)
-            const cats = ['Libre', 'Sub-18', 'Sub-15', 'Sub-12'];
+            // Lista de nombres que ya están en el podio general
+            const winnersNames = top3General.map(p => p.Name);
+
+            // 2. Podio por Categorías (Sub-18, 15, 12): La mejor que NO esté en el podio general
+            const cats = ['Sub-18', 'Sub-15', 'Sub-12'];
             let catHTML = '';
             cats.forEach(c => {
-                const best = findBestInCategory(c);
-                if(best) catHTML += createPodiumSlot(best, 1, c);
+                const bestInCategory = standingsFinal.find(s => {
+                    const p = playersData.find(player => player.Name === s.Name);
+                    return p && p.Categoría === c && !winnersNames.includes(s.Name);
+                });
+                if(bestInCategory) catHTML += createPodiumSlot(bestInCategory, 1, c);
             });
             document.getElementById('podiumCategories').innerHTML = catHTML;
         }
@@ -344,13 +351,6 @@
                 </div>`;
         }
 
-        function findBestInCategory(cat) {
-            return standingsFinal.find(s => {
-                const p = playersData.find(player => player.Name === s.Name);
-                return p && p.Categoría === cat;
-            });
-        }
-
         function renderFinalTable() {
             const filter = document.getElementById('catFinalFilter').value;
             const filtered = filter === 'General' ? standingsFinal : standingsFinal.filter(s => {
@@ -358,16 +358,19 @@
                 return p && p.Categoría === filter;
             });
 
-            document.getElementById('finalStandingsList').innerHTML = filtered.map(s => {
-                const p = playersData.find(player => player.Name === s.Name) || {};
+            document.getElementById('finalStandingsList').innerHTML = filtered.map(row => {
+                const p = playersData.find(player => player.Name === row.Name) || {};
                 return `
-                <tr class="hover:bg-pink-50 cursor-pointer" onclick="openModalByName('${s.Name}')">
-                    <td class="p-4 text-center font-bold text-gray-400">${s.Rank}</td>
-                    <td class="p-4 font-semibold text-gray-800">${s.Name}</td>
-                    <td class="p-4 text-center font-bold text-pink-600">${s.Score}</td>
-                    <td class="p-4 text-center">${s.BH}</td>
-                    <td class="p-4 text-center">${s.WON}</td>
-                    <td class="p-4 text-right"><span class="bg-pink-50 text-pink-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase">${p.Categoría || '-'}</span></td>
+                <tr class="hover:bg-pink-50 cursor-pointer" onclick="openModalByName('${row.Name}')">
+                    <td class="p-4 text-center font-bold text-gray-400">${row.Rank || '-'}</td>
+                    <td class="p-4 font-semibold text-gray-800">${row.Name || '---'}</td>
+                    <td class="p-4 text-center"><span class="bg-pink-50 text-pink-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase">${p.Categoría || row.Categoría || ''}</span></td>
+                    <td class="p-4 text-center font-bold text-pink-600">${row.Score || '0'}</td>
+                    <td class="p-4 text-center">${row.DE || '0'}</td>
+                    <td class="p-4 text-center">${row.BH || '0'}</td>
+                    <td class="p-4 text-center">${row.SB || '0'}</td>
+                    <td class="p-4 text-center">${row['BH/M1'] || row.BHM1 || '0'}</td>
+                    <td class="p-4 text-center">${row.WON || '0'}</td>
                 </tr>`;
             }).join('');
         }
@@ -377,7 +380,7 @@
             if(idx !== -1) openModal(idx);
         }
 
-        // --- Funciones de carga de datos mantenidas ---
+        // --- Funciones núcleo (Mantenidas) ---
         async function autoLoadLatestStandings() {
             for (let i = 7; i >= 1; i--) {
                 const path = `Clasificaciones/Tras_Ronda_${i}/standings_${i}.csv`;
@@ -433,36 +436,23 @@
             });
         }
 
+        function loadPlayers() { Papa.parse('players/Players.csv', { download: true, header: true, skipEmptyLines: true, complete: r => { playersData = r.data; renderPlayers(playersData); } }); }
+        function renderPlayers(data) { document.getElementById('playersList').innerHTML = data.map((p, idx) => `<tr class="hover:bg-pink-50 cursor-pointer" onclick="openModal(${idx})"><td class="p-6 text-xs text-gray-300 font-mono">${p.N}</td><td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold uppercase">${p.Fed} | Elo: ${p.Rtg}</div></td><td class="p-6 text-center"><span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span></td><td class="p-6 text-right text-pink-300">→</td></tr>`).join(''); }
+        
         function loadConvocatoria() {
-            Papa.parse('Convocatoria/convocatoria.csv', {
-                download: true, skipEmptyLines: true,
-                complete: r => {
-                    const validData = r.data.filter(row => row[0] && row[0].trim() !== "");
-                    document.getElementById('convocatoriaImgs').innerHTML = validData.map(row => `
-                        <img src="Convocatoria/${row[0]}" class="w-full h-auto rounded-[2rem] shadow-lg border border-pink-50 mb-8" loading="lazy">
-                    `).join('');
-                }
-            });
+            Papa.parse('Convocatoria/convocatoria.csv', { download: true, skipEmptyLines: true, complete: r => {
+                const validData = r.data.filter(row => row[0] && row[0].trim() !== "");
+                document.getElementById('convocatoriaImgs').innerHTML = validData.map(row => `<img src="Convocatoria/${row[0]}" class="w-full h-auto rounded-[2rem] shadow-lg border border-pink-50 mb-8" loading="lazy">`).join('');
+            }});
         }
 
         function loadGallery() {
-            Papa.parse('galeria/galeria.csv', {
-                download: true, skipEmptyLines: true,
-                complete: r => {
-                    const validData = r.data.filter(row => row[0] && row[0].trim() !== "");
-                    document.getElementById('galleryGrid').innerHTML = validData.map(row => `
-                        <div class="aspect-square rounded-[1.5rem] overflow-hidden bg-pink-100 shadow-sm">
-                            <img src="galeria/${row[0]}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" loading="lazy">
-                        </div>
-                    `).join('');
-                }
-            });
+            Papa.parse('galeria/galeria.csv', { download: true, skipEmptyLines: true, complete: r => {
+                const validData = r.data.filter(row => row[0] && row[0].trim() !== "");
+                document.getElementById('galleryGrid').innerHTML = validData.map(row => `<div class="aspect-square rounded-[1.5rem] overflow-hidden bg-pink-100 shadow-sm"><img src="galeria/${row[0]}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" loading="lazy"></div>`).join('');
+            }});
         }
 
-        function loadPlayers() { Papa.parse('players/Players.csv', { download: true, header: true, skipEmptyLines: true, complete: r => { playersData = r.data; renderPlayers(playersData); } }); }
-        function renderPlayers(data) { document.getElementById('playersList').innerHTML = data.map((p, idx) => `<tr class="hover:bg-pink-50 cursor-pointer" onclick="openModal(${idx})"><td class="p-6 text-xs text-gray-300 font-mono">${p.N}</td><td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold uppercase">${p.Fed} | Elo: ${p.Rtg}</div></td><td class="p-6 text-center"><span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span></td><td class="p-6 text-right text-pink-300">→</td></tr>`).join(''); }
-        function handleSearch(val) { const f = playersData.filter(p => p.Name.toLowerCase().includes(val.toLowerCase()) || p.Categoría.toLowerCase().includes(val.toLowerCase())); renderPlayers(f); }
-        
         function openModal(idx) {
             const p = playersData[idx];
             document.getElementById('m-name').innerText = p.Name;
