@@ -28,16 +28,15 @@
         .round-selector:hover { background: #fff0f6; }
         .round-active { background: #ff0080 !important; color: white !important; }
 
-        /* Estilos Podio (Clasificación Final) */
         .honor-podium { display: flex; justify-content: center; align-items: flex-end; gap: 15px; margin-top: 20px; }
         .podium-slot { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 160px; transition: transform 0.3s; }
         .avatar-frame { position: relative; width: 90px; height: 90px; border-radius: 2rem; overflow: hidden; border: 4px solid white; box-shadow: 0 10px 20px rgba(255,0,128,0.1); margin-bottom: 15px; background: #fff; }
         .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
         .rank-tag { position: absolute; bottom: -5px; right: -5px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; border: 2px solid white; font-size: 11px; }
         
-        .first { order: 2; margin-bottom: 30px; } /* Centro */
-        .second { order: 1; margin-bottom: 0px; } /* Izquierda */
-        .third { order: 3; margin-bottom: -10px; } /* Derecha */
+        .first { order: 2; margin-bottom: 30px; } 
+        .second { order: 1; margin-bottom: 0px; } 
+        .third { order: 3; margin-bottom: -10px; } 
 
         .podium-box { width: 100%; padding: 12px 5px; border-radius: 1.2rem; text-align: center; color: white; font-weight: bold; }
         .gold-box { background: linear-gradient(to bottom, #facc15, #eab308); }
@@ -107,7 +106,7 @@
 
             <div class="mb-24">
                 <div class="text-center mb-10"><span class="bg-purple-100 text-purple-600 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest">Mejores por Categoría</span></div>
-                <div id="podiumCategories" class="honor-podium px-4"></div>
+                <div id="podiumCategories" class="flex flex-wrap justify-center gap-8 px-4"></div>
             </div>
 
             <div class="bg-white rounded-[3rem] shadow-2xl border border-pink-50 overflow-hidden">
@@ -115,6 +114,7 @@
                     <h3 class="font-title italic text-2xl text-gray-700">Resultados Finales</h3>
                     <select id="catFinalFilter" onchange="renderFinalTable()" class="px-6 py-3 rounded-full border border-pink-100 text-xs font-bold uppercase text-pink-500 outline-none">
                         <option value="General">Todas las Categorías</option>
+                        <option value="Libre">Categoría Libre</option>
                         <option value="Sub-18">Categoría Sub-18</option>
                         <option value="Sub-15">Categoría Sub-15</option>
                         <option value="Sub-12">Categoría Sub-12</option>
@@ -295,7 +295,6 @@
         window.onload = () => { loadPlayers(); showSection(VISTA_INICIAL); };
 
         async function initClasificacionFinal() {
-            // Asegurar que playersData esté cargado
             if(playersData.length === 0) {
                 await new Promise(resolve => {
                     Papa.parse('players/Players.csv', { download: true, header: true, complete: r => { playersData = r.data; resolve(); } });
@@ -317,15 +316,13 @@
             const top3 = standingsFinal.slice(0, 3);
             document.getElementById('podiumGeneral').innerHTML = top3.map((p, i) => createPodiumSlot(p, i+1, '')).join('');
             
-            // 2. Podio Categorías (Sub-18 centro, Sub-15 izq, Sub-12 der)
-            const best18 = findBestInCategory('Sub-18');
-            const best15 = findBestInCategory('Sub-15');
-            const best12 = findBestInCategory('Sub-12');
-            
+            // 2. Podio Categorías (Libre, Sub-18, Sub-15, Sub-12)
+            const cats = ['Libre', 'Sub-18', 'Sub-15', 'Sub-12'];
             let catHTML = '';
-            if(best18) catHTML += createPodiumSlot(best18, 1, 'Sub-18');
-            if(best15) catHTML += createPodiumSlot(best15, 2, 'Sub-15');
-            if(best12) catHTML += createPodiumSlot(best12, 3, 'Sub-12');
+            cats.forEach(c => {
+                const best = findBestInCategory(c);
+                if(best) catHTML += createPodiumSlot(best, 1, c);
+            });
             document.getElementById('podiumCategories').innerHTML = catHTML;
         }
 
@@ -380,26 +377,21 @@
             if(idx !== -1) openModal(idx);
         }
 
-        // AUTO-DETECCIÓN DE ÚLTIMA CLASIFICACIÓN (Para la sección Evolución)
+        // --- Funciones de carga de datos mantenidas ---
         async function autoLoadLatestStandings() {
             for (let i = 7; i >= 1; i--) {
                 const path = `Clasificaciones/Tras_Ronda_${i}/standings_${i}.csv`;
                 try {
                     const response = await fetch(path);
-                    if (response.ok) {
-                        loadStandings(i);
-                        return;
-                    }
+                    if (response.ok) { loadStandings(i); return; }
                 } catch (e) {}
             }
-            document.getElementById('standingsList').innerHTML = '<tr><td colspan="10" class="p-20 text-center italic text-gray-400">Esperando inicio...</td></tr>';
         }
 
         function loadStandings(num) {
             document.querySelectorAll('#standingRounds .round-selector').forEach(b => b.classList.remove('round-active'));
             const btn = document.getElementById(`btn-standing-${num}`);
             if(btn) btn.classList.add('round-active');
-
             Papa.parse(`Clasificaciones/Tras_Ronda_${num}/standings_${num}.csv`, {
                 download: true, header: true, skipEmptyLines: true,
                 complete: r => {
@@ -424,7 +416,6 @@
             document.querySelectorAll('#sec-rondas .round-selector').forEach(b => b.classList.remove('round-active'));
             const btn = document.getElementById(`btn-round-${num}`);
             if(btn) btn.classList.add('round-active');
-            
             Papa.parse(`Rondas/Ronda_${num}/pairing${num}.csv`, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: r => {
