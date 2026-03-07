@@ -81,12 +81,12 @@
 
     <main class="max-w-6xl mx-auto px-4 py-8">
         <section id="sec-convocatoria" class="hidden-section">
-            <div id="convocatoriaContent" class="max-w-5xl mx-auto">
+            <div class="max-w-5xl mx-auto">
                 <div class="text-center mb-12">
                     <h2 class="text-4xl font-title italic text-pink-600 mb-2">Convocatoria Oficial</h2>
                     <p class="text-gray-400 italic">"Los límites existen solo si los aceptamos"</p>
                 </div>
-                <div class="grid md:grid-cols-2 gap-8 mb-16">
+                <div class="grid md:grid-cols-2 gap-8 mb-16 items-stretch">
                     <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border border-pink-50">
                         <h3 class="font-bold text-pink-500 uppercase tracking-widest text-[11px] mb-8">Detalles del Evento</h3>
                         <ul class="space-y-5 text-sm text-gray-500">
@@ -97,7 +97,7 @@
                             <li>💰 <span class="font-semibold text-gray-600">Inscripción:</span> $100 MXN</li>
                         </ul>
                     </div>
-                    <div class="pink-gradient p-10 rounded-[2.5rem] text-white flex flex-col justify-center text-center">
+                    <div class="pink-gradient p-10 rounded-[2.5rem] text-white flex flex-col justify-center text-center shadow-lg">
                         <p class="text-xl md:text-2xl font-title italic mb-10 leading-relaxed px-4">¡Forma parte de la tercera edición y demuestra tu talento!</p>
                         <a href="https://forms.gle/YZjtJnGEVgopafoi7" target="_blank" class="bg-white text-pink-600 py-4 px-8 rounded-2xl font-bold uppercase tracking-widest text-xs hover:scale-105 transition-transform">Inscribirme Ahora</a>
                     </div>
@@ -217,7 +217,8 @@
         function showSection(id) {
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden-section'));
             document.querySelectorAll('.desktop-nav-btn').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById(`sec-${id}`).classList.remove('hidden-section');
+            const sec = document.getElementById(`sec-${id}`);
+            if(sec) sec.classList.remove('hidden-section');
             const tab = document.getElementById(`tab-${id}`);
             if(tab) tab.classList.add('active-tab');
             document.getElementById('navMenu').classList.add('hidden');
@@ -232,7 +233,7 @@
         function toggleMenu() { document.getElementById('navMenu').classList.toggle('hidden'); }
         window.onload = () => { loadPlayers(); showSection(VISTA_INICIAL); };
 
-        // --- ARREGLO 1: Auto-seleccionar última clasificación ---
+        // AUTO-DETECCIÓN DE ÚLTIMA CLASIFICACIÓN
         async function autoLoadLatestStandings() {
             for (let i = 7; i >= 1; i--) {
                 const path = `Clasificaciones/Tras_Ronda_${i}/standings_${i}.csv`;
@@ -273,37 +274,39 @@
             });
         }
 
-        // --- ARREGLO 2: Corrección Undefined en Negras ---
+        // LÓGICA DE RONDAS CORREGIDA (Lectura por Índice para evitar errores de nombres duplicados)
         function loadRound(num) {
             document.querySelectorAll('#sec-rondas .round-selector').forEach(b => b.classList.remove('round-active'));
-            document.getElementById(`btn-round-${num}`).classList.add('round-active');
+            const btn = document.getElementById(`btn-round-${num}`);
+            if(btn) btn.classList.add('round-active');
             
             Papa.parse(`Rondas/Ronda_${num}/pairing${num}.csv`, {
-                download: true, header: true, skipEmptyLines: true,
-                transformHeader: h => h.trim().replace(/[\u200B-\u200D\uFEFF]/g, ""),
+                download: true,
+                header: false, // Forzamos false para leer por posición exacta
+                skipEmptyLines: true,
                 complete: r => {
-                    document.getElementById('pairingList').innerHTML = r.data.map(row => `
+                    const rows = r.data.slice(1); // Saltamos la fila de encabezados
+                    document.getElementById('pairingList').innerHTML = rows.map(row => `
                         <tr class="hover:bg-gray-50">
-                            <td class="p-5 text-center font-mono text-gray-400">${row.Board || '-'}</td>
-                            <td class="p-5 font-bold text-gray-700">${row.Name || 'Descanso'}</td>
-                            <td class="p-5 text-center text-xs text-gray-400">${row.Score || '0'}</td>
-                            <td class="p-5 text-center"><span class="px-3 py-1 pink-gradient text-white rounded-md font-bold text-xs">${row.Result || '-'}</span></td>
-                            <td class="p-5 text-center text-xs text-gray-400">${row.Score_2 || '0'}</td>
-                            <td class="p-5 text-right font-bold text-gray-700">${row.Name_2 || '-'}</td>
+                            <td class="p-5 text-center font-mono text-gray-400">${row[0] || '-'}</td>
+                            <td class="p-5 font-bold text-gray-700">${row[1] || 'Descanso'}</td>
+                            <td class="p-5 text-center text-xs text-gray-400">${row[2] || '0'}</td>
+                            <td class="p-5 text-center"><span class="px-3 py-1 pink-gradient text-white rounded-md font-bold text-xs">${row[3] || '-'}</span></td>
+                            <td class="p-5 text-center text-xs text-gray-400">${row[4] || '0'}</td>
+                            <td class="p-5 text-right font-bold text-gray-700">${row[5] || '---'}</td>
                         </tr>`).join('');
                 }
             });
         }
 
-        // --- ARREGLO 3: Filtro de filas vacías para evitar imágenes fantasma ---
+        // FILTRO DE IMÁGENES FANTASMA
         function loadConvocatoria() {
             Papa.parse('Convocatoria/convocatoria.csv', {
                 download: true, skipEmptyLines: true,
                 complete: r => {
-                    // Filtramos filas que tengan el primer elemento vacío o nulo
                     const validData = r.data.filter(row => row[0] && row[0].trim() !== "");
                     document.getElementById('convocatoriaImgs').innerHTML = validData.map(row => `
-                        <img src="Convocatoria/${row[0]}" class="w-full h-auto rounded-[2rem] shadow-lg border border-pink-50" loading="lazy">
+                        <img src="Convocatoria/${row[0]}" class="w-full h-auto rounded-[2rem] shadow-lg border border-pink-50 mb-8" loading="lazy">
                     `).join('');
                 }
             });
@@ -323,7 +326,6 @@
             });
         }
 
-        // Funciones auxiliares originales
         function loadPlayers() { Papa.parse('players/Players.csv', { download: true, header: true, skipEmptyLines: true, complete: r => { playersData = r.data; renderPlayers(playersData); } }); }
         function renderPlayers(data) { document.getElementById('playersList').innerHTML = data.map((p, idx) => `<tr class="hover:bg-pink-50 cursor-pointer" onclick="openModal(${idx})"><td class="p-6 text-xs text-gray-300 font-mono">${p.N}</td><td class="p-6"><div class="font-bold text-gray-700">${p.Name}</div><div class="text-[9px] text-pink-400 font-bold uppercase">${p.Fed} | Elo: ${p.Rtg}</div></td><td class="p-6 text-center"><span class="px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[9px] font-bold italic uppercase">${p.Categoría}</span></td><td class="p-6 text-right text-pink-300">→</td></tr>`).join(''); }
         function handleSearch(val) { const f = playersData.filter(p => p.Name.toLowerCase().includes(val.toLowerCase()) || p.Categoría.toLowerCase().includes(val.toLowerCase())); renderPlayers(f); }
