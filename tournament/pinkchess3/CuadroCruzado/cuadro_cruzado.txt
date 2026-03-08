@@ -5,22 +5,6 @@ Tehuacan, Puebla - 08/03/2026, 08/03/2026
 
 Pos NAME                           Rtg   T  Fed  Pts |   1     2     3     4     5    |     DE      BH      SB   BH/M1     WON    User 
 ---------------------------------------------------------------------------------------------------------------------------------------
-  1 Soriano Reyes, Kenia           1562     MEX  5.0 | +B11  +W9   +B5   +W2   +B3    |    0      14.0   14.00     8.0      5      0.0 
-  2 Soriano Crispin, Cinthya Rubi  1617     MEX  4.0 | +B12  +W4   +W3   -B1   +W8    |    0      16.0   11.00     9.0      4      0.0 
-  3 Aranda Zopillaxtle, Ximena        0     MEX  3.0 | +W8   +W10  -B2   +B6   -W1    |    0      17.0    8.00    10.0      3      0.0 
-  4 Acevedo Correa, Melanny Yaretz    0     MEX  3.0 | +W7   -B2   -W6   +B16  +W9    |    0      13.0    6.00     8.0      3      0.0 
-  5 Santiago Flores, Keren Ester      0     MEX  3.0 | +W16  +B13  -W1   +B9   -W7    |    0      12.5    4.50     6.5      3      0.0 
-  6 Cortes Hernandez, Amanda          0     MEX  3.0 | -B9   +W11  +B4   -W3   +B10   |    0      12.0    7.00     7.0      3      0.0 
-  7 Perez Aguilar, Dulce Maria        0     MEX  3.0 | -B4   +W12  -B10  +W14  +B5    |    0      11.5    6.50     7.0      3      0.0 
-  8 Sandoval Mendez, Cinthia          0     MEX  3.0 | -B3   +B15  +W13  +W10  -B2    |    0      11.5    4.50     6.5      3      0.0 
-  9 Medina Huerta, Vianey Iday     1739     MEX  2.0 | +W6   -B1   +B14  -W5   -B4    |    0      15.5    4.50     9.0      2      0.0 
- 10 Gonzalez Bravo, Luz America    1571     MEX  2.0 | +W15  -B3   +W7   -B8   -W6    |    0      13.0    4.00     9.0      2      0.0 
- 11 Jimenez Ojeda, Joselyn            0     MEX  2.0 | -W1   -B6   -W16  +B15  +W13   |    0      11.5    2.50     5.5      2      0.0 
- 12 De Jesus Salome, Abril Aranza     0     MEX  2.0 | -W2   -B7   +W15  -B13  +B14   |    0      11.0    2.50     6.0      2      0.0 
- 13 Aguilar Quiahua, Jazmin           0     MEX  1.5 | =B14  -W5   -B8   +W12  -B11   |    0      11.5    2.75     7.0      1      0.0 
- 14 Perez Ortiz, Arlet Guadalupe      0     MEX  1.5 | =W13  +B16  -W9   -B7   -W12   |    0       9.5    1.75     5.5      1      0.0 
- 15 Hernandez Mariano, Marisol        0     MEX  1.0 | -B10  -W8   -B12  -W11  +W16   |    1      10.0    1.00     6.0      1      0.0 
- 16 Carvajal Tzitzihua, Ana Meliss    0     MEX  1.0 | -B5   -W14  +B11  -W4   -B15   |    2      10.5    2.00     6.5      1      0.0 
 
+Con licencia a: Gwendolyne Palacios Méndez - MEX
 Generado por Vega - www.vegachess.com
-(copia con licencia a:)Gwendolyne Palacios Méndez - MEX)
