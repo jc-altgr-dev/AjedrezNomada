@@ -28,7 +28,7 @@
         .round-selector:hover { background: #fff0f6; }
         .round-active { background: #ff0080 !important; color: white !important; }
 
-        /* AJUSTE PODIO: Se movió la etiqueta de rango hacia el centro para evitar cortes */
+        /* Ajuste de Podio: Etiquetas movidas hacia el centro para evitar cortes */
         .honor-podium { display: flex; justify-content: center; align-items: flex-end; gap: 15px; margin-top: 20px; }
         .podium-slot { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 160px; transition: transform 0.3s; }
         .avatar-frame { position: relative; width: 90px; height: 90px; border-radius: 2rem; overflow: hidden; border: 4px solid white; box-shadow: 0 10px 20px rgba(255,0,128,0.1); margin-bottom: 15px; background: #fff; }
@@ -69,25 +69,27 @@
             </div>
 
             <nav class="hidden md:flex justify-center gap-8 mt-2 mb-4">
+
                 <button onclick="showSection('convocatoria')" id="tab-convocatoria" class="desktop-nav-btn">Convocatoria</button>
                 <button onclick="showSection('players')" id="tab-players" class="desktop-nav-btn">Jugadoras</button>
                 <button onclick="showSection('rondas')" id="tab-rondas" class="desktop-nav-btn">Rondas</button>
                 <button onclick="showSection('clasificaciones')" id="tab-clasificaciones" class="desktop-nav-btn">Clasificación por Ronda</button>
+                <button onclick="showSection('clasificacion_final')" id="tab-clasificacion_final" class="desktop-nav-btn">Clasificación Final</button>
                 <button onclick="showSection('cuadro')" id="tab-cuadro" class="desktop-nav-btn">Cuadro Cruzado</button>
                 <button onclick="showSection('galeria')" id="tab-galeria" class="desktop-nav-btn">Galería</button>
-                <button onclick="showSection('clasificacion_final')" id="tab-clasificacion_final" class="desktop-nav-btn">Clasificación Final</button>
             </nav>
         </div>
 
         <div id="navMenu" class="hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-pink-50 md:hidden">
             <div class="flex flex-col text-center font-bold py-8 gap-6 text-gray-400 uppercase tracking-widest text-xs">
+
                 <button onclick="showSection('convocatoria')">Convocatoria</button>
                 <button onclick="showSection('players')">Jugadoras</button>
                 <button onclick="showSection('rondas')">Rondas</button>
                 <button onclick="showSection('clasificaciones')">Clasificación por Ronda</button>
+                <button onclick="showSection('clasificacion_final')">Clasificación Final</button>
                 <button onclick="showSection('cuadro')">Cuadro Cruzado</button>
                 <button onclick="showSection('galeria')">Galería</button>
-                <button onclick="showSection('clasificacion_final')">Clasificación Final</button>
             </div>
         </div>
     </header>
@@ -97,7 +99,7 @@
         <section id="sec-clasificacion_final" class="hidden-section">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-title italic text-pink-600 mb-2">Cuadro de Honor</h2>
-                <p class="text-gray-400 italic">"Cada partida jugada es un triunfo del talento femenino."</p>
+                <p class="text-gray-400 italic">"Cada partida jugada es un triunfo del talento femenino"</p>
             </div>
             <div class="mb-20">
                 <div class="text-center mb-10"><span class="bg-pink-100 text-pink-600 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest">Podio General</span></div>
@@ -262,21 +264,28 @@
     </div>
 
     <script>
-        const VISTA_INICIAL = 'convocatoria'; 
+        // CONFIGURACIÓN INICIAL: Ahora puedes usar 'players' como vista inicial
+        const VISTA_INICIAL = 'clasificacion_final'; 
+        
         let playersData = [];
         let standingsFinal = [];
 
         function showSection(id) {
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden-section'));
             document.querySelectorAll('.desktop-nav-btn').forEach(b => b.classList.remove('active-tab'));
+            
             const sec = document.getElementById(`sec-${id}`);
             if(sec) sec.classList.remove('hidden-section');
+            
             const tab = document.getElementById(`tab-${id}`);
             if(tab) tab.classList.add('active-tab');
+            
             document.getElementById('navMenu').classList.add('hidden');
             window.scrollTo(0,0);
 
+            // Disparadores lógicos por sección
             if(id === 'clasificacion_final') initClasificacionFinal();
+            if(id === 'players') loadPlayers(); // Integración en la lógica de vistas
             if(id === 'cuadro') loadCrosstable();
             if(id === 'galeria') loadGallery();
             if(id === 'convocatoria') loadConvocatoria();
@@ -285,21 +294,29 @@
         }
 
         function toggleMenu() { document.getElementById('navMenu').classList.toggle('hidden'); }
-        window.onload = () => { loadPlayers(); showSection(VISTA_INICIAL); };
+
+        window.onload = async () => { 
+            // Carga crítica inicial
+            await loadPlayers(); 
+            // Lanzar la vista configurada
+            showSection(VISTA_INICIAL); 
+        };
 
         async function loadPlayers() { 
-            Papa.parse('players/Players.csv', { 
-                download: true, header: true, skipEmptyLines: true, transformHeader: h => h.trim(),
-                complete: r => { playersData = r.data; renderPlayers(playersData); } 
-            }); 
+            return new Promise(resolve => {
+                Papa.parse('players/Players.csv', { 
+                    download: true, header: true, skipEmptyLines: true, transformHeader: h => h.trim(),
+                    complete: r => { 
+                        playersData = r.data; 
+                        renderPlayers(playersData); 
+                        resolve();
+                    } 
+                });
+            });
         }
 
         async function initClasificacionFinal() {
-            if(playersData.length === 0) {
-                await new Promise(resolve => {
-                    Papa.parse('players/Players.csv', { download: true, header: true, transformHeader: h => h.trim(), complete: r => { playersData = r.data; resolve(); } });
-                });
-            }
+            if(playersData.length === 0) await loadPlayers();
             Papa.parse('Clasificaciones/Tras_Ronda_7/standings_7.csv', {
                 download: true, header: true, skipEmptyLines: true, transformHeader: h => h.trim(),
                 complete: r => { standingsFinal = r.data; renderPodiums(); renderFinalTable(); }
