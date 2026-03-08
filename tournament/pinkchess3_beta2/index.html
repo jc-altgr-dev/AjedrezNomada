@@ -303,7 +303,10 @@
             }
 
             Papa.parse('Clasificaciones/Tras_Ronda_7/standings_7.csv', {
-                download: true, header: true, skipEmptyLines: true,
+                download: true, 
+                header: true, 
+                skipEmptyLines: true,
+                transformHeader: h => h.trim(), // ELIMINA ESPACIOS EN BLANCO DE LOS ENCABEZADOS
                 complete: r => {
                     standingsFinal = r.data;
                     renderPodiums();
@@ -313,14 +316,10 @@
         }
 
         function renderPodiums() {
-            // 1. Podio General: Absolutamente las 3 primeras del torneo
             const top3General = standingsFinal.slice(0, 3);
             document.getElementById('podiumGeneral').innerHTML = top3General.map((p, i) => createPodiumSlot(p, i+1, '')).join('');
-            
-            // Lista de nombres que ya están en el podio general
             const winnersNames = top3General.map(p => p.Name);
 
-            // 2. Podio por Categorías (Sub-18, 15, 12): La mejor que NO esté en el podio general
             const cats = ['Sub-18', 'Sub-15', 'Sub-12'];
             let catHTML = '';
             cats.forEach(c => {
@@ -369,7 +368,7 @@
                     <td class="p-4 text-center">${row.DE || '0'}</td>
                     <td class="p-4 text-center">${row.BH || '0'}</td>
                     <td class="p-4 text-center">${row.SB || '0'}</td>
-                    <td class="p-4 text-center">${row['BH/M1'] || row.BHM1 || '0'}</td>
+                    <td class="p-4 text-center">${row['BH/M1'] || '0'}</td>
                     <td class="p-4 text-center">${row.WON || '0'}</td>
                 </tr>`;
             }).join('');
@@ -380,7 +379,6 @@
             if(idx !== -1) openModal(idx);
         }
 
-        // --- Funciones núcleo (Mantenidas) ---
         async function autoLoadLatestStandings() {
             for (let i = 7; i >= 1; i--) {
                 const path = `Clasificaciones/Tras_Ronda_${i}/standings_${i}.csv`;
@@ -396,7 +394,10 @@
             const btn = document.getElementById(`btn-standing-${num}`);
             if(btn) btn.classList.add('round-active');
             Papa.parse(`Clasificaciones/Tras_Ronda_${num}/standings_${num}.csv`, {
-                download: true, header: true, skipEmptyLines: true,
+                download: true, 
+                header: true, 
+                skipEmptyLines: true,
+                transformHeader: h => h.trim(), // LIMPIEZA DE COLUMNAS PARA EVITAR ESPACIOS
                 complete: r => {
                     document.getElementById('standingsList').innerHTML = r.data.map(row => `
                         <tr>
@@ -407,7 +408,7 @@
                             <td class="p-4 text-center">${row.DE || '0'}</td>
                             <td class="p-4 text-center">${row.BH || '0'}</td>
                             <td class="p-4 text-center">${row.SB || '0'}</td>
-                            <td class="p-4 text-center">${row['BH/M1'] || row.BHM1 || '0'}</td>
+                            <td class="p-4 text-center">${row['BH/M1'] || '0'}</td>
                             <td class="p-4 text-center">${row.WON || '0'}</td>
                             <td class="p-4 text-center font-mono text-gray-400 text-[10px]">${row.Birthday || '0'}</td>
                         </tr>`).join('');
