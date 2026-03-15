@@ -1,31 +1,36 @@
-De la Base de Datos de Torneos de Chess-Results https://chess-results.com
-Torneo de Ajedrez Emanuel Lasker G6 
 Organizador : ENAEL
-Federación : México ( MEX )
-"Director del Torneo : 29666384 Alvarado Garzon, Jose Carlos"
-"Árbitro principal : 29605105 Palacios Mendez, Gwendolyne"
-Control de tiempo (Blitz) : 5 min + 5 s de incremento
+Federación : México
+( MEX )
+Director del Torneo :
+29666384 Alvarado
+Garzon, Jose Carlos
+Árbitro principal :
+29605105 Palacios
+Mendez, Gwendolyne
+Control de tiempo
+(Blitz) : 5 min + 5 s
+de incremento
 Lugar : Tehuacan
-Número de rondas : 8
-Tipo de torneo : Sistema Suizo
-"Cálculo de elo : Elo nacional, Elo internacional"
+Número de rondas : 7
+Tipo de torneo :
+Sistema Suizo
+Cálculo de elo : Elo
+nacional, Elo
+                1         José Eduardo Sanchez Aguilar   1833 MEX 7w1  2b1  4w1  3b0  6w1  8w1  5b1    6   1  16.5   22   6   6   0
+                2         Daniel    1813 MEX 8b1  1w0  3w1  4b1  5b1  7w1  6b1    6   2    16   22   6   6   0
+                3         Carlos    1834 MEX 6b½  5w1  2b0  1w1  7b1  4w1  8b1  5.5   0  15.25 22.5 5.6  5   0
+                4         Fernando  1726 MEX 5b1  6w1  1b0  2w0  8b1  3b0  7w1    4   0   6.5   24   4   4   0
+                5         Jovani    1933 MEX 4w0  3b0  8w1  7b1  2w0  6b1  1w0    3   0   3.5   25   3   3   0
+                6         Iday      1669 MEX 3w½  4b0  7w1  8b1  1b0  5w0  2w0  2.5   0  3.75  25.5 2.4  2   0
+                7         Guillermo 1627 MEX 1b0  8w1  6b0  5w0  3w0  2b0  4b0    1   0     0   27   1   1   0
+                8         Pedro        0 MEX 2w0  7b0  5b0  6w0  4w0  1b0  3w0    0   0     0   28   0   0   0
+internacional
 FIDE-Event-ID : 472035
 Fecha : 2026/03/15
-Elo medio / Average age : 1729 / 27
-Última actualización15.03.2026 18:46:58
-Cuadro cruzado por clasificación después de la ronda 4
-Rk.,,,Nombre,Elo,FED,1.Rd,2.Rd,3.Rd,4.Rd,5.Rd,Pts. ,Des 1,Des 2,Des 3,Des 4,Des 5,TB6
+Elo medio / Average age
+: 1729 / 27
 
-==================================================
+Última
+actualización15.03.2026
+20:02:36
 
-                                                                                           1              Sanchez Aguilar Jose Eduardo    1833 MEX   7w1   2b1   5w1   3b0   4w    3  1.1    6  8.5  3.1  3.2   0
-                                                                                           2                    Alvarado Garzon Daniel  1813.0 MEX   8b1   1w0   3w1   5b1   6b  3.0  2.0 4.50  7.5  3.0  3.0 0.0
-                                                                                           3                  Valencia Espinosa Carlos  1834.0 MEX   4b½   6w1   2b0   1w1   7b  2.5  0.0 6.25 10.5  2.6  2.0 0.0
-                                                                                           4                 Medina Huerta Vianey Iday  1669.0 MEX   3w½   5b0   7w1   8b1   1b  2.5  0.0 2.25  5.5  2.4  2.0 0.0
-                                                                                           5                    Ramos Ramirez Fernando  1726.0 MEX   6b1   4w1   1b0   2w0   8b  2.0  1.0 4.50 10.5  2.0  2.0 0.0
-                                                                                           6              Vazquez Vazquez Zenon Jovani  1933.0 MEX   5w0   3b0   8w1   7b1   2w  2.0  2.0 1.00  5.5  2.0  2.0 0.0
-                                                                                           7                   Cardenas Diaz Guillermo  1627.0 MEX   1b0   8w1   4b0   6w0   3w  1.0  0.0 0.00  7.5  1.0  1.0 0.0
-                                                                                           8                           Cruz Cruz Pedro     0.0 MEX   2w0   7b0   6b0   4w0   5w  0.0  0.0 0.00  8.5  0.0  0.0 0.0
-                                                                                         NaN          NaN                           NaN    NaN NaN   NaN   NaN   NaN   NaN   NaN NaN  NaN  NaN  NaN  NaN  NaN NaN
-Encontrará todos los detalles del torneo en  https://chess-results.com/tnr1360788.aspx?lan=2          NaN                           NaN    NaN NaN   NaN   NaN   NaN   NaN   NaN NaN  NaN  NaN  NaN  NaN  NaN NaN
-                                Servidor de Resultados de Torneos de Ajedrez : Chess-Results          NaN                           NaN    NaN NaN   NaN   NaN   NaN   NaN   NaN NaN  NaN  NaN  NaN  NaN  NaN NaN
